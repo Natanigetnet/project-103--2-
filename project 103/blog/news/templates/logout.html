@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    </head>
+<body>
+    <header class="reg-header text-center">
+        <div class="container py-5">
+            <i class="bi bi-check-circle-fill text-primary display-1"></i>
+            <h1 class="display-4 fw-bold mt-3">Logged Out</h1>
+            <p class="lead opacity-75">You have been successfully logged out of Future Gym.</p>
+            <div class="mt-4">
+                <a href="{% url 'login_url' %}" class="btn btn-outline-light btn-lg rounded-pill px-5">Login Again</a>
+                <a href="{% url 'home_url' %}" class="btn btn-primary btn-lg rounded-pill px-5 ms-2">Back Home</a>
+            </div>
+        </div>
+    </header>
+</body>
+</html>

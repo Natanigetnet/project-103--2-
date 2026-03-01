@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        /* Exact same style block as signup.html */
+        :root { --gym-primary: #0d6efd; --gym-bg: #f4f7fa; --glass: rgba(255, 255, 255, 0.9); }
+        body { font-family: 'Inter', sans-serif; background-color: var(--gym-bg); }
+        .reg-header { background: linear-gradient(135deg, #121417 0%, #2c3e50 100%); padding: 100px 0; color: white; border-radius: 0 0 50px 50px; }
+        .reg-card { background: var(--glass); backdrop-filter: blur(15px); border-radius: 30px; margin-top: -80px; padding: 40px; }
+        .form-control { border-radius: 12px; padding: 12px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <header class="reg-header text-center">
+        <div class="container">
+            <h1 class="display-4 fw-bold">Member Login</h1>
+            <p class="lead opacity-75">Enter your passcode to access the portal.</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-5">
+                <div class="reg-card shadow-lg">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-danger rounded-4">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">USERNAME</label>
+                            <input type="text" name="username" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">PASSCODE</label>
+                            <input type="password" name="password" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg w-100 py-3 rounded-3 shadow">Sign In</button>
+                    </form>
+                    <div class="text-center mt-4">
+                        <p class="small text-muted">Need account? <a href="{% url 'signup_url' %}" class="text-primary fw-bold">Join Now</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
