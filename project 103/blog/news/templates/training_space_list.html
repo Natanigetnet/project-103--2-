@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% block title %}Training Spaces | Future Gym{% endblock %}
+{% block content %}
+{% if messages %}
+<div class="container mt-3">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show shadow-sm" role="alert">{{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<main class="container mt-5 pt-4">
+    <div class="gradient-header fade-in">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h3 fw-bold mb-1">Training Spaces</h1>
+                <p class="mb-0 opacity-75">Manage training spaces for each category.</p>
+            </div>
+            <a href="{% url 'admin_url' %}" class="btn btn-outline-glow"><i class="bi bi-arrow-left me-2"></i>Back</a>
+        </div>
+    </div>
+
+    <div class="glass-card p-5 fade-in">
+        <form method="post" class="row g-3 align-items-end">{% csrf_token %}
+            <div class="col-md-4">
+                <label class="form-label fw-bold">Space Name</label>
+                <input type="text" name="name" class="form-control" placeholder="e.g. Aerobics Studio" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-bold">Category</label>
+                <select name="category" class="form-select" required>
+                    <option value="">Select category...</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.id }}">{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-bold">Description (optional)</label>
+                <input type="text" name="description" class="form-control" placeholder="Brief description">
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-glow w-100"><i class="bi bi-plus-circle me-1"></i>Add Space</button>
+            </div>
+        </form>
+    </div>
+
+    {% if spaces %}
+    <div class="glass-card p-4 fade-in">
+        <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Status</th>
+                        <th>Description</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for space in spaces %}
+                    <tr>
+                        <td class="fw-semibold">{{ space.name }}</td>
+                        <td><span class="badge-modern bg-primary">{{ space.category.name }}</span></td>
+                        <td>
+                            {% if space.is_under_maintenance %}
+                            <span class="badge bg-danger">Under Maintenance</span>
+                            {% else %}
+                            <span class="badge bg-success">Available</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-muted">{{ space.description|default:'—' }}</td>
+                        <td class="text-end">
+                            <a href="{% url 'training_space_edit_url' space.id %}" class="btn btn-sm btn-outline-glow me-1"><i class="bi bi-pencil"></i></a>
+                            <a href="{% url 'training_space_toggle_maintenance_url' space.id %}" class="btn btn-sm {% if space.is_under_maintenance %}btn-outline-success{% else %}btn-outline-warning{% endif %} me-1" title="{% if space.is_under_maintenance %}Mark available{% else %}Mark under maintenance{% endif %}">
+                                <i class="bi {% if space.is_under_maintenance %}bi-check-circle{% else %}bi-exclamation-triangle{% endif %}"></i>
+                            </a>
+                            <a href="{% url 'training_space_delete_url' space.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this space?')"><i class="bi bi-trash"></i></a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-state glass-card">
+        <div class="empty-state-icon"><i class="bi bi-building"></i></div>
+        <h5>No training spaces yet</h5>
+        <p class="text-muted">Create your first training space above.</p>
+    </div>
+    {% endif %}
+</main>
+{% endblock %}

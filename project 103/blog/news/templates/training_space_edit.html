@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}Edit Space | Future Gym{% endblock %}
+{% block content %}
+{% if messages %}
+<div class="container mt-3">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show shadow-sm" role="alert">{{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<main class="container mt-5 pt-4">
+    <div class="gradient-header fade-in">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h3 fw-bold mb-1">Edit Training Space</h1>
+                <p class="mb-0 opacity-75">{{ space.name }}</p>
+            </div>
+            <a href="{% url 'training_space_list_url' %}" class="btn btn-outline-glow"><i class="bi bi-arrow-left me-2"></i>Back</a>
+        </div>
+    </div>
+
+    <div class="glass-card p-5 fade-in">
+        <form method="post">{% csrf_token %}
+            <div class="mb-4">
+                <label class="form-label fw-bold">Space Name</label>
+                <input type="text" name="name" class="form-control form-control-lg" value="{{ space.name }}" required>
+            </div>
+            <div class="mb-4">
+                <label class="form-label fw-bold">Category</label>
+                <select name="category" class="form-select form-select-lg" required>
+                    {% for cat in categories %}
+                    <option value="{{ cat.id }}" {% if cat.id == space.category_id %}selected{% endif %}>{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-4">
+                <label class="form-label fw-bold">Description</label>
+                <textarea name="description" class="form-control" rows="3">{{ space.description|default:'' }}</textarea>
+            </div>
+            <div class="mb-4">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" name="is_under_maintenance" id="maintenanceSwitch" value="1" {% if space.is_under_maintenance %}checked{% endif %} style="width:3rem;height:1.5rem;">
+                    <label class="form-check-label fw-bold ms-2" for="maintenanceSwitch">
+                        Under Maintenance
+                        <small class="text-muted d-block">When checked, this space will be unavailable for session creation</small>
+                    </label>
+                </div>
+            </div>
+            <div class="d-flex gap-3">
+                <button type="submit" class="btn btn-glow btn-lg"><i class="bi bi-save me-2"></i>Save Changes</button>
+                <a href="{% url 'training_space_list_url' %}" class="btn btn-outline-secondary btn-lg">Cancel</a>
+            </div>
+        </form>
+    </div>
+</main>
+{% endblock %}

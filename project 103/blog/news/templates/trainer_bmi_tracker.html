@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% block title %}Future Gym | Trainee BMI Tracker{% endblock %}
+{% block navbar %}
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold fs-4" href="{% url 'home_url' %}">
+                <i class="bi bi-lightning-charge-fill text-primary"></i> FUTURE<span class="text-primary">GYM</span>
+            </a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="{% url 'home_url' %}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="javascript:history.back()"><i class="bi bi-arrow-left me-1"></i>Back</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+{% endblock %}
+{% block content %}
+    <div class="container mt-5">
+        <div class="gradient-header fade-in">
+            <h3 class="fw-bold mb-0"><i class="bi bi-people me-2"></i>Assigned Trainees — Body Metrics</h3>
+            <p class="mb-0 opacity-75">Monitor your trainees' weight, height, and BMI progress.</p>
+        </div>
+
+        {% for item in trainees_data %}
+        <div class="glass-card mb-4 fade-in" style="transition-delay: {{ forloop.counter0|add:'1' }}00ms;">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">
+                    <i class="bi bi-person-circle text-primary me-2"></i>{{ item.trainee.name }}
+                </h5>
+                {% if item.latest %}
+                <span class="badge-modern bg-primary text-white">BMI {{ item.latest.bmi }}</span>
+                {% endif %}
+            </div>
+
+            {% if item.user %}
+                {% if item.latest %}
+                <div class="row g-3 mb-3">
+                    <div class="col-md-3">
+                        <div class="bg-light rounded-4 p-3 text-center">
+                            <small class="text-muted text-uppercase fw-bold small">Weight</small>
+                            <h5 class="fw-bold mb-0">{{ item.latest.weight }} kg</h5>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="bg-light rounded-4 p-3 text-center">
+                            <small class="text-muted text-uppercase fw-bold small">Height</small>
+                            <h5 class="fw-bold mb-0">{{ item.latest.height }} cm</h5>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="bg-light rounded-4 p-3 text-center">
+                            <small class="text-muted text-uppercase fw-bold small">BMI</small>
+                            <h5 class="fw-bold mb-0 stat-value">{{ item.latest.bmi }}</h5>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="bg-light rounded-4 p-3 text-center">
+                            <small class="text-muted text-uppercase fw-bold small">Change</small>
+                            <h5 class="fw-bold mb-0 {% if item.weight_change and item.weight_change < 0 %}text-success{% elif item.weight_change and item.weight_change > 0 %}text-danger{% else %}text-muted{% endif %}">
+                                {{ item.weight_change|default:"—" }}{% if item.weight_change %} kg{% endif %}
+                            </h5>
+                        </div>
+                    </div>
+                </div>
+
+                {% if item.metrics|length > 1 %}
+                <div class="table-responsive">
+                    <table class="table table-custom mb-0">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Weight</th>
+                                <th>Height</th>
+                                <th>BMI</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for m in item.metrics %}
+                            <tr>
+                                <td>{{ m.recorded_at|date:"M d, Y" }}</td>
+                                <td>{{ m.weight }} kg</td>
+                                <td>{{ m.height }} cm</td>
+                                <td class="fw-bold">{{ m.bmi }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+                {% else %}
+                <p class="text-muted mb-0">No body metrics recorded yet.</p>
+                {% endif %}
+            {% else %}
+            <p class="text-muted mb-0">No user account linked — cannot track metrics.</p>
+            {% endif %}
+        </div>
+        {% empty %}
+        <div class="empty-state glass-card">
+            <div class="empty-state-icon"><i class="bi bi-inboxes"></i></div>
+            <h5>No Trainees Assigned</h5>
+            <p class="text-muted">No trainees assigned to you.</p>
+        </div>
+        {% endfor %}
+    </div>
+{% endblock %}

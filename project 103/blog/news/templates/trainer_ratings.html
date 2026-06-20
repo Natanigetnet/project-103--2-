@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+{% block title %}Future Gym | Trainer Ratings{% endblock %}
+{% block extra_head %}
+<style>
+    .stars-display {
+        color: #f59e0b;
+        font-size: 1.1rem;
+        letter-spacing: 2px;
+    }
+    .stars-display .empty {
+        color: rgba(255,255,255,0.15);
+    }
+    .rating-bar {
+        height: 8px;
+        border-radius: 4px;
+        background: rgba(255,255,255,0.08);
+        overflow: hidden;
+    }
+    .rating-bar-fill {
+        height: 100%;
+        border-radius: 4px;
+        background: linear-gradient(90deg, #f59e0b, #eab308);
+        transition: width 0.6s ease;
+    }
+    .rating-trainer-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        color: white;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+        background: var(--gym-gradient);
+    }
+    .rating-card {
+        background: rgba(15, 17, 22, 0.85);
+        backdrop-filter: blur(14px);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+    }
+    .rating-card:hover {
+        border-color: rgba(99, 102, 241, 0.4);
+        box-shadow: var(--card-shadow-hover);
+    }
+    .individual-rating {
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+        padding: 0.75rem 0;
+    }
+    .individual-rating:last-child {
+        border-bottom: none;
+    }
+</style>
+{% endblock %}
+{% block navbar %}
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold fs-4" href="{% url 'home_url' %}">
+            <i class="bi bi-lightning-charge-fill text-primary"></i> FUTURE<span class="text-primary">GYM</span>
+        </a>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a class="nav-link" href="{% url 'home_url' %}">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'admin_url' %}">Management</a></li>
+                <li class="nav-item"><a class="nav-link active" href="#">Trainer Ratings</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+{% endblock %}
+{% block content %}
+<header class="gradient-header text-center">
+    <div class="container">
+        <h1 class="display-4 fw-bold">Trainer Ratings</h1>
+        <p class="lead opacity-75">Overview of all trainer performance ratings submitted by trainees</p>
+    </div>
+</header>
+
+<div class="container my-5">
+    {% if trainers %}
+    <div class="row g-4">
+        {% for trainer in trainers %}
+        <div class="col-md-6 col-lg-4 fade-in">
+            <div class="rating-card h-100">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="rating-trainer-avatar">{{ trainer.name|first|upper }}</div>
+                    <div>
+                        <h5 class="fw-bold mb-0">{{ trainer.name }}</h5>
+                        <div class="small text-muted">{{ trainer.category.name|default:'No category' }}</div>
+                    </div>
+                    <div class="ms-auto text-center">
+                        <div class="stars-display">
+                            {% if trainer.avg_rating %}
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= trainer.avg_rating %}
+                                        <i class="bi bi-star-fill"></i>
+                                    {% else %}
+                                        <i class="bi bi-star empty"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                <span class="text-muted small">—</span>
+                            {% endif %}
+                        </div>
+                        <div class="fw-bold fs-4">
+                            {% if trainer.avg_rating %}{{ trainer.avg_rating|floatformat:1 }}{% else %}0.0{% endif %}
+                            <small class="text-muted" style="font-size:0.7rem;">/ 5</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mb-1 small">
+                    <span class="text-muted">Rating</span>
+                    <span class="fw-bold">{{ trainer.rating_count }} rating{{ trainer.rating_count|pluralize }}</span>
+                </div>
+                <div class="rating-bar mb-3">
+                    <div class="rating-bar-fill" style="width:{% widthratio trainer.avg_rating|default:0 5 100 %}%"></div>
+                </div>
+
+                {% with trainer_ratings=trainer.ratings_received.all %}
+                    {% if trainer_ratings %}
+                    <div class="mt-2">
+                        <small class="text-muted fw-bold text-uppercase">Recent Feedback</small>
+                        {% for r in trainer_ratings|slice:":3" %}
+                        <div class="individual-rating">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="small fw-bold">{{ r.trainee.name }}</div>
+                                <div class="stars-display small">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= r.rating %}
+                                            <i class="bi bi-star-fill"></i>
+                                        {% else %}
+                                            <i class="bi bi-star empty"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% if r.comment %}
+                            <div class="small text-muted mt-1">"{{ r.comment|truncatewords:20 }}"</div>
+                            {% endif %}
+                            <div class="small text-muted" style="font-size:0.7rem;">{{ r.created_at|date:"M d, Y" }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                {% endwith %}
+
+                <div class="mt-3">
+                    <a href="{% url 'detail_url' name=trainer.name %}" class="btn btn-outline-glow btn-sm w-100">
+                        <i class="bi bi-person me-1"></i>View Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon"><i class="bi bi-people"></i></div>
+        <h5>No Trainers Found</h5>
+        <p>There are no trainers registered in the system yet.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

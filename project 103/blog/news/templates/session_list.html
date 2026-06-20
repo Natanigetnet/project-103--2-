@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% block title %}Trainer Sessions | Future Gym{% endblock %}
+{% block navbar %}
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold fs-4" href="{% url 'home_url' %}">
+                <i class="bi bi-lightning-charge-fill text-primary"></i> FUTURE<span class="text-primary">GYM</span>
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><i class="bi bi-list fs-2 text-white"></i></button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="{% url 'home_url' %}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="javascript:history.back()"><i class="bi bi-arrow-left me-1"></i>Back</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+{% endblock %}
+{% block content %}
+    {% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show shadow-sm" role="alert">{{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <main class="container mt-5 pt-4">
+
+        <div class="gradient-header fade-in">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3">
+                <div>
+                    <h1>Trainer Sessions</h1>
+                    <p class="lead mb-0 opacity-75">Available sessions created by your assigned trainer, {{ trainer.get_full_name|default:trainer.username }}.</p>
+                </div>
+                <a href="javascript:history.back()" class="btn btn-outline-glow btn-lg"><i class="bi bi-arrow-left me-1"></i>Back</a>
+            </div>
+        </div>
+
+        <div class="glass-card p-4 fade-in">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <div class="section-title mb-0"><i class="bi bi-list-check text-primary"></i>Session lineup</div>
+                    <small class="text-muted">Reserve a spot for the session your trainer created.</small>
+                </div>
+                <div class="text-end"><span class="badge-modern bg-primary">Trainer: {{ trainer.username }}</span> <span class="badge-modern bg-success ms-1">Trainee: {{ trainee.name }}</span></div>
+            </div>
+
+            {% if sessions %}
+            <div class="table-responsive">
+                <table class="table table-custom align-middle mb-0">
+                    <thead>
+                        <tr><th>Session</th><th>Date & Time</th><th>Capacity</th><th>Status</th><th class="text-end">Action</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for row in sessions %}
+                        <tr>
+                            <td><div class="fw-semibold">{{ row.session.title }}</div><div class="text-muted small">{{ row.session.description|default:'No description provided.' }}</div></td>
+                            <td>{{ row.session.session_date|date:'F j, Y \a\t g:i A' }}</td>
+                            <td><span class="badge-modern bg-secondary">{{ row.session.registered_trainees.count }} / {{ row.session.max_trainees }}</span></td>
+                            <td>{% if row.already_registered %}<span class="badge-modern bg-info">Already registered</span>{% elif row.session.is_full %}<span class="badge-modern bg-danger">Full</span>{% else %}<span class="badge-modern bg-success">Open</span>{% endif %}</td>
+                            <td class="text-end">
+                                {% if row.already_registered %}
+                                <form method="POST" action="{% url 'register_session_url' row.session.id %}">{% csrf_token %}<input type="hidden" name="action" value="unregister"><button type="submit" class="btn btn-sm btn-success"><i class="bi bi-check-circle-fill me-1"></i> Registered</button></form>
+                                {% elif row.can_register %}
+                                <form method="POST" action="{% url 'register_session_url' row.session.id %}">{% csrf_token %}<input type="hidden" name="action" value="register"><button type="submit" class="btn btn-sm btn-glow"><i class="bi bi-calendar-plus me-1"></i> Register</button></form>
+                                {% else %}<button class="btn btn-sm btn-secondary" disabled>Closed</button>{% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon"><i class="bi bi-calendar"></i></div>
+                <h5>No sessions available yet.</h5>
+                <p class="mb-4 text-muted">Your assigned trainer has not created any upcoming sessions.</p>
+                <a href="{% url 'home_url' %}" class="btn btn-glow">Return to dashboard</a>
+            </div>
+            {% endif %}
+        </div>
+
+    </main>
+
+    <footer class="py-5 mt-5 border-top bg-white"><div class="container text-center"></div></footer>
+{% endblock %}

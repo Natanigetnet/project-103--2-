@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% block title %}Registrar Dashboard | Future Gym{% endblock %}
+{% block extra_head %}
+<style>
+    .crowdedness-bar {
+        height: 8px;
+        border-radius: 4px;
+        background: rgba(255,255,255,0.08);
+        overflow: hidden;
+    }
+    .crowdedness-bar .fill {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.6s ease;
+    }
+    .trainer-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 6px;
+    }
+    .trainer-dot.active { background: #22c55e; box-shadow: 0 0 8px rgba(34,197,94,0.5); }
+</style>
+{% endblock %}
+{% block navbar %}
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold fs-4" href="{% url 'home_url' %}">
+            <i class="bi bi-lightning-charge-fill text-primary"></i> FUTURE<span class="text-primary">GYM</span>
+        </a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <i class="bi bi-list fs-2 text-white"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a class="nav-link active" href="{% url 'registrar_dashboard_url' %}">Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'registrar_register_url' %}">Register</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'registrar_scan_qr_url' %}">QR Scan</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'home_url' %}">Home</a></li>
+                <li class="nav-item ms-lg-3"><a href="{% url 'logout_url' %}" class="btn btn-outline-danger btn-sm rounded-pill px-4">Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <div class="gradient-header fade-in">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3">
+            <div>
+                <span class="badge-modern bg-primary mb-2">Registrar Portal</span>
+                <h1 class="fw-bold mb-1">Live Gym Dashboard</h1>
+                <p class="mb-0 opacity-75">Real-time gym occupancy, active trainers, and check-in activity.</p>
+            </div>
+            <div class="text-center">
+                <div class="stat-value" style="font-size:2.5rem;">{{ total_today }}</div>
+                <div class="small text-muted text-uppercase fw-bold">Checked In Today</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mt-2">
+        <div class="col-lg-7">
+            <div class="glass-card fade-in">
+                <h5 class="fw-bold mb-4"><i class="bi bi-people-fill text-primary me-2"></i> Gym Crowdedness by Category</h5>
+                {% if by_category %}
+                    {% for item in by_category %}
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-semibold">{{ item.member__category__name|default:'Uncategorized' }}</span>
+                            <span class="badge-modern bg-primary">{{ item.count }}</span>
+                        </div>
+                        {% widthratio item.count total_today 100 as pct %}
+                        {% if total_today > 0 %}
+                        <div class="crowdedness-bar">
+                            <div class="fill" style="width:{{ pct }}%;background:linear-gradient(90deg,#0d6efd,#6610f2);"></div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <p class="text-muted text-center py-3">No check-ins recorded today.</p>
+                {% endif %}
+            </div>
+
+            <div class="glass-card mt-4 fade-in fade-in-delay-2">
+                <h5 class="fw-bold mb-3"><i class="bi bi-clock-history text-info me-2"></i> Recent Check-ins</h5>
+                <div class="table-responsive">
+                    <table class="table table-custom table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Member</th>
+                                <th>Category</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in recent %}
+                            <tr>
+                                <td class="fw-semibold">{{ log.member.name }}</td>
+                                <td><span class="badge-modern bg-secondary">{{ log.member.category.name|default:'—' }}</span></td>
+                                <td class="small">{{ log.check_in|date:"H:i" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3" class="text-center text-muted py-4">No check-ins yet today.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="glass-card fade-in fade-in-delay-1">
+                <h5 class="fw-bold mb-3"><i class="bi bi-person-check text-success me-2"></i> Active Trainers Now</h5>
+                {% if active_trainers %}
+                    {% for t in active_trainers %}
+                    <div class="d-flex align-items-center mb-2 p-2 rounded-3" style="background:rgba(255,255,255,0.04);">
+                        <span class="trainer-dot active"></span>
+                        <div>
+                            <div class="fw-semibold">{{ t.name }}</div>
+                            <div class="small text-muted">{{ t.category.name|default:'—' }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <p class="text-muted text-center py-3">No trainers currently checked in.</p>
+                {% endif %}
+            </div>
+
+            <div class="glass-card mt-4 fade-in fade-in-delay-2">
+                <h5 class="fw-bold mb-3"><i class="bi bi-lightning-charge text-warning me-2"></i> Quick Actions</h5>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'registrar_register_url' %}" class="btn btn-glow">
+                        <i class="bi bi-person-plus-fill me-2"></i> Register New Trainee
+                    </a>
+                    <a href="{% url 'registrar_scan_qr_url' %}" class="btn btn-outline-glow">
+                        <i class="bi bi-qr-code-scan me-2"></i> Scan QR Attendance
+                    </a>
+                    <a href="{% url 'registrar_attendance_log_url' %}" class="btn btn-outline-glow">
+                        <i class="bi bi-clock-history me-2"></i> View Attendance Log
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

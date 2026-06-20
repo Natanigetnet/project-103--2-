@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+{% block title %}Register Trainee | Future Gym{% endblock %}
+{% block extra_head %}
+<style>
+    body { background: linear-gradient(135deg, #0f172a, #1e293b) !important; }
+    .upload-box {
+        width: 130px; height: 130px;
+        border: 2px dashed #0d6efd;
+        border-radius: 50%;
+        padding: 20px;
+        text-align: center;
+        cursor: pointer;
+        transition: 0.3s;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        margin: 0 auto;
+    }
+    .upload-box:hover { background: rgba(13, 110, 253, 0.1); }
+    .upload-box.has-image { border: 2px solid rgba(13, 110, 253, 0.3); }
+    .upload-box img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+</style>
+{% endblock %}
+{% block navbar %}
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold fs-4" href="{% url 'home_url' %}">
+            <i class="bi bi-lightning-charge-fill text-primary"></i> FUTURE<span class="text-primary">GYM</span>
+        </a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <i class="bi bi-list fs-2 text-white"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a class="nav-link" href="{% url 'registrar_dashboard_url' %}">Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link active" href="{% url 'registrar_register_url' %}">Register</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'registrar_scan_qr_url' %}">QR Scan</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'home_url' %}">Home</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+{% endblock %}
+{% block content %}
+<header class="gradient-header text-center fade-in">
+    <div class="container">
+        <span class="badge-modern bg-primary mb-2">Registrar</span>
+        <h1 class="fw-bold">Register New Trainee</h1>
+        <p class="lead opacity-75">Create a new member account with auto-generated credentials.</p>
+    </div>
+</header>
+
+<main class="container mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7 fade-in fade-in-delay-1">
+            <div class="glass-card">
+                <form method="POST" action="" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {% if messages %}
+                        <div class="col-12">
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} py-2" role="alert">{{ message }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <div class="row g-4">
+                        <div class="col-12 text-center mb-2">
+                            <h4 class="fw-bold">Trainee Details</h4>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label small fw-bold text-muted">FULL NAME</label>
+                            <input type="text" name="full_name" class="form-control" placeholder="e.g. John Smith" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted">EMAIL ADDRESS</label>
+                            <input type="email" name="email" class="form-control" placeholder="e.g. john@example.com" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted">PHONE NUMBER</label>
+                            <input type="tel" name="phone_number" class="form-control" placeholder="e.g. +251912345678" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted">GENDER</label>
+                            <select name="gender" class="form-select">
+                                <option value="">Select gender</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted">CATEGORY</label>
+                            <select name="category" class="form-select">
+                                <option value="">Select category</option>
+                                {% for cat in categories %}
+                                    <option value="{{ cat.id }}">{{ cat.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label small fw-bold text-muted">PROFILE IMAGE</label>
+                            <div class="upload-box" id="uploadBox" onclick="document.getElementById('imageInput').click()">
+                                <i class="bi bi-camera fs-2 text-primary"></i>
+                                <p class="small text-muted mt-1 mb-0">Click to upload</p>
+                            </div>
+                            <input type="file" id="imageInput" name="profile_image" class="d-none" accept="image/*">
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label small fw-bold text-muted">BIO / NOTES</label>
+                            <textarea name="detail" class="form-control" rows="3" placeholder="Optional notes about the trainee..."></textarea>
+                        </div>
+
+                        <div class="col-12 mt-4">
+                            <button type="submit" class="btn btn-glow btn-lg w-100 py-3">
+                                <i class="bi bi-person-plus-fill me-2"></i> Register Trainee
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+document.getElementById('imageInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+            const box = document.getElementById('uploadBox');
+            box.innerHTML = '<img src="' + ev.target.result + '" alt="Preview">';
+            box.classList.add('has-image');
+        };
+        reader.readAsDataURL(file);
+    }
+});
+</script>
+{% endblock %}

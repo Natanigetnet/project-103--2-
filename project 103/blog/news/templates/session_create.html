@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+{% block title %}Create Session | Future Gym{% endblock %}
+{% block extra_head %}
+<style>
+    .field-label { font-weight: 600; }
+    .space-card { cursor: pointer; transition: all 0.2s; border: 2px solid transparent; }
+    .space-card:hover { border-color: var(--gym-blue); background: rgba(0,123,255,0.05); }
+    .space-card.selected { border-color: var(--gym-blue); background: rgba(0,123,255,0.1); }
+    .space-card.disabled { opacity: 0.4; cursor: not-allowed; }
+</style>
+{% endblock %}
+{% block navbar %}
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold fs-4" href="{% url 'home_url' %}">
+                <i class="bi bi-lightning-charge-fill text-primary"></i> FUTURE<span class="text-primary">GYM</span>
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><i class="bi bi-list fs-2 text-white"></i></button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="{% url 'home_url' %}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="javascript:history.back()"><i class="bi bi-arrow-left me-1"></i>Back</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+{% endblock %}
+{% block content %}
+    {% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show shadow-sm" role="alert">{{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <main class="container mt-5 pt-4">
+
+        <div class="gradient-header fade-in">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 fw-bold mb-1">Create New Session</h1>
+                    <p class="mb-0 opacity-75">Publish a training slot and book a training space.</p>
+                </div>
+                <div>
+                    <a href="javascript:history.back()" class="btn btn-outline-glow"><i class="bi bi-arrow-left me-2"></i> Back</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-card p-5 fade-in">
+            <form method="post" action="{% url 'create_session_url' %}">{% csrf_token %}
+                <div class="mb-4"><label class="form-label field-label" for="title">Session Title</label><input type="text" class="form-control form-control-lg" id="title" name="title" placeholder="E.g. Strength Conditioning" required /></div>
+                <div class="mb-4"><label class="form-label field-label" for="description">Description</label><textarea class="form-control" id="description" name="description" rows="4" placeholder="Add details or keywords for the session"></textarea></div>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4"><label class="form-label field-label" for="session_date">Date & Time</label><input type="datetime-local" class="form-control" id="session_date" name="session_date" required /></div>
+                    <div class="col-md-4"><label class="form-label field-label" for="duration_minutes">Duration (minutes)</label><select class="form-select form-select-lg" id="duration_minutes" name="duration_minutes"><option value="30">30 min</option><option value="60" selected>60 min</option><option value="90">90 min</option><option value="120">120 min</option></select></div>
+                    <div class="col-md-4"><label class="form-label field-label" for="max_trainees">Max Trainees</label><input type="number" class="form-control form-control-lg" id="max_trainees" name="max_trainees" min="1" value="10" /></div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label field-label">Select Training Space <span class="text-muted small">(only spaces matching your category are shown)</span></label>
+                    {% if maintenance_count %}
+                    <div class="alert alert-warning py-2 px-3 mb-3 small">
+                        <i class="bi bi-tools me-1"></i> {{ maintenance_count }} training space{{ maintenance_count|pluralize:'s' }} currently under maintenance and not shown.
+                    </div>
+                    {% endif %}
+                    {% if spaces %}
+                    <div class="row g-2" id="spaceOptions">
+                        <div class="col-auto">
+                            <div class="space-card p-3 rounded-3 glass-card selected" data-space-id="">
+                                <div class="fw-semibold">No space</div>
+                                <small class="text-muted">No location needed</small>
+                                <input type="radio" name="space" value="" class="d-none" checked>
+                            </div>
+                        </div>
+                        {% for space in spaces %}
+                        <div class="col-auto">
+                            <div class="space-card p-3 rounded-3 glass-card" data-space-id="{{ space.id }}">
+                                <div class="fw-semibold">{{ space.name }}</div>
+                                <small class="text-muted">{{ space.category.name }}</small>
+                                {% if space.description %}<br><small class="text-muted">{{ space.description }}</small>{% endif %}
+                                <input type="radio" name="space" value="{{ space.id }}" class="d-none">
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No training spaces available for your category. You can still create a session without a space.</p>
+                    <input type="hidden" name="space" value="">
+                    {% endif %}
+                </div>
+
+                <div id="availabilityMessage" class="mb-3"></div>
+
+                <div class="d-flex gap-3 align-items-center"><button type="submit" class="btn btn-glow btn-lg"><i class="bi bi-send-fill me-2"></i> Publish Session</button><a href="{% url 'session_hub_url' %}" class="btn btn-outline-secondary">Cancel</a></div>
+            </form>
+        </div>
+
+    </main>
+
+    <footer class="py-5 mt-5 border-top bg-white"><div class="container text-center"></div></footer>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const spaceCards = document.querySelectorAll('.space-card');
+    const dateInput = document.getElementById('session_date');
+    const durationInput = document.getElementById('duration_minutes');
+    const availabilityMsg = document.getElementById('availabilityMessage');
+
+    spaceCards.forEach(function(card) {
+        card.addEventListener('click', function() {
+            spaceCards.forEach(function(c) { c.classList.remove('selected'); });
+            card.classList.add('selected');
+            const radio = card.querySelector('input[type="radio"]');
+            if (radio) radio.checked = true;
+            checkAvailability();
+        });
+    });
+
+    dateInput.addEventListener('change', checkAvailability);
+    durationInput.addEventListener('change', checkAvailability);
+
+    function checkAvailability() {
+        const date = dateInput.value;
+        const duration = durationInput.value;
+        const selectedRadio = document.querySelector('.space-card.selected input[type="radio"]');
+        const spaceId = selectedRadio ? selectedRadio.value : '';
+
+        if (!date || !spaceId) {
+            availabilityMsg.innerHTML = '';
+            return;
+        }
+
+        availabilityMsg.innerHTML = '<div class="text-info"><i class="bi bi-hourglass-split me-1"></i>Checking availability...</div>';
+
+        fetch('{% url "api_available_spaces_url" %}?date=' + encodeURIComponent(date) + '&duration_minutes=' + duration + '&space_id=' + spaceId)
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.spaces) {
+                    const availableIds = data.spaces.map(function(s) { return String(s.id); });
+                    spaceCards.forEach(function(card) {
+                        const radio = card.querySelector('input[type="radio"]');
+                        if (radio && radio.value) {
+                            if (availableIds.indexOf(radio.value) !== -1) {
+                                card.classList.remove('disabled');
+                                card.style.pointerEvents = '';
+                                card.style.opacity = '';
+                            } else {
+                                card.classList.remove('selected');
+                                card.classList.add('disabled');
+                                card.style.pointerEvents = 'none';
+                                card.style.opacity = '0.4';
+                                radio.checked = false;
+                            }
+                        }
+                    });
+                    // Re-select the "no space" option if current selection became disabled
+                    const stillSelected = document.querySelector('.space-card.selected');
+                    if (!stillSelected) {
+                        const noSpaceCard = document.querySelector('.space-card[data-space-id=""]');
+                        if (noSpaceCard) { noSpaceCard.click(); }
+                    }
+                    // Also re-check
+                    const selected = document.querySelector('.space-card.selected input[type="radio"]');
+                    if (selected) selected.checked = true;
+
+                    if (data.spaces.length > 0) {
+                        availabilityMsg.innerHTML = '<div class="text-success"><i class="bi bi-check-circle me-1"></i>Space available at this time.</div>';
+                    } else {
+                        availabilityMsg.innerHTML = '<div class="text-warning"><i class="bi bi-exclamation-triangle me-1"></i>No spaces available at this time. Try a different time.</div>';
+                    }
+                }
+            })
+            .catch(function() {
+                availabilityMsg.innerHTML = '<div class="text-danger"><i class="bi bi-x-circle me-1"></i>Could not check availability.</div>';
+            });
+    }
+});
+</script>
+{% endblock %}

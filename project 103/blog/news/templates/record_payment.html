@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block title %}Future Gym | Log Payment{% endblock %}
+{% block navbar %}
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold fs-4" href="{% url 'home_url' %}">
+            <i class="bi bi-lightning-charge-fill text-primary"></i> FUTURE<span class="text-primary">GYM</span>
+        </a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <i class="bi bi-list fs-2 text-white"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a class="nav-link" href="{% url 'home_url' %}">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="javascript:history.back()"><i class="bi bi-arrow-left me-1"></i>Back</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="glass-card fade-in">
+                <div class="text-center mb-4">
+                    <div class="display-6 text-primary mb-2"><i class="bi bi-shield-check"></i></div>
+                    <h3 class="fw-bold">Record Payment</h3>
+                    <p class="text-muted">Manually log a membership transaction</p>
+                </div>
+
+                <form method="POST">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted text-uppercase">Select Athlete</label>
+                        <select name="user_id" class="form-select" required>
+                            <option value="">Choose a user...</option>
+                            {% for u in users %}
+                            <option value="{{ u.id }}" {% if selected_user_id == u.id|stringformat:"s" %}selected{% endif %}>
+                                {{ u.username }} {% if u.get_full_name %}({{ u.get_full_name }}){% endif %}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Amount</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" name="amount" step="0.01" class="form-control" placeholder="0.00" required>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Method</label>
+                            <select name="method" class="form-select" required>
+                                <option value="CASH">Cash</option>
+                                <option value="TRANSFER">Transfer</option>
+                                <option value="OTHER">Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-muted text-uppercase">Date of Payment</label>
+                        <input type="date" name="payment_date" class="form-control" value="{{ today|date:'Y-m-d' }}" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-glow w-100">Confirm & Notify User</button>
+
+                    <div class="text-center mt-3">
+                        <a href="{% url 'home_url' %}" class="text-muted text-decoration-none small">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

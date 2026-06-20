@@ -1,50 +1,104 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <style>
-        /* Exact same style block as signup.html */
-        :root { --gym-primary: #0d6efd; --gym-bg: #f4f7fa; --glass: rgba(255, 255, 255, 0.9); }
-        body { font-family: 'Inter', sans-serif; background-color: var(--gym-bg); }
-        .reg-header { background: linear-gradient(135deg, #121417 0%, #2c3e50 100%); padding: 100px 0; color: white; border-radius: 0 0 50px 50px; }
-        .reg-card { background: var(--glass); backdrop-filter: blur(15px); border-radius: 30px; margin-top: -80px; padding: 40px; }
-        .form-control { border-radius: 12px; padding: 12px; margin-bottom: 20px; }
-    </style>
-</head>
-<body>
-    <header class="reg-header text-center">
-        <div class="container">
-            <h1 class="display-4 fw-bold">Member Login</h1>
-            <p class="lead opacity-75">Enter your passcode to access the portal.</p>
+{% extends 'base.html' %}
+{% block title %}Future Gym | Secure Member Sign In{% endblock %}
+{% block extra_head %}
+<style>
+    body { background: linear-gradient(135deg, #0f172a, #1e293b) !important; }
+    .auth-wrapper {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+        background: radial-gradient(circle at top right, rgba(13, 110, 253, 0.05), transparent);
+    }
+    .form-control-custom {
+        background: rgba(255, 255, 255, 0.08) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: #ffffff !important;
+    }
+    .form-control-custom:focus {
+        background: rgba(255, 255, 255, 0.15) !important;
+        border-color: var(--gym-blue) !important;
+        box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.25) !important;
+    }
+    .form-label-custom {
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        color: rgba(255, 255, 255, 0.6);
+        margin-bottom: 8px;
+    }
+    .link-accent {
+        color: #3b82f6;
+        text-decoration: none;
+        font-weight: 600;
+    }
+    .link-accent:hover {
+        text-decoration: underline;
+    }
+    .alert-custom {
+        background: rgba(239, 68, 68, 0.2);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: #fca5a5;
+        border-radius: 12px;
+    }
+</style>
+{% endblock %}
+{% block navbar %}
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold fs-4" href="{% url 'home_url' %}">
+            <i class="bi bi-lightning-charge-fill text-primary"></i> FUTURE<span class="text-primary">GYM</span>
+        </a>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a class="nav-link" href="{% url 'home_url' %}">Home</a></li>
+            </ul>
         </div>
-    </header>
+    </div>
+</nav>
+{% endblock %}
+{% block content %}
+<div class="auth-wrapper">
+    <div class="glass-card fade-in" style="max-width: 450px; width: 100%; padding: 40px; background: rgba(15, 17, 22, 0.92); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.1); color: #fff;">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold mb-2">Welcome Back</h2>
+            <p class="small text-white-50">Provide your credentials to unlock the interactive hub portal.</p>
+        </div>
 
-    <main class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-5">
-                <div class="reg-card shadow-lg">
-                    {% if messages %}
-                        {% for message in messages %}
-                            <div class="alert alert-danger rounded-4">{{ message }}</div>
-                        {% endfor %}
-                    {% endif %}
-                    <form method="POST">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold text-muted">USERNAME</label>
-                            <input type="text" name="username" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold text-muted">PASSCODE</label>
-                            <input type="password" name="password" class="form-control" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-lg w-100 py-3 rounded-3 shadow">Sign In</button>
-                    </form>
-                    <div class="text-center mt-4">
-                        <p class="small text-muted">Need account? <a href="{% url 'signup_url' %}" class="text-primary fw-bold">Join Now</a></p>
-                    </div>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-custom small d-flex align-items-center mb-4" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <div>{{ message|safe }}</div>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label class="form-label-custom text-uppercase">Username</label>
+                <div class="input-group">
+                    <input type="text" name="username" class="form-control form-control-custom" placeholder="Enter your identity key" required>
                 </div>
             </div>
-        </div>
-    </main>
-</body>
-</html>
+
+            <div class="mb-4">
+                <label class="form-label-custom text-uppercase">Passcode</label>
+                <div class="input-group">
+                    <input type="password" name="password" class="form-control form-control-custom" placeholder="••••••••" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-glow w-100 d-flex align-items-center justify-content-center gap-2">
+                <span>Sign In to Portal</span>
+                <i class="bi bi-arrow-right-short fs-5"></i>
+            </button>
+        </form>
+
+        
+    </div>
+</div>
+{% endblock %}

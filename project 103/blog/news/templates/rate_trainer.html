@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% block title %}Future Gym | Rate {{ trainer.name }}{% endblock %}
+{% block extra_head %}
+<style>
+    .star-input {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: center;
+        gap: 0.25rem;
+    }
+    .star-input input {
+        display: none;
+    }
+    .star-input label {
+        cursor: pointer;
+        font-size: 2.5rem;
+        color: rgba(255,255,255,0.15);
+        transition: color 0.2s;
+    }
+    .star-input label:hover,
+    .star-input label:hover ~ label,
+    .star-input input:checked ~ label {
+        color: #f59e0b;
+    }
+    .star-input label:hover {
+        transform: scale(1.15);
+    }
+</style>
+{% endblock %}
+{% block navbar %}
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold fs-4" href="{% url 'home_url' %}">
+            <i class="bi bi-lightning-charge-fill text-primary"></i> FUTURE<span class="text-primary">GYM</span>
+        </a>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a class="nav-link" href="{% url 'home_url' %}">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'trainer_categories_url' %}">Trainers & Types</a></li>
+                <li class="nav-item"><a class="nav-link" href="javascript:history.back()"><i class="bi bi-arrow-left me-1"></i>Back</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+{% endblock %}
+{% block content %}
+<header class="gradient-header text-center">
+    <div class="container">
+        <h1 class="display-4 fw-bold">Rate Your Trainer</h1>
+        <p class="lead opacity-75">Share your feedback about <strong>{{ trainer.name }}</strong></p>
+    </div>
+</header>
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="glass-card fade-in text-center">
+                <div class="option-avatar avatar-trainer mx-auto mb-3" style="width:80px;height:80px;font-size:1.8rem;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                    {{ trainer.name|first|upper }}
+                </div>
+                <h4 class="fw-bold mb-1">{{ trainer.name }}</h4>
+                <p class="text-muted mb-4">{{ trainer.email|default:'' }}</p>
+
+                {% if existing %}
+                <div class="alert alert-info rounded-3 py-2 small">You already rated this trainer. Update your rating below.</div>
+                {% endif %}
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <label class="form-label fw-bold mb-3">Your Rating</label>
+                        <div class="star-input">
+                            {% for i in "54321" %}
+                            <input type="radio" name="rating" value="{{ i }}" id="star{{ i }}" {% if existing and existing.rating == i|add:0 %}checked{% endif %}>
+                            <label for="star{{ i }}"><i class="bi bi-star-fill"></i></label>
+                            {% endfor %}
+                        </div>
+                        <div class="mt-2 text-muted small">0 = Poor &middot; 5 = Excellent</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="comment" class="form-label fw-bold">Comment <span class="text-muted small">(optional)</span></label>
+                        <textarea name="comment" id="comment" class="form-control rounded-3" rows="4" placeholder="Share your experience with this trainer...">{{ existing.comment|default:'' }}</textarea>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-glow btn-lg">
+                            <i class="bi bi-star me-2"></i>{% if existing %}Update Rating{% else %}Submit Rating{% endif %}
+                        </button>
+                        <a href="{% url 'detail_url' name=trainer.name %}" class="btn btn-outline-glow">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

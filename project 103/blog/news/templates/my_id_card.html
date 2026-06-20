@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block title %}My ID Card{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+      <div class="text-center mb-4">
+        <h2 class="fw-bold"><i class="bi bi-card-text me-2"></i> Membership ID</h2>
+        <p class="text-muted">Present this card at the gym entrance</p>
+      </div>
+
+      <div class="card border-0 shadow-lg rounded-4 overflow-hidden" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
+        <div class="card-body p-4 text-center">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="badge bg-primary fs-6 px-3 py-1">
+              <i class="bi bi-lightning-charge-fill me-1"></i> FUTURE GYM
+            </span>
+            <span class="badge bg-{% if person.role == 'trainer' %}success{% else %}info{% endif %} fs-6 px-3 py-1">
+              {{ person.get_role_display }}
+            </span>
+          </div>
+
+          <div class="my-4">
+            {% if mid.qr_code %}
+              <img src="{{ mid.qr_code.url }}" alt="QR Code" class="img-fluid" style="max-width: 180px;">
+            {% else %}
+              <div class="bg-light p-4 rounded-3">QR code not available</div>
+            {% endif %}
+          </div>
+
+          <h3 class="fw-bold text-white mb-1">{{ person.name }}</h3>
+          <p class="text-white-50 small mb-3">{{ person.email }}</p>
+
+          <div class="row text-start g-2 mb-3">
+            <div class="col-6">
+              <small class="text-white-50 d-block">Member ID</small>
+              <span class="text-white small fw-mono">{{ mid.unique_id|slice:":20" }}...</span>
+            </div>
+            <div class="col-6">
+              <small class="text-white-50 d-block">Category</small>
+                <span class="text-white small">{{ person.category.name|default:"—" }}</span>
+            </div>
+            <div class="col-6">
+              <small class="text-white-50 d-block">Phone</small>
+                <span class="text-white small">{{ person.phone_number|default:"—" }}</span>
+            </div>
+            <div class="col-6">
+              <small class="text-white-50 d-block">Member Since</small>
+              <span class="text-white small">{{ mid.created_at|date:"M Y" }}</span>
+            </div>
+          </div>
+
+          <hr class="border-white border-opacity-10">
+
+          <p class="text-white-50 small mb-0">
+            <i class="bi bi-shield-check me-1"></i> Valid membership — present this QR at the scanner
+          </p>
+        </div>
+      </div>
+
+      <div class="d-grid gap-2 mt-4">
+        <a href="{% url 'id_card_pdf_url' %}" class="btn btn-primary rounded-pill py-2" target="_blank">
+          <i class="bi bi-download me-2"></i> Download / Print PDF
+        </a>
+        <a href="{% url 'home_url' %}" class="btn btn-outline-secondary rounded-pill py-2">
+          <i class="bi bi-arrow-left me-2"></i> Back to Home
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% block title %}Future Gym | Body Metrics{% endblock %}
+{% block extra_head %}
+<style>
+    .bmi-box {
+        background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);
+        color: white; border-radius: 20px; padding: 2rem;
+    }
+</style>
+{% endblock %}
+{% block navbar %}
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold fs-4" href="{% url 'home_url' %}">
+                <i class="bi bi-lightning-charge-fill text-primary"></i> FUTURE<span class="text-primary">GYM</span>
+            </a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="{% url 'home_url' %}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="javascript:history.back()"><i class="bi bi-arrow-left me-1"></i>Back</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+{% endblock %}
+{% block content %}
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-7">
+                <div class="glass-card p-5 mb-4 fade-in">
+                    <h3 class="fw-bold mb-4"><i class="bi bi-plus-circle text-primary me-2"></i>Record Your Metrics</h3>
+                    <form method="POST" class="row g-3">
+                        {% csrf_token %}
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small text-uppercase text-secondary">Weight (kg)</label>
+                            <input type="number" name="weight" class="form-control p-3" step="0.1" min="1" placeholder="e.g. 75.5" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small text-uppercase text-secondary">Height (cm)</label>
+                            <input type="number" name="height" class="form-control p-3" step="0.1" min="1" placeholder="e.g. 175" required>
+                        </div>
+                        <div class="col-12 mt-4">
+                            <button type="submit" class="btn btn-glow w-100 py-3 fw-bold">
+                                <i class="bi bi-calculator me-2"></i>Calculate & Save BMI
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+
+                {% if metrics %}
+                <div class="glass-card p-5 fade-in">
+                    <h4 class="fw-bold mb-4"><i class="bi bi-graph-up text-primary me-2"></i>Your Progress</h4>
+
+                    <div class="bmi-box mb-4 text-center">
+                        <small class="text-white-50 text-uppercase fw-bold">Current BMI</small>
+                        <h1 class="display-3 fw-bold mb-0">{{ metrics.0.bmi }}</h1>
+                        <p class="mb-0 text-white-50">
+                            {{ metrics.0.weight }} kg · {{ metrics.0.height }} cm · {{ metrics.0.recorded_at|date:"M d, Y" }}
+                        </p>
+                    </div>
+
+                    {% if progress %}
+                    <div class="row g-3 mb-4">
+                        <div class="col-6">
+                            <div class="bg-light rounded-4 p-4 text-center h-100">
+                                <small class="text-muted text-uppercase fw-bold">Weight Change</small>
+                                <h3 class="fw-bold mb-0 mt-2
+                                    {% if progress.weight_change < 0 %}text-success
+                                    {% elif progress.weight_change > 0 %}text-danger
+                                    {% else %}text-muted{% endif %}">
+                                    {% if progress.weight_change > 0 %}+{% endif %}{{ progress.weight_change }} kg
+                                </h3>
+                                <small class="text-muted">Since last entry</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="bg-light rounded-4 p-4 text-center h-100">
+                                <small class="text-muted text-uppercase fw-bold">BMI Change</small>
+                                <h3 class="fw-bold mb-0 mt-2
+                                    {% if progress.bmi_change < 0 %}text-success
+                                    {% elif progress.bmi_change > 0 %}text-danger
+                                    {% else %}text-muted{% endif %}">
+                                    {% if progress.bmi_change > 0 %}+{% endif %}{{ progress.bmi_change }}
+                                </h3>
+                                <small class="text-muted">Since last entry</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="table-responsive">
+                        <table class="table table-custom">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Weight (kg)</th>
+                                    <th>Height (cm)</th>
+                                    <th>BMI</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for m in metrics %}
+                                <tr>
+                                    <td>{{ m.recorded_at|date:"M d, Y H:i" }}</td>
+                                    <td>{{ m.weight }}</td>
+                                    <td>{{ m.height }}</td>
+                                    <td class="fw-bold">{{ m.bmi }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

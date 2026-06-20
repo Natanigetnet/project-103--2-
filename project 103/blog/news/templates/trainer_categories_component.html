@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+{% block title %}Trainers & Categories{% endblock %}
+{% block extra_head %}
+<style>
+    .options-component {
+        margin: 2rem 0;
+    }
+
+    .options-section {
+        margin-bottom: 2.5rem;
+    }
+
+    .options-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #e2e8f0;
+    }
+
+    .option-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        border-radius: 12px;
+        background: rgba(15, 17, 22, 0.65);
+        border: 1px solid rgba(255,255,255,0.06);
+        margin-bottom: 0.75rem;
+        transition: all 0.3s ease;
+        color: #f1f5f9;
+    }
+
+    .option-item:hover {
+        border-color: rgba(99, 102, 241, 0.4);
+        background: rgba(15, 17, 22, 0.85);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .option-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        color: white;
+        flex-shrink: 0;
+        font-size: 1.2rem;
+    }
+
+    .option-icon.trainer {
+        background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);
+    }
+
+    .option-icon.category {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+
+    .option-details {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .option-name {
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 0.25rem;
+    }
+
+    .option-info {
+        font-size: 0.875rem;
+        color: #64748b;
+    }
+
+    .option-count {
+        background: rgba(255,255,255,0.08);
+        padding: 0.4rem 0.8rem;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #94a3b8;
+        color: #0d6efd;
+        white-space: nowrap;
+    }
+
+    .options-empty {
+        text-align: center;
+        padding: 2rem;
+        background: #f8fafc;
+        border-radius: 12px;
+        color: #64748b;
+    }
+</style>
+{% endblock %}
+{% block navbar %}
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold fs-4" href="{% url 'home_url' %}">
+            <i class="bi bi-lightning-charge-fill text-primary"></i> FUTURE<span class="text-primary">GYM</span>
+        </a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <i class="bi bi-list fs-2 text-white"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a class="nav-link" href="{% url 'home_url' %}">Home</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+{% endblock %}
+{% block content %}
+<div class="options-component">
+    
+    <!-- Trainers Section -->
+    <div class="options-section">
+        <h3 class="options-title">
+            <i class="bi bi-person-badge-fill"></i> Trainers
+        </h3>
+        
+        {% if trainers %}
+            {% for trainer in trainers %}
+                <div class="option-item">
+                    <div class="option-icon trainer">
+                        {{ trainer.first_name|first|default:trainer.username|first|upper }}
+                    </div>
+                    <div class="option-details">
+                        <div class="option-name">{{ trainer.get_full_name|default:trainer.username }}</div>
+                        <div class="option-info">
+                            <i class="bi bi-envelope"></i> {{ trainer.email }}
+                        </div>
+                    </div>
+                    <div class="option-count">
+                        {{ trainer.trainees.count }} member{{ trainer.trainees.count|pluralize }}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="options-empty">
+                <i class="bi bi-exclamation-circle" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                <p>No trainers available</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Categories Section -->
+    <div class="options-section">
+        <h3 class="options-title">
+            <i class="bi bi-bookmark-fill"></i> Training Categories
+        </h3>
+        
+        {% if categories %}
+            {% for category in categories %}
+                <div class="option-item">
+                    <div class="option-icon category">
+                        <i class="bi bi-lightbulb-fill"></i>
+                    </div>
+                    <div class="option-details">
+                        <div class="option-name">{{ category.name }}</div>
+                        <div class="option-info">Category ID: #{{ category.id }}</div>
+                    </div>
+                    <div class="option-count">
+                        {% with count=category.names_set.count %}
+                            {{ count }} trainee{{ count|pluralize }}
+                        {% endwith %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="options-empty">
+                <i class="bi bi-exclamation-circle" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                <p>No categories available</p>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

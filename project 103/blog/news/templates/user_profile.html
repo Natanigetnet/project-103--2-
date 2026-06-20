@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+{% block title %}User Profile - FutureGym{% endblock %}
+{% block extra_head %}
+<style>
+    .profile-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        border: 3px solid white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 2rem;
+    }
+    .profile-body {
+        padding: 2rem 1.5rem;
+    }
+    .info-section {
+        margin-bottom: 2rem;
+    }
+    .info-section h6 {
+        color: var(--gym-blue);
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+    }
+    .info-value {
+        font-size: 1.1rem;
+        color: #2c3e50;
+        font-weight: 500;
+    }
+    .info-value.empty {
+        color: #999;
+        font-style: italic;
+    }
+    .role-badge {
+        display: inline-block;
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .role-badge.trainer {
+        background: linear-gradient(135deg, var(--gym-blue), #0056b3);
+        color: white;
+    }
+    .role-badge.trainee {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+    }
+    .gender-badge {
+        display: inline-block;
+        padding: 0.3rem 0.6rem;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        background: #e9ecef;
+        color: #495057;
+        margin-top: 0.3rem;
+    }
+    .privacy-notice {
+        background: #f0f7ff;
+        border-left: 4px solid var(--gym-blue);
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        font-size: 0.9rem;
+        color: #004085;
+    }
+    .privacy-notice small {
+        display: block;
+        margin-top: 0.5rem;
+        font-style: italic;
+    }
+</style>
+{% endblock %}
+{% block navbar %}
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold fs-4" href="{% url 'home_url' %}">
+            <i class="bi bi-lightning-charge-fill text-primary"></i> FUTURE<span class="text-primary">GYM</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <i class="bi bi-list fs-2 text-white"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                {% if user.is_authenticated %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'home_url' %}">Home</a></li>
+                    {% if user.is_superuser %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'members_url' %}">Members</a></li>
+                    {% endif %}
+                    <li class="nav-item ms-lg-2">
+                        <a href="{% if names_record %}{% url 'detail_url' name=names_record.name %}{% else %}#{% endif %}" class="text-decoration-none d-flex align-items-center gap-1 nav-link p-1" style="color:rgba(255,255,255,0.85) !important;">
+                            <span class="d-flex align-items-center justify-content-center rounded-circle" style="width:36px;height:36px;background:rgba(255,255,255,0.15);font-weight:700;font-size:0.9rem;">
+                                {{ profile.first_name|first|upper }}
+                            </span>
+                            <span class="small d-none d-md-inline">{{ profile.first_name }}</span>
+                        </a>
+                    </li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'logout_url' %}">Logout</a></li>
+                {% else %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'login_url' %}">Login</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <a href="javascript:history.back()" class="btn btn-outline-glow mb-4"><i class="bi bi-arrow-left me-1"></i>Back</a>
+
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+            <div class="privacy-notice fade-in">
+                <strong>Public Profile</strong>
+                <small>This profile displays public information only. Personal contact details and medical information are kept confidential.</small>
+            </div>
+
+            <div class="glass-card overflow-hidden fade-in fade-in-delay-1">
+                <div class="gradient-header text-center mb-0" style="border-radius: 0;">
+                    <a href="{% if names_record %}{% url 'detail_url' name=names_record.name %}{% else %}#{% endif %}" class="text-decoration-none">
+                        <div class="profile-avatar">
+                            {{ profile.first_name|first|upper }}
+                        </div>
+                    </a>
+                    <div style="font-size: 1.8rem; font-weight: 700; margin-bottom: 0.5rem;">
+                        {% if profile.first_name or profile.last_name %}
+                            {{ profile.first_name }} {{ profile.last_name }}
+                        {% else %}
+                            {{ profile.username }}
+                        {% endif %}
+                    </div>
+                    <div style="font-size: 0.9rem; opacity: 0.9;">@{{ profile.username }}</div>
+                </div>
+
+                <div class="profile-body">
+                    <div class="info-section">
+                        <h6>Role</h6>
+                        {% if profile.role %}
+                            <span class="role-badge {% if profile.role == 'trainer' %}trainer{% else %}trainee{% endif %}">
+                                {{ profile.role|upper }}
+                            </span>
+                        {% else %}
+                            <div class="info-value empty">Not specified</div>
+                        {% endif %}
+                    </div>
+
+                    {% if profile.role == 'trainer' and profile.category %}
+                        <div class="info-section">
+                            <h6>Specialty</h6>
+                            <div class="info-value">{{ profile.category.name }}</div>
+                        </div>
+                    {% endif %}
+
+                    <div class="info-section">
+                        <h6>Gender</h6>
+                        {% if profile.gender %}
+                            <span class="gender-badge">{{ profile.gender|upper }}</span>
+                        {% else %}
+                            <div class="info-value empty">Not specified</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="info-section">
+                        <h6>Member Since</h6>
+                        <div class="info-value">{{ profile.joined_date|date:"M d, Y" }}</div>
+                    </div>
+
+                    <div class="p-3 mt-4" style="background: rgba(255, 193, 7, 0.1); border: 1px solid rgba(255, 193, 7, 0.3); border-radius: 8px; font-size: 0.85rem; color: #f1f5f9;">
+                        <strong style="color: #fbbf24;">ℹ️ Confidential Information</strong>
+                        <p style="color: #e2e8f0; margin: 0.5rem 0 0;">
+                            Email, phone number, medical information, and other sensitive details are kept private and are not displayed on public profiles.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

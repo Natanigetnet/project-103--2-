@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+{% block title %}Future Gym | Find Trainers{% endblock %}
+{% block extra_head %}
+<style>
+    .preferred-badge {
+        background: #d1fae5;
+        color: #065f46;
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+    }
+    .btn-preferred {
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+    .btn-preferred.active {
+        background: #10b981;
+        border-color: #10b981;
+        color: white;
+    }
+</style>
+{% endblock %}
+{% block navbar %}
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold fs-4" href="{% url 'home_url' %}">
+            <i class="bi bi-lightning-charge-fill text-primary"></i> FUTURE <span class="text-primary">GYM</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <i class="bi bi-list fs-2 text-white"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a class="nav-link" href="{% url 'home_url' %}">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'trainer_categories_url' %}">Option List</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+{% endblock %}
+{% block content %}
+<div class="container my-5">
+    <h1 class="section-title mb-4 fade-in">
+        <i class="bi bi-people-fill"></i> Find a Trainer
+    </h1>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="glass-card mb-4 fade-in fade-in-delay-1">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <div class="small fw-bold text-muted text-uppercase mb-1">Category</div>
+                <select class="form-select" id="categoryFilter">
+                    <option value="">All Categories</option>
+                    {% for cat in categories %}
+                        <option value="{{ cat.id }}">{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <div class="small fw-bold text-muted text-uppercase mb-1">Gender</div>
+                <select class="form-select" id="genderFilter">
+                    <option value="">Any Gender</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button class="btn btn-outline-secondary w-100" id="clearFilters">Clear Filters</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-responsive fade-in fade-in-delay-2">
+        <table class="table table-custom table-hover mb-0" id="trainerTable">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Gender</th>
+                    <th>Category</th>
+                    <th class="text-center">Preferred</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for trainer in trainers %}
+                <tr class="trainer-row"
+                    data-category="{{ trainer.category_id|default:'' }}"
+                    data-gender="{{ trainer.gender|default:'' }}">
+                    <td><strong>#{{ trainer.id }}</strong></td>
+                    <td>{{ trainer.name }}</td>
+                    <td><small>{{ trainer.email|default:'—' }}</small></td>
+                    <td>{{ trainer.get_gender_display|default:'—' }}</td>
+                    <td>
+                        {% if trainer.category %}
+                            <span class="badge-modern bg-primary">{{ trainer.category.name }}</span>
+                        {% else %}
+                            <span class="badge-modern bg-secondary">Unassigned</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-center">
+                        <form method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="preferred_trainer" value="{{ trainer.trainer.id }}">
+                            {% if current_preferred and current_preferred.id == trainer.trainer.id %}
+                                <button type="submit" class="btn btn-success btn-preferred active">
+                                    <i class="bi bi-check-circle-fill"></i> Preferred
+                                </button>
+                            {% else %}
+                                <button type="submit" class="btn btn-outline-primary btn-preferred">
+                                    Select as Preferred
+                                </button>
+                            {% endif %}
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center py-4 text-muted">No trainers available.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+{% block extra_scripts %}
+<script>
+    (function() {
+        const categoryFilter = document.getElementById('categoryFilter');
+        const genderFilter = document.getElementById('genderFilter');
+        const clearBtn = document.getElementById('clearFilters');
+        const rows = document.querySelectorAll('.trainer-row');
+
+        function filterTable() {
+            const cat = categoryFilter.value;
+            const gen = genderFilter.value;
+            rows.forEach(row => {
+                const rowCat = row.dataset.category;
+                const rowGen = row.dataset.gender;
+                const catMatch = !cat || rowCat === cat;
+                const genMatch = !gen || rowGen === gen;
+                row.style.display = (catMatch && genMatch) ? '' : 'none';
+            });
+        }
+
+        categoryFilter.addEventListener('change', filterTable);
+        genderFilter.addEventListener('change', filterTable);
+        clearBtn.addEventListener('click', function() {
+            categoryFilter.value = '';
+            genderFilter.value = '';
+            filterTable();
+        });
+    })();
+</script>
+{% endblock %}

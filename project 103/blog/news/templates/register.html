@@ -1,69 +1,46 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Future Gym | Member Registration</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    
-    <style>
-        :root { --gym-primary: #0d6efd; --gym-bg: #f4f7fa; --glass: rgba(255, 255, 255, 0.9); }
-        body { font-family: 'Inter', sans-serif; background-color: var(--gym-bg); color: #1a1d20; }
-        .navbar { background: rgba(33, 37, 41, 0.85) !important; backdrop-filter: blur(15px); }
-        
-        .reg-header {
-            background: linear-gradient(135deg, #121417 0%, #2c3e50 100%);
-            padding: 80px 0;
-            color: white;
-            border-radius: 0 0 50px 50px;
-        }
-
-        .reg-card {
-            background: var(--glass);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            border-radius: 30px;
-            margin-top: -50px;
-            padding: 40px;
-        }
-
-        .form-control, .form-select {
-            border-radius: 12px;
-            padding: 12px;
-            border: 1px solid #dee2e6;
-            background-color: rgba(255, 255, 255, 0.5);
-        }
-
-        .form-control:focus {
-            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.1);
-            background-color: white;
-        }
-
-        .upload-box {
-            border: 2px dashed #0d6efd;
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .upload-box:hover { background: rgba(13, 110, 253, 0.05); }
-    </style>
-</head>
-<body>
-
-    <nav class="navbar navbar-expand-lg navbar-dark sticky-top py-3">
+{% extends 'base.html' %}
+{% block title %}Future Gym | Member Registration{% endblock %}
+{% block extra_head %}
+<style>
+    body { background: linear-gradient(135deg, #0f172a, #1e293b) !important; }
+    .upload-box {
+        width: 150px; height: 150px;
+        border: 2px dashed #0d6efd;
+        border-radius: 50%;
+        padding: 20px;
+        text-align: center;
+        cursor: pointer;
+        transition: 0.3s;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        margin: 0 auto;
+    }
+    .upload-box:hover { background: rgba(13, 110, 253, 0.1); }
+    .upload-box.has-image {
+        border: 2px solid rgba(13, 110, 253, 0.3);
+    }
+    .upload-box img {
+        width: 100%; height: 100%;
+        object-fit: cover; border-radius: 50%;
+    }
+</style>
+{% endblock %}
+{% block navbar %}
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
         <div class="container">
             <a class="navbar-brand fw-bold fs-4" href="{% url 'home_url' %}">
                 <i class="bi bi-lightning-charge-fill text-primary"></i> FUTURE<span class="text-primary">GYM</span>
             </a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="{% url 'home_url' %}">Home</a></li>
+                </ul>
+            </div>
         </div>
     </nav>
-
-    <header class="reg-header text-center">
+{% endblock %}
+{% block content %}
+    <header class="gradient-header text-center fade-in">
         <div class="container">
             <h1 class="display-4 fw-bold">Join the Elite</h1>
             <p class="lead opacity-75">Create your athletic profile and start tracking your performance.</p>
@@ -72,11 +49,17 @@
 
     <main class="container mb-5">
         <div class="row justify-content-center">
-            <div class="col-lg-7">
-                <div class="reg-card shadow-lg">
+            <div class="col-lg-7 fade-in fade-in-delay-1">
+                <div class="glass-card">
                     <form method="POST" action="" enctype="multipart/form-data">
                         {% csrf_token %}
-                        
+                        {% if messages %}
+                            <div class="col-12">
+                                {% for message in messages %}
+                                    <div class="alert alert-{{ message.tags }} py-2" role="alert">{{ message }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
                         <div class="row g-4">
                             <div class="col-12 text-center mb-2">
                                 <h4 class="fw-bold">Profile Details</h4>
@@ -88,26 +71,68 @@
                                 <input type="text" name="full_name" class="form-control" placeholder="e.g. John Smith" required>
                             </div>
 
-                            <div class="col-md-12">
-                                <label class="form-label small fw-bold text-muted">FACILITY CATEGORY</label>
-                                        <select name="category" class="form-select" required>
-                                            <option value="" selected disabled>Select training area...</option>
-                                            
-                                            {% for cat in categories %}
-                                                <option value="{{ cat.id }}">{{ cat.name }}</option>
-                                            {% endfor %}
-                                            
-                                        </select>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-muted">EMAIL ADDRESS</label>
+                                <input type="email" name="email" class="form-control" placeholder="e.g. john@example.com" required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-muted">PHONE NUMBER</label>
+                                <input type="tel" name="phone_number" class="form-control" placeholder="e.g. +1234567890" required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-muted">ROLE</label>
+                                <select name="role" class="form-select" required>
+                                    <option value="trainee">Trainee</option>
+                                    <option value="trainer">Trainer</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-muted">GENDER</label>
+                                <select name="gender" class="form-select">
+                                    <option value="">Select gender</option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-muted">TRAINER CATEGORY</label>
+                                <select name="category" class="form-select">
+                                    <option value="">Select a category</option>
+                                    {% for category in categories %}
+                                        <option value="{{ category.id }}">{{ category.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="form-text">Only required when creating a trainer profile.</div>
                             </div>
 
                             <div class="col-12">
                                 <label class="form-label small fw-bold text-muted">PROFILE IMAGE</label>
-                                <div class="upload-box">
-                                    <i class="bi bi-cloud-arrow-up fs-2 text-primary"></i>
-                                    <input type="file" name="profile_image" class="form-control mt-2" accept="image/*" required>
-                                    <p class="small text-muted mt-2 mb-0">Max size 2MB. JPG or PNG only.</p>
+                                <div class="upload-box" id="uploadBox" onclick="document.getElementById('imageInput').click()">
+                                    <i class="bi bi-camera fs-2 text-primary"></i>
+                                    <p class="small text-muted mt-1 mb-0">Click to upload</p>
                                 </div>
+                                <input type="file" id="imageInput" name="profile_image" class="d-none" accept="image/*">
+                                <p class="small text-muted text-center mt-2 mb-0">Max size 2MB. JPG or PNG only.</p>
                             </div>
+
+<script>
+document.getElementById('imageInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+            const box = document.getElementById('uploadBox');
+            box.innerHTML = '<img src="' + ev.target.result + '" alt="Preview">';
+            box.classList.add('has-image');
+        };
+        reader.readAsDataURL(file);
+    }
+});
+</script>
 
                             <div class="col-12">
                                 <label class="form-label small fw-bold text-muted">ATHLETE BIO / DETAILS</label>
@@ -115,7 +140,7 @@
                             </div>
 
                             <div class="col-12 mt-4">
-                                <button type="submit" class="btn btn-primary btn-lg w-100 py-3 rounded-3 shadow">
+                                <button type="submit" class="btn btn-glow btn-lg w-100 py-3">
                                     Register Profile
                                 </button>
                             </div>
@@ -127,8 +152,5 @@
     </main>
 
     <footer class="text-center py-4 text-muted small">
-        © 2025 Future Gym Systems • Automated Enrollment Portal
     </footer>
-
-</body>
-</html>
+{% endblock %}

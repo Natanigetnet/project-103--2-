@@ -1,0 +1,239 @@
+{% extends 'base.html' %}
+{% block title %}{{ category.name }} | Future Gym{% endblock %}
+{% block extra_head %}
+<style>
+    .catalog-hero {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #2c3e50 100%);
+        border-radius: var(--radius-lg);
+        padding: 3rem;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    .catalog-hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(13,110,253,0.12) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+    .catalog-hero > * { position: relative; z-index: 1; }
+    .catalog-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);
+        color: white;
+    }
+    .space-item {
+        background: rgba(15, 17, 22, 0.65);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: var(--radius-md);
+        padding: 1.25rem;
+        transition: all 0.3s ease;
+    }
+    .space-item:hover {
+        border-color: rgba(99, 102, 241, 0.4);
+        box-shadow: var(--card-shadow-hover);
+        transform: translateY(-2px);
+    }
+    .trainer-card-small {
+        background: rgba(15, 17, 22, 0.65);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: var(--radius-md);
+        padding: 1rem;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    .trainer-card-small:hover {
+        border-color: rgba(99, 102, 241, 0.4);
+        box-shadow: var(--card-shadow-hover);
+    }
+    .trainer-avatar-sm {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: var(--gym-gradient);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+    .session-row {
+        background: rgba(15, 17, 22, 0.5);
+        border-radius: var(--radius-sm);
+        padding: 0.75rem 1rem;
+        border-left: 3px solid var(--gym-blue);
+        transition: all 0.2s;
+    }
+    .session-row:hover {
+        background: rgba(15, 17, 22, 0.8);
+    }
+    .badge-space {
+        background: rgba(13,110,253,0.15);
+        color: #60a5fa;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+{% block navbar %}
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold fs-4" href="{% url 'home_url' %}">
+                <i class="bi bi-lightning-charge-fill text-primary"></i> FUTURE<span class="text-primary">GYM</span>
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><i class="bi bi-list fs-2 text-white"></i></button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="{% url 'home_url' %}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'trainer_categories_url' %}">Trainers & Types</a></li>
+                    <li class="nav-item"><a class="nav-link" href="javascript:history.back()"><i class="bi bi-arrow-left me-1"></i>Back</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+{% endblock %}
+{% block content %}
+    {% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show shadow-sm" role="alert">{{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <main class="container mt-5 pt-4">
+
+        <div class="catalog-hero fade-in">
+            <div class="d-flex align-items-start gap-4">
+                <div class="catalog-icon flex-shrink-0">
+                    <i class="bi bi-tag-fill"></i>
+                </div>
+                <div>
+                    <span class="badge-modern bg-primary mb-2">Training Category</span>
+                    <h1 class="display-5 fw-bold mb-2">{{ category.name }}</h1>
+                    {% if category.description %}
+                    <p class="lead mb-0 opacity-75">{{ category.description }}</p>
+                    {% else %}
+                    <p class="lead mb-0 opacity-75">Explore training spaces, trainers, and upcoming sessions in this category.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="glass-card p-4 fade-in">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-building text-primary me-2"></i>Training Spaces</h5>
+                    {% if spaces %}
+                    <div class="row g-3">
+                        {% for space in spaces %}
+                        <div class="col-md-6">
+                            <div class="space-item h-100">
+                                <div class="d-flex align-items-start gap-2">
+                                    <div class="text-primary fs-4"><i class="bi bi-geo-alt-fill"></i></div>
+                                    <div>
+                                        <div class="fw-bold">{{ space.name }}</div>
+                                        {% if space.description %}<div class="text-muted small mt-1">{{ space.description }}</div>{% endif %}
+                                        <div class="mt-2"><span class="badge-space">{{ category.name }}</span></div>
+                                    </div>
+                                </div>
+                                <div class="mt-2 small text-muted">Available for booking by trainers</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="bi bi-building fs-1 mb-2 d-block" style="opacity:0.3"></i>
+                        <p class="mb-0">No training spaces created for this category yet.</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="glass-card p-4 mt-4 fade-in fade-in-delay-2">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-calendar-event text-primary me-2"></i>Upcoming Sessions</h5>
+                    {% if upcoming_sessions %}
+                        {% for session in upcoming_sessions %}
+                        <div class="session-row mb-2">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="fw-semibold">{{ session.title }}</div>
+                                    <div class="text-muted small">
+                                        <i class="bi bi-clock me-1"></i>{{ session.session_date|date:'D, M j \a\t g:i A' }}
+                                        {% if session.space %}&middot; <i class="bi bi-geo-alt ms-1"></i>{{ session.space.name }}{% endif %}
+                                    </div>
+                                </div>
+                                <div class="text-end small">
+                                    <span class="text-muted">{{ session.registered_trainees.count }}/{{ session.max_trainees }}</span>
+                                    <div class="text-muted">{{ session.trainer.name|default:'Trainer' }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="bi bi-calendar-x fs-1 mb-2 d-block" style="opacity:0.3"></i>
+                        <p class="mb-0">No upcoming sessions in this category.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="glass-card p-4 fade-in fade-in-delay-1">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-people-fill text-primary me-2"></i>Trainers ({{ trainers|length }})</h5>
+                    {% if trainers %}
+                        {% for trainer in trainers %}
+                        <a href="{% url 'detail_url' name=trainer.name %}" class="text-decoration-none">
+                            <div class="trainer-card-small mb-2">
+                                <div class="trainer-avatar-sm">{{ trainer.name|first|upper }}</div>
+                                <div>
+                                    <div class="fw-semibold text-white">{{ trainer.name }}</div>
+                                    <div class="text-muted small">
+                                        {% with count=trainer.trainer.trainees.count %}
+                                        {{ count }} trainee{{ count|pluralize }}
+                                        {% endwith %}
+                                    </div>
+                                </div>
+                                <div class="ms-auto"><i class="bi bi-chevron-right text-muted"></i></div>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="bi bi-person-x fs-1 mb-2 d-block" style="opacity:0.3"></i>
+                        <p class="mb-0">No trainers assigned to this category.</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="glass-card p-4 mt-4 fade-in fade-in-delay-2">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-info-circle text-primary me-2"></i>Quick Actions</h5>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'trainer_categories_url' %}" class="btn btn-outline-glow"><i class="bi bi-grid me-2"></i>Browse All Categories</a>
+                        {% if user.is_superuser %}
+                        <a href="{% url 'members_url' %}" class="btn btn-outline-glow"><i class="bi bi-people me-2"></i>View Members</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+{% endblock %}

@@ -1,137 +1,200 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Future Gym | Management Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    
-    <style>
-        :root {
-            --gym-primary: #0d6efd;
-            --gym-bg: #f4f7fa;
-            --glass: rgba(255, 255, 255, 0.9);
-        }
-
-        body { font-family: 'Inter', sans-serif; background-color: var(--gym-bg); color: #1a1d20; }
-
-        /* Glassmorphism Navbar */
-        .navbar {
-            background: rgba(33, 37, 41, 0.85) !important;
-            backdrop-filter: blur(15px);
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-
-        /* Hero Section Styling */
-        .hero-section {
-            background: linear-gradient(135deg, #121417 0%, #2c3e50 100%);
-            padding: 100px 0;
-            color: white;
-            border-radius: 0 0 50px 50px;
-            margin-bottom: -50px;
-        }
-
-        .activity-card {
-            background: var(--glass);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            border-radius: 25px;
-            transition: transform 0.3s ease;
-        }
-
-        .sidebar-widget {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-        }
-
-        .btn-primary { border-radius: 12px; padding: 12px 28px; font-weight: 600; }
-        .dropdown-menu-dark { border-radius: 15px; padding: 10px; }
-    </style>
-</head>
-<body>
-
-    <nav class="navbar navbar-expand-lg navbar-dark sticky-top py-3">
+{% extends 'base.html' %}
+{% block title %}Future Gym | Interactive Hub{% endblock %}
+{% block extra_head %}
+<style>
+    .hero-section {
+        background: linear-gradient(rgba(15, 23, 42, 0.55), rgba(15, 23, 42, 0.88)),
+                    url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1920&q=80') no-repeat center center;
+        background-size: cover;
+        padding: 160px 0 100px;
+        color: white;
+        border-radius: 0 0 50px 50px;
+        position: relative;
+    }
+    .alert-info {
+        background: rgba(15, 17, 22, 0.85) !important;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.08) !important;
+        color: #f1f5f9 !important;
+    }
+    .alert-info .text-dark { color: #f1f5f9 !important; }
+    .badge.bg-light {
+        background: rgba(255,255,255,0.1) !important;
+        color: #e2e8f0 !important;
+    }
+    @media (max-width: 767.98px) {
+        .hero-section { padding: 100px 0 50px !important; border-radius: 0 0 30px 30px !important; }
+        .hero-section h1 { font-size: 1.8rem !important; }
+        .hero-section .lead { font-size: 1rem !important; }
+    }
+</style>
+{% endblock %}
+{% block navbar %}
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
         <div class="container">
-            <a class="navbar-brand fw-bold fs-4" href="{% url 'home_url' %}">
+            <a class="navbar-brand fw-bold fs-4 d-flex align-items-center" href="{% url 'home_url' %}">
                 <i class="bi bi-lightning-charge-fill text-primary"></i> FUTURE<span class="text-primary">GYM</span>
+                {% if user.is_authenticated %}
+                <span class="badge ms-2 fs-6"
+                      style="{% if user.is_superuser %}background: rgba(220, 38, 38, 0.8); color: white;{% elif user.profile.is_trainer %}background: rgba(99, 102, 241, 0.8); color: white;{% elif is_trainee %}background: rgba(16, 185, 129, 0.8); color: white;{% elif is_registrar %}background: rgba(245, 158, 11, 0.8); color: white;{% endif %}">
+                    {% if user.is_superuser %}
+                        Administrator
+                    {% elif user.profile.is_trainer %}
+                        Trainer
+                    {% elif is_trainee %}
+                        Member
+                    {% elif is_registrar %}
+                        Registrar
+                    {% endif %}
+                </span>
+                {% endif %}
             </a>
             
             <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
+                <i class="bi bi-list fs-2 text-white"></i>
             </button>
 
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto align-items-center gap-2">
+                <ul class="navbar-nav ms-auto align-items-center">
                     <li class="nav-item"><a class="nav-link active" href="{% url 'home_url' %}">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'members_url' %}">Athletes</a></li>
-                    
+                    <li class="nav-item"><a class="nav-link" href="{% url 'about_url' %}">About</a></li>
+
                     {% if user.is_authenticated %}
-                        {% if not user.is_superuser %}
-                        <li class="nav-item">
-                            <a class="nav-link text-info fw-semibold" href="{% url 'contact_url' %}">
-                                <i class="bi bi-patch-question"></i> Ask Support
+                        {% if is_registrar %}
+                        <li class="nav-item dropdown ms-lg-2">
+                            <a class="nav-link dropdown-toggle fw-bold" href="#" data-bs-toggle="dropdown" style="color:rgba(255,255,255,0.65) !important;">
+                                <i class="bi bi-person-badge me-1" style="color:#f59e0b;"></i> Registrar
                             </a>
-                        </li>
-                        <li><a class="nav-link text-info fw-semibold" href="{% url 'ques_list_url' %}"><i class="bi bi-chat-dots me-2"></i>Inquiries</a></li>
-
-                        {% endif %}
-                        {% if user.is_superuser %}
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-primary fw-bold" href="#" data-bs-toggle="dropdown">
-                                <i class="bi bi-shield-lock-fill"></i> Management
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-dark border-0 shadow-lg">
-                                <li><a class="dropdown-item" href="{% url 'user_management_url' %}"><i class="bi bi-people me-2"></i>Manage Users</a></li>
-                                <li><a class="dropdown-item" href="{% url 'cat_list_url' %}"><i class="bi bi-tags me-2"></i>Categories</a></li>
-                                <li><a class="dropdown-item" href="{% url 'ques_list_url' %}"><i class="bi bi-chat-dots me-2"></i>Inquiries</a></li>
-
+                            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark shadow-lg border-0 mt-3 p-2">
+                                <li><a class="dropdown-item rounded-3" href="{% url 'registrar_dashboard_url' %}"><i class="bi bi-speedometer2 me-2" style="color:#f59e0b;"></i>Dashboard</a></li>
+                                <li><a class="dropdown-item rounded-3" href="{% url 'registrar_register_url' %}"><i class="bi bi-person-plus me-2" style="color:#f59e0b;"></i>Register</a></li>
+                                <li><a class="dropdown-item rounded-3" href="{% url 'registrar_scan_qr_url' %}"><i class="bi bi-qr-code-scan me-2" style="color:#f59e0b;"></i>QR Scan</a></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="/admin/"><i class="bi bi-cpu me-2"></i>Admin Portal</a></li>
+                                <li><a class="dropdown-item rounded-3" href="{% url 'registrar_attendance_log_url' %}"><i class="bi bi-clock-history me-2" style="color:#f59e0b;"></i>Attendance Log</a></li>
+                                <li><a class="dropdown-item rounded-3" href="{% url 'home_url' %}#sessions"><i class="bi bi-calendar-event me-2" style="color:#f59e0b;"></i>Sessions</a></li>
                             </ul>
                         </li>
                         {% endif %}
 
-                        <li class="nav-item ms-lg-3">
-                            <span class="nav-link text-white-50 small pe-3">
-                                <i class="bi bi-person-circle text-primary"></i> {{ user.username }}
-                            </span>
+                        {% if is_trainee and assigned_trainer_name %}
+                        <li class="nav-item ms-lg-2">
+                            <a class="nav-link fw-bold" href="{% url 'detail_url' name=assigned_trainer_name %}" style="color:rgba(255,255,255,0.85) !important;">
+                                <i class="bi bi-person-badge-fill text-warning me-1"></i> Trainer
+                            </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="btn btn-outline-danger btn-sm px-4 rounded-pill" href="{% url 'logout_url' %}">Logout</a>
+                        {% endif %}
+
+                        {% if not user.is_superuser and not is_registrar %}
+                        <li class="nav-item dropdown ms-lg-2">
+                            <a class="nav-link dropdown-toggle fw-bold" href="#" data-bs-toggle="dropdown" style="color:rgba(255,255,255,0.65) !important;">
+                                <i class="bi bi-three-dots me-1"></i> Menu
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark shadow-lg border-0 mt-3 p-2">
+                                <li><a class="dropdown-item rounded-3" href="{% url 'chat_url' %}"><i class="bi bi-robot text-success me-2"></i>AI Assistant</a></li>
+                                <li><a class="dropdown-item rounded-3" href="{% url 'contact_url' %}"><i class="bi bi-envelope me-2"></i>Contact</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item rounded-3" href="{% url 'trainer_categories_url' %}"><i class="bi bi-grid me-2"></i>Explore</a></li>
+                                <li><a class="dropdown-item rounded-3 position-relative" href="{% url 'response_list_url' %}">
+                                    <i class="bi bi-chat-left-text-fill me-2"></i>Messages
+                                    {% if unread_count > 0 %}
+                                    <span class="badge rounded-pill bg-danger ms-2" style="font-size:0.65rem;">{{ unread_count }}</span>
+                                    {% endif %}
+                                </a></li>
+                                {% if user.profile.is_trainer %}
+                                <li><a class="dropdown-item rounded-3" href="{% url 'trainer_tracker_url' %}"><i class="bi bi-speedometer2 me-2"></i>Tracker</a></li>
+                                <li><a class="dropdown-item rounded-3" href="{% url 'trainer_settings_url' %}"><i class="bi bi-gear me-2"></i>Profile</a></li>
+                                {% elif is_trainee %}
+                                <li><a class="dropdown-item rounded-3" href="{% url 'trainee_settings_url' %}"><i class="bi bi-gear me-2"></i>Settings</a></li>
+                                <li><a class="dropdown-item rounded-3" href="{% url 'trainee_bmi_url' %}"><i class="bi bi-heart-pulse text-primary me-2"></i>Progress</a></li>
+                                <li><a class="dropdown-item rounded-3" href="https://t.me/+n_DwILDm1kQ2YWI8" target="_blank"><i class="bi bi-telegram text-primary me-2"></i>Telegram</a></li>
+                                {% endif %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item rounded-3" href="{% url 'my_id_card_url' %}"><i class="bi bi-card-text me-2"></i>ID Card</a></li>
+                            </ul>
+                        </li>
+                        {% endif %}
+                        {% if user.is_superuser %}
+                        <li class="nav-item dropdown ms-lg-2">
+                            <a class="nav-link dropdown-toggle text-primary fw-bold" href="#" data-bs-toggle="dropdown">
+                                <i class="bi bi-shield-lock-fill me-1"></i> Management
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark shadow-lg border-0 mt-3 p-2">
+                                <li><a class="dropdown-item rounded-3" href="{% url 'members_url' %}"><i class="bi bi-people me-2"></i>Member</a></li>
+                                <li><a class="dropdown-item rounded-3" href="{% url 'user_management_url' %}"><i class="bi bi-person-badge me-2"></i>Staff Accounts</a></li>
+                                <li><a class="dropdown-item rounded-3" href="{% url 'cat_list_url' %}"><i class="bi bi-tags me-2"></i>Categories</a></li>
+                                <li><a class="dropdown-item rounded-3" href="{% url 'ques_list_url' %}"><i class="bi bi-chat-dots me-2"></i>Inquiries</a></li>
+                                <li><a class="dropdown-item rounded-3" href="{% url 'record_payment_url' %}"><i class="bi bi-cash-stack me-2"></i>Record Payment</a></li>
+                                <li><a class="dropdown-item rounded-3" href="{% url 'telegram_broadcast_url' %}"><i class="bi bi-send me-2"></i>Telegram Broadcast</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item rounded-3" href="{% url 'admin_scan_qr_url' %}"><i class="bi bi-qr-code-scan me-2"></i>QR Scanner</a></li>
+                                <li><a class="dropdown-item rounded-3" href="{% url 'attendance_log_url' %}"><i class="bi bi-clock-history me-2"></i>Attendance Log</a></li>
+                                <li><a class="dropdown-item rounded-3" href="{% url 'attendance_dashboard_url' %}"><i class="bi bi-bar-chart-fill me-2"></i>Attendance Dashboard</a></li>
+                                <li><a class="dropdown-item rounded-3" href="{% url 'admin_url' %}"><i class="bi bi-cpu me-2"></i>Core Management</a></li>
+                            </ul>
+                        </li>
+                        {% endif %}
+                        {% if my_detail_name %}
+                        <li class="nav-item ms-lg-2">
+                            <a href="{% url 'detail_url' name=my_detail_name %}" class="text-decoration-none d-flex align-items-center nav-link p-1" title="My Profile">
+                                <span class="d-flex align-items-center justify-content-center rounded-circle" style="width:34px;height:34px;background:rgba(255,255,255,0.12);font-weight:700;font-size:0.85rem;color:rgba(255,255,255,0.85);">
+                                    {{ user.first_name|first|upper|default:user.username|first|upper }}
+                                </span>
+                            </a>
+                        </li>
+                        {% endif %}
+                        <li class="nav-item ms-lg-2">
+                            <a href="{% url 'logout_url' %}" class="btn btn-outline-danger btn-sm rounded-pill px-4">Logout</a>
                         </li>
                     {% else %}
-                        <li class="nav-item"><a class="nav-link px-3" href="{% url 'login_url' %}">Sign In</a></li>
-                        <li class="nav-item ms-lg-2">
-                            <a class="btn btn-primary btn-sm px-4 rounded-pill shadow-sm" href="{% url 'register_url' %}">Join Gym</a>
+                        <li class="nav-item ms-lg-3">
+                            <a href="{% url 'login_url' %}" class="btn btn-glow btn-sm rounded-pill">Sign In</a>
                         </li>
                     {% endif %}
                 </ul>
             </div>
         </div>
     </nav>
-
+{% endblock %}
+{% block content %}
     <header class="hero-section">
         <div class="container">
             <div class="row align-items-center">
-                <div class="col-md-7">
-                    <span class="badge bg-primary px-3 py-2 mb-3 rounded-pill">System Online • 2026 Edition</span>
-                    <h1 class="display-3 fw-bold mb-4">Future Gym Hub</h1>
-                    <p class="lead opacity-75 mb-4">The ultimate tracking suite for the modern athletic facility. Manage your floor and monitor member retention in real-time.</p>
+                <div class="col-lg-7 fade-in">
                     
-                    <div class="d-flex gap-3">
-                        {% if user.is_authenticated %}
-                            <a href="{% url 'register_url' %}" class="btn btn-primary btn-lg">Add New Athlete</a>
-                            {% if user.is_superuser %}
-                                <a href="{% url 'user_management_url' %}" class="btn btn-warning btn-lg fw-bold">
-                                    <i class="bi bi-gear-fill"></i> Manage System
-                                </a>
-                            {% endif %}
-                        {% else %}
-                            <a href="{% url 'register_url' %}" class="btn btn-primary btn-lg">Get Started</a>
-                            <a href="{% url 'login_url' %}" class="btn btn-outline-light btn-lg">Member Login</a>
+                    <h1 class="display-2 fw-bold mb-4">Future <span class="text-primary">Gym</span> Hub</h1>
+                    <p class="lead text-white-50 mb-5">Let's Grow Together</p>
+                    <div class="d-flex gap-3 align-items-center flex-wrap">
+                        {% if user.is_superuser %}
+                        <a href="{% url 'manage_staff_url' %}" class="btn btn-glow"><i class="bi bi-person-badge me-1"></i>New Desk</a>
+                        {% endif %}
+                        {% if user.is_superuser %}
+                        <a href="{% url 'members_url' %}" class="btn btn-outline-glow">Activity</a>
+                        {% endif %}
+                        {% if user.is_authenticated and not user.is_superuser %}
+                        <a href="{% url 'my_id_card_url' %}" class="btn btn-outline-glow">
+                            <i class="bi bi-card-text me-1"></i> My ID
+                        </a>
+                        {% endif %}
+                        {% if is_trainee %}
+                        <a href="{% url 'trainer_selector_url' %}" class="btn btn-outline-glow">Find Trainers</a>
+                        {% endif %}
+                        {% if is_trainee %}
+                        <a href="{% url 'trainee_sessions_url' %}" class="btn btn-outline-glow">Trainer Sessions</a>
+                        {% endif %}
+                        {% if user.is_authenticated and user.profile.is_trainer %}
+                        <a href="{% url 'session_hub_url' %}" class="btn btn-outline-glow">Sessions</a>
+                        {% endif %}
+                        
+                        <!-- Trainer Create Action Button Addition -->
+                        {% if user.is_authenticated and user.profile.is_trainer or request.user.names_set.first.role == 'trainer' %}
+                        <button type="button" class="btn btn-success px-4 py-2 rounded-3 fw-bold shadow" data-bs-toggle="modal" data-bs-target="#createSessionModal">
+                            <i class="bi bi-plus-circle me-2"></i>Create Session Slot
+                        </button>
+                        {% endif %}
+                        {% if is_registrar %}
+                        <a href="{% url 'registrar_dashboard_url' %}" class="btn btn-glow">Dashboard</a>
+                        <a href="{% url 'registrar_register_url' %}" class="btn btn-outline-glow">Register Trainee</a>
+                        <a href="{% url 'registrar_scan_qr_url' %}" class="btn btn-outline-glow">QR Scan</a>
                         {% endif %}
                     </div>
                 </div>
@@ -139,76 +202,218 @@
         </div>
     </header>
 
-    <main class="container mt-5 pt-5">
+    <main class="container mt-5 pt-4">
         <div class="row g-4">
-            <div class="col-lg-8">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h3 class="fw-bold"><i class="bi bi-pulse text-primary"></i> Daily Pulse</h3>
-                    <span class="text-muted small">Updated 1m ago</span>
-                </div>
-
-                <div class="activity-card p-4 shadow-sm mb-4">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div class="d-flex align-items-center">
-                            <div class="bg-primary bg-opacity-10 p-3 rounded-4 me-3">
-                                <i class="bi bi-person-plus-fill text-primary fs-4"></i>
+            <div class="col-lg-8 fade-in fade-in-delay-2">
+                
+                <!-- Trainee Live Alerts Node Stream Panel Addition -->
+                {% if is_trainee or request.user.names_set.first.role == 'trainee' %}
+                <div class="session-alerts-container mb-4">
+                    {% for cat_sessions in upcoming_sessions.values %}{% for session in cat_sessions %}
+                        {% if request.user.names_set.first.assigned_trainer == session.trainer and not request.user.names_set.first in session.registered_trainees.all and not session.is_full %}
+                            <div class="alert alert-info border-0 rounded-4 p-4 shadow-sm mb-3 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                                <div>
+                                    <span class="badge bg-primary text-uppercase mb-1 small" style="font-size: 0.7rem; letter-spacing: 0.5px;">New Coach Session Alert</span>
+                                    <h5 class="fw-bold mb-1 text-dark">{{ session.title }}</h5>
+                                    <p class="text-muted small mb-0">
+                                        Broadcasted by Coach <strong>{{ session.trainer.name }}</strong> for <span class="text-primary font-semibold">{{ session.session_date|date:"M d, Y @ h:i A" }}</span>.
+                                        <span class="badge bg-light text-primary border border-primary-subtle ms-1 px-2 py-0.5">{{ session.slots_left }} spots remaining!</span>
+                                    </p>
+                                    {% if session.description %}
+                                        <p class="text-secondary small italic mb-0 mt-1">Note: "{{ session.description }}"</p>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <a href="{% url 'register_session_url' session.id %}" class="btn btn-primary rounded-pill px-4 py-2 d-inline-flex align-items-center gap-2 shadow-sm fw-bold">
+                                        <i class="bi bi-calendar-plus"></i> Register Now
+                                    </a>
+                                </div>
                             </div>
-                            <div>
-                                <h5 class="mb-1 fw-bold">New Athlete Registration</h5>
-                                <p class="text-muted small mb-0">Member #8292 successfully joined the system.</p>
+                        {% endif %}
+                    {% endfor %}{% endfor %}
+                </div>
+                {% endif %}
+
+                {% if is_registrar and upcoming_sessions %}
+                <div class="mt-4" id="sessions">
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <div class="vr" style="width:4px; height:28px; background: linear-gradient(180deg, #6366f1, #a855f7); border-radius:4px;"></div>
+                        <h5 class="fw-bold mb-0"><i class="bi bi-calendar-event text-primary me-2"></i> Upcoming Training Sessions</h5>
+                        <span class="badge rounded-pill px-3 py-1" style="background:linear-gradient(135deg, #6366f1, #a855f7); font-size:0.7rem;">
+                            Registrar View
+                        </span>
+                    </div>
+                    <div class="row g-3">
+                        {% for category_name, sessions in upcoming_sessions.items %}
+                        <div class="col-12">
+                            <div class="glass-card rounded-4 overflow-hidden border-0">
+                                <div class="px-4 py-3 d-flex align-items-center gap-3" style="border-bottom:1px solid rgba(255,255,255,0.06);">
+                                    <div class="d-flex align-items-center justify-content-center rounded-circle" style="width:36px; height:36px; background:rgba(99,102,241,0.15);">
+                                        <i class="bi bi-tag-fill text-primary" style="font-size:0.85rem;"></i>
+                                    </div>
+                                    <h6 class="mb-0 fw-semibold flex-grow-1">{{ category_name }}</h6>
+                                    <span class="badge rounded-pill" style="background:rgba(99,102,241,0.15); color:#a5b4fc; font-size:0.65rem;">{{ sessions|length }} session{{ sessions|length|pluralize }}</span>
+                                </div>
+                                <div class="p-0">
+                                    {% for session in sessions %}
+                                    <div class="px-4 py-3 d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2 {% if not forloop.last %}" style="border-bottom:1px solid rgba(255,255,255,0.04);{% endif %}">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="d-flex align-items-center justify-content-center rounded-3 flex-shrink-0" style="width:44px; height:44px; background:linear-gradient(135deg, rgba(99,102,241,0.12), rgba(168,85,247,0.08));">
+                                                <i class="bi bi-lightning-charge-fill text-primary"></i>
+                                            </div>
+                                            <div>
+                                                <span class="fw-semibold text-white d-block" style="font-size:0.95rem;">{{ session.title }}</span>
+                                                <span class="small" style="color:rgba(255,255,255,0.45);">
+                                                    <i class="bi bi-person-badge me-1"></i>{{ session.trainer.name }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                                            <span class="small" style="color:rgba(255,255,255,0.55);">
+                                                <i class="bi bi-clock me-1"></i>{{ session.session_date|date:"M d, H:i" }}
+                                            </span>
+                                            {% if session.slots_left %}
+                                            <span class="badge rounded-pill px-2 py-1" style="background:rgba(251,191,36,0.12); color:#fbbf24; font-size:0.65rem;">
+                                                <i class="bi bi-people me-1"></i>{{ session.slots_left }} left
+                                            </span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
                             </div>
                         </div>
-                        <span class="badge bg-light text-dark rounded-pill">09:45 AM</span>
+                        {% endfor %}
                     </div>
                 </div>
+                {% endif %}
 
-                <div class="activity-card p-4 shadow-sm mb-4">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div class="d-flex align-items-center">
-                            <div class="bg-success bg-opacity-10 p-3 rounded-4 me-3">
-                                <i class="bi bi-check2-circle text-success fs-4"></i>
-                            </div>
-                            <div>
-                                <h5 class="mb-1 fw-bold">System Integrity Check</h5>
-                                <p class="text-muted small mb-0">Database sync completed. No errors found.</p>
-                            </div>
-                        </div>
-                        <span class="badge bg-light text-dark rounded-pill">08:12 AM</span>
-                    </div>
-                </div>
             </div>
 
-            <aside class="col-lg-4">
-                <div class="sidebar-widget p-4 mb-4">
-                    <h5 class="fw-bold mb-3"><i class="bi bi-info-circle me-2 text-primary"></i>Quick Status</h5>
-                    <p class="text-muted small">Daily Pulse is currently monitoring **Future Gym Main Hall**. All RFID scanners are operational.</p>
-                    <hr class="opacity-10">
-                    <div class="d-flex justify-content-between mb-2">
-                        <span class="small text-muted">Server Latency:</span>
-                        <span class="small fw-bold">14ms</span>
+            <aside class="col-lg-4 fade-in fade-in-delay-4">
+
+                {% if is_trainee %}
+                <div class="glass-card mb-4">
+                    <h6 class="fw-bold mb-3 d-flex align-items-center">
+                        <i class="bi bi-gear-fill text-primary me-2"></i> My Account
+                    </h6>
+                    <p class="small text-muted mb-3">Update your profile or add medical notes for your trainer.</p>
+                    
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'my_id_card_url' %}" class="btn btn-outline-info btn-sm rounded-3 text-white border-secondary">
+                            <i class="bi bi-card-text me-1"></i> My ID Card
+                        </a>
+                        <a href="{% url 'trainee_account_url' %}" class="btn btn-outline-primary btn-sm rounded-3 text-white border-secondary">
+                            <i class="bi bi-person me-1"></i> Account details
+                        </a>
+                        <a href="{% url 'trainee_medical_url' %}" class="btn btn-outline-danger btn-sm rounded-3 text-white border-secondary">
+                            <i class="bi bi-heart-pulse me-1"></i> Medical info
+                        </a>
                     </div>
                 </div>
+                {% endif %}
 
-                <div class="sidebar-widget p-4">
-                    <h5 class="fw-bold mb-3"><i class="bi bi-envelope-at me-2 text-primary"></i>Staff Alerts</h5>
-                    <p class="small text-muted mb-4">Subscribe to receive instant push notifications for peak capacity alerts.</p>
-                    <form>
-                        <div class="mb-3">
-                            <input type="email" class="form-control border-0 bg-light rounded-3" placeholder="Staff Email">
-                        </div>
-                        <button class="btn btn-dark w-100 py-2 fw-bold rounded-3">Enable Notifications</button>
-                    </form>
-                </div>
+
+
+                
             </aside>
         </div>
     </main>
 
-    <footer class="bg-dark text-white py-5 mt-5">
+    <section class="container py-5 my-4">
+        <div class="row g-4">
+            <div class="col-md-3 col-6">
+                <div class="glass-card h-100 text-center p-4">
+                    <div class="text-primary fs-3 mb-2"><i class="bi bi-fire"></i></div>
+                    <h6 class="fw-bold text-uppercase mb-2">Day One Or One Day?</h6>
+                    <p class="text-white-50 small mb-0 lh-base">Your transformation doesn't start when you lift the steel—it starts the exact second you choose to sign up, show up, and stop looking back.</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="glass-card h-100 text-center p-4">
+                    <div class="text-success fs-3 mb-2"><i class="bi bi-lightning-charge-fill"></i></div>
+                    <h6 class="fw-bold text-uppercase mb-2">Outwork The Excuses</h6>
+                    <p class="text-white-50 small mb-0 lh-base">Your mind will try to quit a thousand times before your muscle blocks ever fail. Break through the noise, lock in your portal, and execute.</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="glass-card h-100 text-center p-4">
+                    <div class="text-warning fs-3 mb-2"><i class="bi bi-trophy-fill"></i></div>
+                    <h6 class="fw-bold text-uppercase mb-2">Forge Your Tomorrow</h6>
+                    <p class="text-white-50 small mb-0 lh-base">Greatness isn't a genetic trait; it is a calculated daily investment. Creating your membership profile is the blueprint of your comeback.</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="glass-card h-100 text-center p-4">
+                    <div class="text-info fs-3 mb-2"><i class="bi bi-graph-up-arrow"></i></div>
+                    <h6 class="fw-bold text-uppercase mb-2">Progress Is Addictive</h6>
+                    <p class="text-white-50 small mb-0 lh-base">The heaviest weight you will ever lift is the weight of hesitation. Once you cross the threshold of this dashboard, you become unstoppable.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-4 border-top border-secondary border-opacity-10">
         <div class="container text-center">
-            <p class="opacity-50 small mb-0">© 2026 Future Gym Systems. Secure Portal v3.5</p>
         </div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+    <!-- Interactive Broadcast Modal Addition -->
+    <div class="modal fade" id="createSessionModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow" style="background: rgba(15, 17, 22, 0.96); backdrop-filter: blur(20px);">
+                <div class="modal-header border-secondary border-opacity-10">
+                    <h5 class="modal-title fw-bold">Broadcast New Training Session</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="{% url 'create_session_url' %}" method="POST">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">SESSION TITLE</label>
+                            <input type="text" name="title" class="form-control rounded-3 p-2.5" placeholder="e.g., Extreme Core Conditioning" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">DESCRIPTION (OPTIONAL)</label>
+                            <textarea name="description" class="form-control rounded-3 p-2.5" rows="2" placeholder="Provide note constraints or target criteria values details..."></textarea>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <label class="form-label small fw-bold">DATE & TIME</label>
+                                <input type="datetime-local" name="session_date" class="form-control rounded-3 p-2.5" required>
+                            </div>
+                            <div class="col-3">
+                                <label class="form-label small fw-bold">DURATION</label>
+                                <select name="duration_minutes" class="form-select rounded-3 p-2.5">
+                                    <option value="30">30 min</option>
+                                    <option value="60" selected>60 min</option>
+                                    <option value="90">90 min</option>
+                                    <option value="120">120 min</option>
+                                </select>
+                            </div>
+                            <div class="col-3">
+                                <label class="form-label small fw-bold">MAX CAPACITY</label>
+                                <input type="number" name="max_trainees" class="form-control rounded-3 p-2.5" min="1" value="10" required>
+                            </div>
+                        </div>
+                        {% if spaces %}
+                        <div class="mt-3">
+                            <label class="form-label small fw-bold">TRAINING SPACE (OPTIONAL)</label>
+                            <select name="space" class="form-select rounded-3 p-2.5">
+                                <option value="">No space needed</option>
+                                {% for space in spaces %}
+                                <option value="{{ space.id }}">{{ space.name }} ({{ space.category.name }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="modal-footer border-top-0 pt-0">
+                        <button type="button" class="btn btn-outline-glow rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-success rounded-pill px-4 fw-bold">Broadcast Alert</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

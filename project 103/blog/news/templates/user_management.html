@@ -1,79 +1,94 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Future Gym | User Management</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <style>
-        :root { --gym-primary: #0d6efd; --gym-bg: #f4f7fa; --glass: rgba(255, 255, 255, 0.9); }
-        body { background-color: var(--gym-bg); font-family: 'Inter', sans-serif; }
-        .mgmt-header { background: linear-gradient(135deg, #121417 0%, #2c3e50 100%); padding: 60px 0; color: white; border-radius: 0 0 50px 50px; }
-        .mgmt-card { background: var(--glass); backdrop-filter: blur(15px); border-radius: 20px; margin-top: -30px; padding: 30px; border: 1px solid rgba(255,255,255,0.5); }
-        .table { border-collapse: separate; border-spacing: 0 10px; }
-        .table tr { background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.02); border-radius: 10px; }
-    </style>
-</head>
-<body>
-    <header class="mgmt-header text-center">
-        <div class="container">
-            <h1 class="fw-bold"><i class="bi bi-people-fill text-primary"></i> User Management</h1>
-            <p class="opacity-75">Access and manage system credentials</p>
+{% extends 'base.html' %}
+{% block title %}Future Gym | User Management{% endblock %}
+{% block extra_head %}
+<style>
+    .table { border-collapse: separate; border-spacing: 0 10px; }
+    .table tr { background: rgba(15, 17, 22, 0.6); box-shadow: 0 2px 5px rgba(0,0,0,0.02); border-radius: 10px; color: #f1f5f9; }
+</style>
+{% endblock %}
+{% block navbar %}
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold fs-4" href="{% url 'home_url' %}">
+            <i class="bi bi-lightning-charge-fill text-primary"></i> FUTURE<span class="text-primary">GYM</span>
+        </a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <i class="bi bi-list fs-2 text-white"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a class="nav-link" href="{% url 'home_url' %}">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="javascript:history.back()"><i class="bi bi-arrow-left me-1"></i>Back</a></li>
+            </ul>
         </div>
-    </header>
+    </div>
+</nav>
+{% endblock %}
+{% block content %}
+<header class="gradient-header text-center">
+    <div class="container">
+        <h1 class="fw-bold"><i class="bi bi-people-fill text-primary"></i> {{ title|default:'User Management' }}</h1>
+        <p class="opacity-75">{{ subtitle|default:'Access and manage system credentials' }}</p>
+    </div>
+</header>
 
-    <main class="container mb-5">
-        <div class="mgmt-card shadow-lg">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h4 class="fw-bold mb-0">Registered Accounts</h4>
-                <a href="{% url 'signup_url' %}" class="btn btn-primary btn-sm rounded-pill px-4">+ New User</a>
-            </div>
-
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-info rounded-3">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead class="text-muted small text-uppercase">
-                        <tr>
-                            <th>Username</th>
-                            <th>Email Address</th>
-                            <th>Status</th>
-                            <th>Joined Date</th>
-                            <th class="text-end">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for u in users %}
-                        <tr>
-                            <td class="fw-bold">{{ u.username }}</td>
-                            <td>{{ u.email }}</td>
-                            <td>
-                                {% if u.is_superuser %}
-                                    <span class="badge bg-dark">Admin</span>
-                                {% else %}
-                                    <span class="badge bg-secondary">Member</span>
-                                {% endif %}
-                            </td>
-                            <td class="small text-muted">{{ u.date_joined|date:"M d, Y" }}</td>
-                            <td class="text-end">
-                                {% if not u.is_superuser %}
-                                <a href="{% url 'delete_user_url' u.id %}" 
-                                   class="btn btn-outline-danger btn-sm rounded-circle"
-                                   onclick="return confirm('Delete this account permanently?')">
-                                    <i class="bi bi-trash"></i>
-                                </a>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+<main class="container mb-5">
+    <div class="glass-card fade-in" style="margin-top: -30px;">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="fw-bold mb-0">{{ title|default:'Registered Accounts' }}</h4>
+            <a href="{% url create_url %}" class="btn btn-glow btn-sm px-4">+ {{ action_label|default:'New User' }}</a>
         </div>
-    </main>
-</body>
-</html>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="text-muted small text-uppercase">
+                    <tr>
+                        <th>Username</th>
+                        <th>Email Address</th>
+                        <th>Role</th>
+                        <th>Joined Date</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in rows %}
+                    <tr>
+                        <td class="fw-bold">{{ row.username }}</td>
+                        <td>{{ row.email }}</td>
+                        <td>
+                            <span class="badge bg-secondary">{{ row.role_label }}</span>
+                            {% if row.is_superuser %}
+                            <span class="badge bg-danger ms-1">Admin</span>
+                            {% endif %}
+                        </td>
+                        <td class="small text-muted">{{ row.joined|date:"M d, Y" }}</td>
+                        <td class="text-end">
+                            {% if not row.is_superuser %}
+                                {% if row.is_user %}
+                                    <a href="{% url 'delete_user_url' row.id %}"
+                                       class="btn btn-outline-danger btn-sm rounded-circle me-2"
+                                       onclick="return confirm('Delete this account permanently?')">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                {% elif row.legacy_id %}
+                                    <a href="{% url 'delete_legacy_member_url' row.legacy_id %}"
+                                       class="btn btn-outline-danger btn-sm rounded-circle me-2"
+                                       onclick="return confirm('Delete this legacy account permanently?')">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                {% endif %}
+
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-4">No accounts found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+{% endblock %}

@@ -1,69 +1,92 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Future Gym | Account Signup</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    
-    <style>
-        :root { --gym-primary: #0d6efd; --gym-bg: #f4f7fa; --glass: rgba(255, 255, 255, 0.9); }
-        body { font-family: 'Inter', sans-serif; background-color: var(--gym-bg); color: #1a1d20; }
-        .navbar { background: rgba(33, 37, 41, 0.85) !important; backdrop-filter: blur(15px); }
-        .reg-header { background: linear-gradient(135deg, #121417 0%, #2c3e50 100%); padding: 80px 0; color: white; border-radius: 0 0 50px 50px; }
-        .reg-card { background: var(--glass); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.5); border-radius: 30px; margin-top: -50px; padding: 40px; }
-        
-        /* Django Form Styling */
-        input { width: 100%; border-radius: 12px; padding: 12px; border: 1px solid #dee2e6; background-color: rgba(255, 255, 255, 0.5); margin-bottom: 10px; }
-        .helptext { font-size: 0.75rem; color: #6c757d; display: block; margin-top: -5px; margin-bottom: 15px; }
-        .errorlist { color: #dc3545; font-size: 0.85rem; list-style: none; padding: 0; }
-    </style>
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark sticky-top py-3">
-        <div class="container">
-            <a class="navbar-brand fw-bold fs-4" href="{% url 'home_url' %}">
-                <i class="bi bi-lightning-charge-fill text-primary"></i> FUTURE<span class="text-primary">GYM</span>
-            </a>
+{% extends 'base.html' %}
+{% block title %}Future Gym | Account Signup{% endblock %}
+{% block extra_head %}
+<style>
+    body { background: linear-gradient(135deg, #0f172a, #1e293b) !important; }
+    .helptext { font-size: 0.75rem; color: #94a3b8; display: block; margin-top: 4px; margin-bottom: 12px; }
+</style>
+{% endblock %}
+{% block navbar %}
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold fs-4" href="{% url 'home_url' %}">
+            <i class="bi bi-lightning-charge-fill text-primary"></i> FUTURE<span class="text-primary">GYM</span>
+        </a>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a class="nav-link" href="{% url 'home_url' %}">Home</a></li>
+                <li class="nav-item"><a class="btn btn-outline-glow btn-sm rounded-pill" href="{% url 'login_url' %}">Sign In</a></li>
+            </ul>
         </div>
-    </nav>
+    </div>
+</nav>
+{% endblock %}
+{% block content %}
+<header class="gradient-header text-center">
+    <div class="container">
+        <h1 class="display-4 fw-bold">Create Account</h1>
+        <p class="lead opacity-75">Join the elite community and secure your data.</p>
+    </div>
+</header>
 
-    <header class="reg-header text-center">
-        <div class="container">
-            <h1 class="display-4 fw-bold">Create Account</h1>
-            <p class="lead opacity-75">Join the elite community and secure your data.</p>
-        </div>
-    </header>
+<main class="container mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="glass-card fade-in" style="margin-top: -50px;">
+                <form method="POST" novalidate>
+                    {% csrf_token %}
 
-    <main class="container mb-5">
-        <div class="row justify-content-center">
-            <div class="col-lg-6">
-                <div class="reg-card shadow-lg">
-                    <form method="POST">
-                        {% csrf_token %}
-                        <div class="row g-3">
-                            <div class="col-12 text-center mb-2">
-                                <h4 class="fw-bold">User Credentials</h4>
-                                <div class="w-100 border-bottom opacity-25"></div>
+                    {% if not is_admin %}
+                    <div class="mb-4">
+                        <h4 class="section-title">Personal Information</h4>
+                        <div class="w-100 border-bottom opacity-25 mb-3"></div>
+                        {% for field in form %}
+                            {% if field.name == 'full_name' or field.name == 'phone_number' or field.name == 'gender' %}
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-muted text-uppercase" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.help_text %}<span class="helptext">{{ field.help_text|safe }}</span>{% endif %}
+                                {% for error in field.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
                             </div>
-                            <div class="col-12">
-                                {% for field in form %}
-                                    <label class="form-label small fw-bold text-muted text-uppercase">{{ field.label }}</label>
-                                    {{ field }}
-                                    {% if field.help_text %}<span class="helptext">{{ field.help_text|safe }}</span>{% endif %}
-                                    {% if field.errors %}<div class="text-danger small">{{ field.errors }}</div>{% endif %}
-                                {% endfor %}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <div class="mb-2">
+                        <h4 class="section-title">Account Credentials</h4>
+                        <div class="w-100 border-bottom opacity-25 mb-3"></div>
+                        {% for field in form %}
+                            {% if field.name != 'full_name' and field.name != 'phone_number' and field.name != 'gender' %}
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-muted text-uppercase" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.help_text %}<span class="helptext">{{ field.help_text|safe }}</span>{% endif %}
+                                {% for error in field.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
                             </div>
-                            <div class="col-12 mt-4">
-                                <button type="submit" class="btn btn-primary btn-lg w-100 py-3 rounded-3 shadow">Create Account</button>
-                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="mb-2">
+                        {% for field in form %}
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted text-uppercase" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.help_text %}<span class="helptext">{{ field.help_text|safe }}</span>{% endif %}
+                            {% for error in field.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
                         </div>
-                    </form>
-                </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-glow w-100 py-3">Create Account</button>
+                    </div>
+                    <p class="text-center small text-muted mt-3 mb-0">
+                        Already have an account? <a href="{% url 'login_url' %}" class="fw-bold">Sign in</a>
+                    </p>
+                </form>
             </div>
         </div>
-    </main>
-</body>
-</html>
+    </div>
+</main>
+{% endblock %}

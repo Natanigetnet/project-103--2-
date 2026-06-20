@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% block title %}Future Gym | My Feedback{% endblock %}
+{% block extra_head %}
+<style>
+    .feedback-card {
+        background: rgba(15, 17, 22, 0.85);
+        backdrop-filter: blur(14px);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        padding: 1.25rem;
+        transition: all 0.3s ease;
+    }
+    .feedback-card:hover {
+        border-color: rgba(99, 102, 241, 0.3);
+        box-shadow: var(--card-shadow-hover);
+    }
+    .stars-display {
+        color: #f59e0b;
+        font-size: 1.1rem;
+        letter-spacing: 2px;
+    }
+    .stars-display .empty {
+        color: rgba(255,255,255,0.15);
+    }
+    .rating-bar {
+        height: 8px;
+        border-radius: 4px;
+        background: rgba(255,255,255,0.08);
+        overflow: hidden;
+    }
+    .rating-bar-fill {
+        height: 100%;
+        border-radius: 4px;
+        background: linear-gradient(90deg, #f59e0b, #eab308);
+    }
+</style>
+{% endblock %}
+{% block navbar %}
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold fs-4" href="{% url 'home_url' %}">
+            <i class="bi bi-lightning-charge-fill text-primary"></i> FUTURE<span class="text-primary">GYM</span>
+        </a>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a class="nav-link" href="{% url 'home_url' %}">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'detail_url' name=trainer.name %}"><i class="bi bi-arrow-left me-1"></i>My Profile</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+{% endblock %}
+{% block content %}
+<header class="gradient-header text-center">
+    <div class="container">
+        <h1 class="display-4 fw-bold">My Feedback</h1>
+        <p class="lead opacity-75">Ratings and comments from your trainees</p>
+    </div>
+</header>
+
+<div class="container my-5">
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="glass-card text-center">
+                <div class="stat-value">{{ stats.avg_rating|floatformat:1 }}</div>
+                <div class="small text-muted text-uppercase fw-bold mt-2">Average Rating</div>
+                <div class="stars-display mt-1">
+                    {% for i in "12345" %}
+                        {% if forloop.counter <= stats.avg_rating %}
+                            <i class="bi bi-star-fill"></i>
+                        {% else %}
+                            <i class="bi bi-star empty"></i>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="glass-card text-center">
+                <div class="stat-value">{{ stats.count }}</div>
+                <div class="small text-muted text-uppercase fw-bold mt-2">Total Ratings</div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="glass-card text-center d-flex flex-column justify-content-center">
+                <div class="rating-bar w-100 mb-2" style="max-width:200px;margin:0 auto;">
+                    <div class="rating-bar-fill" style="width:{% widthratio stats.avg_rating|default:0 5 100 %}%"></div>
+                </div>
+                <div class="small text-muted text-uppercase fw-bold">Performance Score</div>
+            </div>
+        </div>
+    </div>
+
+    {% if ratings %}
+    <div class="row g-3">
+        {% for r in ratings %}
+        <div class="col-md-6 fade-in">
+            <div class="feedback-card">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="fw-bold text-muted">Anonymous Trainee</div>
+                    <div class="stars-display">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= r.rating %}
+                                <i class="bi bi-star-fill"></i>
+                            {% else %}
+                                <i class="bi bi-star empty"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                {% if r.comment %}
+                <div class="text-muted small mb-2">"{{ r.comment }}"</div>
+                {% endif %}
+                <div class="small text-muted" style="font-size:0.7rem;">{{ r.created_at|date:"M d, Y" }}</div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon"><i class="bi bi-star"></i></div>
+        <h5>No Feedback Yet</h5>
+        <p>You haven't received any ratings from your trainees yet.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

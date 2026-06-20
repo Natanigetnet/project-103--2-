@@ -1,18 +1,23 @@
 
 from django.contrib import admin
-from django.urls import path
-from news.views import home,members,visitors,Category_view,detail,about,contact,register,edit,delete_member,comm_edit,comm_delete,category_list,delete_cat,cat_edit,ques_list,ques_edit,signup,loginUser,logoutUser,user_list,delete_user,ques_delete,response,response_list,response_edit,response_delete
+from django.urls import path, reverse_lazy
+from django.contrib.auth import views as auth_views
+from news.views import landing,admin_dash,home,members,Category_view,detail,about,contact,register,edit,delete_member,comm_edit,comm_delete,category_list,delete_cat,cat_edit,ques_list,ques_edit,signup,loginUser,logoutUser,user_list,manage_members,manage_staff,delete_user,delete_legacy_member,edit_legacy_member,ques_delete,response,response_list,response_edit,response_delete,record_payment,trainer_and_categories_list,trainer_category_selector,trainer_and_categories_api,trainer_tracker,assign_trainer,trainee_settings,trainee_update_account,trainee_medical_info,create_session,register_session,trainee_session_list,trainer_session_registrations,session_hub,user_profile,telegram_broadcast,trainee_bmi,trainer_bmi_tracker,trainer_settings,trainer_update_account,training_space_list,training_space_edit,training_space_delete,training_space_toggle_maintenance,api_available_spaces,category_catalog,my_id_card,generate_all_missing_ids,id_card_pdf,admin_scan_qr,record_attendance,scan_entry,attendance_log_view,attendance_dashboard,chat_page,chat_api,registrar_dashboard,registrar_register,registrar_scan_qr,registrar_attendance_log,create_desk,rate_trainer,trainer_ratings_dashboard,trainer_my_feedback,request_trainer_change
 from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
+    path('admin/qr-scanner/', admin_scan_qr, name='admin_scan_qr_url'),
+    path('admin/attendance-dashboard/', attendance_dashboard, name='attendance_dashboard_url'),
+    path('admin/generate-all-ids/', generate_all_missing_ids, name='generate_all_ids_url'),
     path('admin/', admin.site.urls),
-    path('',home,name='home_url'),
+    path('admin-portal/',admin_dash,name='admin_url'),
+    path('home/',home,name='home_url'),
     path('about/',about,name='about_url'),
     path('contact/',contact,name='contact_url'),
     path('register/',register,name='register_url'),
     path('members/',members,name='members_url'),
-    path('visitors/',visitors,name='visitors_url'),
+    path('category/<str:category_name>/', category_catalog, name='category_catalog_url'),
     path('category_view/<str:category_name>',Category_view,name='Category_view_url'),
     path('detail/<str:name>',detail,name='detail_url'),
     path('category_list/',category_list,name='cat_list_url'),
@@ -30,11 +35,60 @@ urlpatterns = [
     path('response_edit/<int:r_id>/',response_edit,name='response_edit_url'),
     path('response_delete/<int:r_id>/',response_delete, name='response_delete_url'),
     path('signup/', signup, name='signup_url'),
+    path('', landing, name='landing_url'),
     path('login/', loginUser, name='login_url'),
     path('logout/', logoutUser, name='logout_url'),
+    path('password-change/', auth_views.PasswordChangeView.as_view(template_name='password_change.html', success_url=reverse_lazy('password_change_done_url')), name='password_change_url'),
+    path('password-change/done/', auth_views.PasswordChangeDoneView.as_view(template_name='password_change_done.html'), name='password_change_done_url'),
     path('manage-users/', user_list, name='user_management_url'),
+    path('manage-members/', manage_members, name='manage_members_url'),
+    path('manage-staff/', manage_staff, name='manage_staff_url'),
     path('delete-user/<int:user_id>/', delete_user, name='delete_user_url'),
-    
+    path('delete-legacy/<int:member_id>/', delete_legacy_member, name='delete_legacy_member_url'),
+    path('edit-legacy/<int:member_id>/', edit_legacy_member, name='edit_legacy_member_url'),
+    path('record-payment/', record_payment, name='record_payment_url'),
+    path('trainers-and-types/', trainer_and_categories_list, name='trainer_categories_url'),
+    path('trainer-selector/', trainer_category_selector, name='trainer_selector_url'),
+    path('api/trainers-categories/', trainer_and_categories_api, name='trainer_categories_api_url'),
+    path('tracker/', trainer_tracker, name='trainer_tracker_url'),
+    path('assign-trainer/', assign_trainer, name='assign_trainer_url'),
+    path('settings/', trainee_settings, name='trainee_settings_url'),
+    path('settings/account/', trainee_update_account, name='trainee_account_url'),
+    path('settings/medical/', trainee_medical_info, name='trainee_medical_url'),
+    path('trainer-settings/', trainer_settings, name='trainer_settings_url'),
+    path('trainer-settings/account/', trainer_update_account, name='trainer_account_url'),
+    path('session/create/', create_session, name='create_session_url'),
+    path('session/hub/', session_hub, name='session_hub_url'),
+    path('session/register/<int:session_id>/', register_session, name='register_session_url'),
+    path('trainer-sessions/', trainee_session_list, name='trainee_sessions_url'),
+    path('trainer-session-registrations/', trainer_session_registrations, name='trainer_session_registrations_url'),
+    path('bmi/', trainee_bmi, name='trainee_bmi_url'),
+    path('trainer-bmi/', trainer_bmi_tracker, name='trainer_bmi_tracker_url'),
+    path('profile/<int:user_id>/', user_profile, name='user_profile_url'),
+    path('telegram-broadcast/', telegram_broadcast, name='telegram_broadcast_url'),
+    path('training-spaces/', training_space_list, name='training_space_list_url'),
+    path('training-space/edit/<int:space_id>/', training_space_edit, name='training_space_edit_url'),
+    path('training-space/toggle-maintenance/<int:space_id>/', training_space_toggle_maintenance, name='training_space_toggle_maintenance_url'),
+    path('training-space/delete/<int:space_id>/', training_space_delete, name='training_space_delete_url'),
+    path('api/available-spaces/', api_available_spaces, name='api_available_spaces_url'),
+    path('my-id-card/', my_id_card, name='my_id_card_url'),
+    path('id-card-pdf/', id_card_pdf, name='id_card_pdf_url'),
+    path('api/record-attendance/', record_attendance, name='record_attendance_url'),
+    path('api/scan-entry/', scan_entry, name='scan_entry_url'),
+    path('attendance-log/', attendance_log_view, name='attendance_log_url'),
+    path('chat/', chat_page, name='chat_url'),
+    path('api/chat/', chat_api, name='chat_api_url'),
+
+    # Registrar URLs
+    path('registrar/dashboard/', registrar_dashboard, name='registrar_dashboard_url'),
+    path('registrar/register/', registrar_register, name='registrar_register_url'),
+    path('registrar/scan-qr/', registrar_scan_qr, name='registrar_scan_qr_url'),
+    path('registrar/attendance-log/', registrar_attendance_log, name='registrar_attendance_log_url'),
+    path('create-desk/', create_desk, name='create_desk_url'),
+    path('rate-trainer/<str:trainer_name>/', rate_trainer, name='rate_trainer_url'),
+    path('trainer-ratings/', trainer_ratings_dashboard, name='trainer_ratings_url'),
+    path('trainer-my-feedback/', trainer_my_feedback, name='trainer_my_feedback_url'),
+    path('request-trainer-change/<str:trainer_name>/', request_trainer_change, name='request_trainer_change_url'),
     ]
 from django.conf import settings
 from django.conf.urls.static import static

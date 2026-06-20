@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block title %}Future Gym | Manage Users{% endblock %}
+{% block extra_head %}
+<style>
+    .card-icon {
+        width: 72px; height: 72px;
+        display: inline-flex; align-items: center; justify-content: center;
+        border-radius: 18px; font-size: 1.8rem;
+    }
+</style>
+{% endblock %}
+{% block navbar %}
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold fs-4" href="{% url 'home_url' %}">
+            <i class="bi bi-lightning-charge-fill text-primary"></i> FUTURE<span class="text-primary">GYM</span>
+        </a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <i class="bi bi-list fs-2 text-white"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a class="nav-link" href="{% url 'home_url' %}">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="javascript:history.back()"><i class="bi bi-arrow-left me-1"></i>Back</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+{% endblock %}
+{% block content %}
+    <header class="gradient-header text-center fade-in">
+        <div class="container">
+            <h1 class="fw-bold"><i class="bi bi-diagram-3-fill text-primary"></i> Manage Users</h1>
+            <p class="opacity-75">Choose whether to manage members or staff accounts.</p>
+        </div>
+    </header>
+
+    <main class="container mb-5">
+        <div class="glass-card fade-in fade-in-delay-1">
+            <div class="row gy-4">
+                <div class="col-md-6">
+                    <a href="{% url 'manage_members_url' %}" class="text-decoration-none">
+                        <div class="p-4 border rounded-4 h-100 bg-white hover-lift">
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <span class="card-icon bg-success text-white"><i class="bi bi-people-fill"></i></span>
+                                <div>
+                                    <h3 class="fw-bold mb-1">Manage Members</h3>
+                                    <p class="mb-0 text-muted">View and delete trainee accounts created by admin.</p>
+                                </div>
+                            </div>
+                            <p class="text-sm text-muted">This page lists all trainees, with controls for deleting non-admin accounts.</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <a href="{% url 'manage_staff_url' %}" class="text-decoration-none">
+                        <div class="p-4 border rounded-4 h-100 bg-white hover-lift">
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <span class="card-icon bg-primary text-white"><i class="bi bi-person-badge-fill"></i></span>
+                                <div>
+                                    <h3 class="fw-bold mb-1">Manage Staff</h3>
+                                    <p class="mb-0 text-muted">View and delete trainer accounts created by admin.</p>
+                                </div>
+                            </div>
+                            <p class="text-sm text-muted">This page lists all trainers and lets you remove non-superuser staff accounts.</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+{% endblock %}

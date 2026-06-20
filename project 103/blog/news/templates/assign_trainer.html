@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+{% block title %}Assign Trainers{% endblock %}
+{% block extra_head %}
+<style>
+    .col-label { font-size: 0.7rem; color: #6c757d; font-weight: 600; text-transform: uppercase; display: block; margin-bottom: 0.2rem; }
+    .preferred-suggestion { font-size: 0.7rem; color: #0d6efd; font-weight: 600; }
+    .form-control-custom {
+        background: rgba(255, 255, 255, 0.08) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: #ffffff !important;
+    }
+    .form-control-custom:focus {
+        background: rgba(255, 255, 255, 0.15) !important;
+        border-color: #0d6efd !important;
+        box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.25) !important;
+    }
+</style>
+{% endblock %}
+{% block navbar %}
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold fs-4" href="{% url 'home_url' %}">
+            <i class="bi bi-lightning-charge-fill text-primary"></i> FUTURE<span class="text-primary">GYM</span>
+        </a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <i class="bi bi-list fs-2 text-white"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a class="nav-link" href="{% url 'home_url' %}">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="javascript:history.back()"><i class="bi bi-arrow-left me-1"></i>Back</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+{% endblock %}
+{% block content %}
+<div class="container-fluid py-5 px-4">
+    <div class="fade-in">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="mb-1">Assign Trainers to Members</h2>
+                <p class="text-muted mb-0 small">Each row has dropdowns in the Category and Assign Trainer columns. Pick a category first — the trainer list updates to matching coaches.</p>
+            </div>
+            <a href="javascript:history.back()" class="btn btn-outline-glow"><i class="bi bi-arrow-left me-1"></i>Back</a>
+        </div>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <input type="text" id="memberFilter" class="form-control form-control-custom" placeholder="Filter by member name..." style="max-width: 350px;">
+        </div>
+        <div class="table-responsive glass-card p-3 fade-in fade-in-delay-1">
+            <table class="table mb-0 assign-table table-custom">
+                <thead>
+                    <tr>
+                        <th style="width:3rem">#</th>
+                        <th>Member</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th style="min-width:11rem">Category</th>
+                        <th>Current Trainer</th>
+                        <th>Preferred Trainer</th>
+                        <th style="min-width:13rem">Assign Trainer</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for row in member_rows %}
+                    {% with member=row.member %}
+                    <tr class="member-row" data-member-id="{{ member.id }}" data-preferred="{{ row.preferred_id|default:'' }}">
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ member.name|default:'—' }}</td>
+                        <td>{{ member.email|default:'—' }}</td>
+                        <td>{{ member.phone_number|default:'—' }}</td>
+                        <td>
+                            <span class="col-label">Select category</span>
+                            <select name="category_{{ member.id }}" class="form-select form-select-sm category-select" aria-label="Category for {{ member.name }}">
+                                <option value="none"{% if not member.category_id %} selected{% endif %}>— Unassigned —</option>
+                                {% for cat in categories %}
+                                <option value="{{ cat.id }}"{% if member.category_id == cat.id %} selected{% endif %}>{{ cat.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td class="current-trainer-cell">
+                            {% if member.trainer %}{{ member.trainer.username }}{% else %}<span class="text-muted">Unassigned</span>{% endif %}
+                        </td>
+                        <td>
+                            {% if member.preferred_trainer %}
+                                <span class="preferred-suggestion"><i class="bi bi-star-fill"></i> {{ member.preferred_trainer.username }}</span>
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="col-label">Select trainer</span>
+                            <select name="trainer_{{ member.id }}" class="form-select form-select-sm trainer-select" aria-label="Trainer for {{ member.name }}">
+                                <option value="">— Unassign —</option>
+                                {% for t in row.trainers %}
+                                <option value="{{ t.id }}" {% if member.trainer and member.trainer.id == t.id %}selected{% endif %}>
+                                    {{ t.username }}{% if t.email %} ({{ t.email }}){% endif %}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <small class="text-danger d-none no-trainers-msg">No trainers in this category</small>
+                        </td>
+                    </tr>
+                    {% endwith %}
+                {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center py-4">No trainees found.</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if member_rows %}
+        <div class="mt-4 fade-in fade-in-delay-2">
+            <button type="submit" class="btn btn-glow">Save All</button>
+        </div>
+        {% endif %}
+    </form>
+</div>
+{% endblock %}
+{% block extra_scripts %}
+<script>
+(function () {
+    const allTrainers = {{ trainers_json|safe }};
+
+    function trainersForCategory(categoryValue) {
+        if (!categoryValue || categoryValue === 'none') {
+            return allTrainers.filter(t => t.category_id === null);
+        }
+        const cid = parseInt(categoryValue, 10);
+        return allTrainers.filter(t => t.category_id === cid);
+    }
+
+    function rebuildTrainerSelect(row, keepSelection) {
+        const catSelect = row.querySelector('.category-select');
+        const trainerSelect = row.querySelector('.trainer-select');
+        const msg = row.querySelector('.no-trainers-msg');
+        const preferredId = row.dataset.preferred;
+        const previous = keepSelection ? trainerSelect.value : '';
+        const list = trainersForCategory(catSelect.value);
+
+        trainerSelect.innerHTML = '<option value="">— Unassign —</option>';
+        list.forEach(t => {
+            const opt = document.createElement('option');
+            opt.value = t.id;
+            const label = t.email ? `${t.username} (${t.email})` : t.username;
+            opt.textContent = String(t.id) === preferredId ? `${label} ★ Preferred` : label;
+            if (String(t.id) === preferredId) {
+                opt.style.fontWeight = '700';
+            }
+            trainerSelect.appendChild(opt);
+        });
+
+        if (previous && list.some(t => String(t.id) === previous)) {
+            trainerSelect.value = previous;
+        }
+
+        const hasOptions = list.length > 0;
+        msg.classList.toggle('d-none', hasOptions);
+        trainerSelect.disabled = !hasOptions && !trainerSelect.value;
+    }
+
+    document.querySelectorAll('.member-row').forEach(row => {
+        const catSelect = row.querySelector('.category-select');
+        catSelect.addEventListener('change', () => rebuildTrainerSelect(row, false));
+        rebuildTrainerSelect(row, true);
+    });
+
+    document.getElementById('memberFilter').addEventListener('input', function() {
+        const value = this.value.toLowerCase().trim();
+        document.querySelectorAll('.member-row').forEach(row => {
+            const name = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+            row.style.display = !value || name.includes(value) ? '' : 'none';
+        });
+    });
+})();
+</script>
+{% endblock %}

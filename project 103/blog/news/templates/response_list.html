@@ -1,63 +1,92 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Gym | Response Log</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-</head>
-<body class="bg-light">
-
+{% extends 'base.html' %}
+{% block title %}Gym | Response Log{% endblock %}
+{% block extra_head %}
+<style>
+    .responder-cell {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .responder-cell small {
+        color: #94a3b8;
+    }
+</style>
+{% endblock %}
+{% block navbar %}
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold fs-4" href="{% url 'home_url' %}">
+            <i class="bi bi-lightning-charge-fill text-primary"></i> FUTURE<span class="text-primary">GYM</span>
+        </a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <i class="bi bi-list fs-2 text-white"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a class="nav-link" href="{% url 'home_url' %}">Home</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+{% endblock %}
+{% block content %}
 <div class="container mt-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold">
-        </h2>
+    <div class="d-flex justify-content-between align-items-center mb-4 fade-in">
+        <h2 class="fw-bold">Messages</h2>
         <div>
-            <a href="{% url 'ques_list_url' %}" class="btn btn-outline-dark btn-sm">Back to Questions</a>
+            <a href="javascript:history.back()" class="btn btn-outline-light btn-sm rounded-pill px-3"><i class="bi bi-arrow-left me-1"></i>Back</a>
         </div>
     </div>
 
-    <div class="card shadow-sm border-0">
-        <table class="table table-hover align-middle mb-0">
-            <thead class="table-dark">
+    <div class="glass-card p-0 overflow-hidden fade-in fade-in-delay-1">
+        <table class="table table-custom table-hover align-middle mb-0">
+            <thead>
                 <tr>
+                    <th>Sender</th>
                     <th>Original Question</th>
                     <th>Staff Response</th>
-                    <th class="text-center">Responder</th>
+                    <th class="text-center">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {% for resp in responses %}
-                    {% if user.is_superuser or resp.quest.name == user.username %}
+                    {% if user.is_superuser or resp.quest.email == user.email %}
                     <tr>
                         <td>
-                            <div class="small text-muted mb-1">Question by: {{ resp.quest.name }}</div>
+                            <div class="fw-bold">
+                                {{ resp.quest.name }}
+                            </div>
+                            <small class="text-muted">{{ resp.quest.email }}</small>
+                        </td>
+                        <td>
                             <div class="fw-bold">{{ resp.quest.quest }}</div>
                         </td>
-                        <td class="bg-light bg-opacity-50">
+                        <td>
                             <i class="bi bi-chat-left-dots text-success me-2"></i>
-                            {{ resp.text }}
+                            {{ resp.text|linebreaks|urlize }}
+                            <div class="mt-1">
+                                <small class="text-muted">— {{ resp.name }}</small>
+                            </div>
                         </td>
                         <td class="text-center">
-                            <span class="badge bg-secondary">{{ resp.name.username }}</span>
                             {% if user.is_superuser %}
-                            <div class="mt-2">
-                                <a href="{% url 'response_edit_url' resp.id %}" class="btn btn-sm btn-outline-primary">edit</a>
-                                <a href="{% url 'response_delete_url' resp.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this response?')">delete</a>
+                            <div class="d-flex justify-content-center gap-2">
+                                <a href="{% url 'response_edit_url' resp.id %}" class="btn btn-sm btn-outline-primary rounded-pill px-3">Edit</a>
+                                <a href="{% url 'response_delete_url' resp.id %}" class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="return confirm('Delete this response?')">Delete</a>
                             </div>
+                            {% else %}
+                            <span class="text-muted small">—</span>
                             {% endif %}
                         </td>
                     </tr>
                     {% endif %}
                 {% empty %}
                 <tr>
-                    <td colspan="3" class="text-center py-5 text-muted">No responses available to display.</td>
+                    <td colspan="4" class="text-center py-5 text-muted">No responses available to display.</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
-
-</body>
-</html>
+{% endblock %}

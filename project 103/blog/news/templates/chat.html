@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% block title %}AI Chat Assistant{% endblock %}
+{% block extra_head %}
+<style>
+  .chat-container { max-width: 700px; margin: 0 auto; }
+  .chat-box {
+    height: 450px; overflow-y: auto;
+    background: rgba(15, 17, 22, 0.6);
+    border-radius: 16px; padding: 1rem;
+    display: flex; flex-direction: column; gap: 0.75rem;
+  }
+  .msg {
+    max-width: 80%; padding: 0.75rem 1rem; border-radius: 16px;
+    line-height: 1.5; animation: fadeIn .2s ease;
+  }
+  .msg.user {
+    background: rgba(99, 102, 241, 0.2);
+    align-self: flex-end; border-bottom-right-radius: 4px;
+    color: #e0e7ff;
+  }
+  .msg.bot {
+    background: rgba(30, 41, 59, 0.6);
+    align-self: flex-start; border-bottom-left-radius: 4px;
+    color: #cbd5e1;
+  }
+  .msg.bot .badge {
+    font-size: 0.65rem; vertical-align: middle;
+  }
+  .typing {
+    align-self: flex-start; color: #94a3b8; font-style: italic;
+    animation: pulse 1s infinite;
+  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes pulse { 0%, 100% { opacity: .4; } 50% { opacity: 1; } }
+  .redirect-btn {
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    border-radius: 12px; padding: 0.75rem 1rem;
+    color: #fbbf24; cursor: pointer; transition: background .2s;
+    align-self: flex-start;
+  }
+  .redirect-btn:hover { background: rgba(245, 158, 11, 0.25); }
+</style>
+{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <div class="chat-container">
+    <div class="text-center mb-4">
+      <a href="{% url 'home_url' %}" class="btn btn-outline-light btn-sm rounded-pill mb-3"><i class="bi bi-house me-1"></i> Home</a>
+      <h2 class="fw-bold"><i class="bi bi-robot me-2 text-success"></i> AI Assistant</h2>
+      <p class="text-muted">Ask me anything about the gym — I'll try to help instantly!</p>
+    </div>
+
+    <div class="card border-0 shadow-lg rounded-4 bg-dark">
+      <div class="card-body p-3">
+        <div id="chatBox" class="chat-box mb-3">
+          <div class="msg bot">
+            <span class="badge bg-success me-1"><i class="bi bi-robot"></i> AI</span>
+            Hi! I'm the Future Gym assistant. Ask me about hours, membership, trainers, classes, or anything gym-related.
+          </div>
+        </div>
+
+        <form id="chatForm" class="input-group">
+          <input type="text" id="msgInput" class="form-control rounded-3" placeholder="Type your question..." required autofocus>
+          <button type="submit" class="btn btn-success rounded-3 ms-2 px-4">
+            <i class="bi bi-send"></i>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block extra_scripts %}
+<script>
+  const chatBox = document.getElementById('chatBox');
+  const chatForm = document.getElementById('chatForm');
+  const msgInput = document.getElementById('msgInput');
+  let pendingQuestion = '';
+
+  chatForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const text = msgInput.value.trim();
+    if (!text) return;
+    msgInput.value = '';
+
+    addMessage(text, 'user');
+    showTyping();
+
+    try {
+      const res = await fetch('{% url "chat_api_url" %}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+        body: JSON.stringify({ message: text })
+      });
+      const data = await res.json();
+      removeTyping();
+
+      if (data.answered) {
+        addMessage(data.text, 'bot');
+      } else {
+        pendingQuestion = text;
+        addMessage('Sorry, I couldn\'t answer that.', 'bot');
+        addRedirectButton();
+      }
+    } catch {
+      removeTyping();
+      addMessage('Something went wrong. Please try again.', 'bot');
+    }
+  });
+
+  function addMessage(text, type) {
+    const div = document.createElement('div');
+    div.className = 'msg ' + type;
+    if (type === 'bot') {
+      div.innerHTML = '<span class="badge bg-success me-1"><i class="bi bi-robot"></i> AI</span> ' + escapeHtml(text);
+    } else {
+      div.textContent = text;
+    }
+    chatBox.appendChild(div);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  function showTyping() {
+    const div = document.createElement('div');
+    div.id = 'typingIndicator';
+    div.className = 'typing';
+    div.textContent = 'AI is thinking...';
+    chatBox.appendChild(div);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  function removeTyping() {
+    const el = document.getElementById('typingIndicator');
+    if (el) el.remove();
+  }
+
+  function addRedirectButton() {
+    const div = document.createElement('div');
+    div.className = 'redirect-btn';
+    div.innerHTML = '<i class="bi bi-send me-2"></i> Send this question to an admin instead';
+    div.onclick = () => {
+      window.location.href = '{% url "contact_url" %}?question=' + encodeURIComponent(pendingQuestion);
+    };
+    chatBox.appendChild(div);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  function escapeHtml(str) {
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+</script>
+{% endblock %}

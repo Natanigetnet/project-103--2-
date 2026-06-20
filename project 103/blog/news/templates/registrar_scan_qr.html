@@ -1,0 +1,230 @@
+{% extends 'base.html' %}
+{% block title %}QR Scanner | Registrar{% endblock %}
+{% block extra_head %}
+<style>
+  #reader {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  #reader video { border-radius: 12px; }
+  .scan-result-card {
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .success-glow {
+    box-shadow: 0 0 30px rgba(34, 197, 94, 0.3);
+  }
+</style>
+{% endblock %}
+{% block navbar %}
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold fs-4" href="{% url 'home_url' %}">
+            <i class="bi bi-lightning-charge-fill text-primary"></i> FUTURE<span class="text-primary">GYM</span>
+        </a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <i class="bi bi-list fs-2 text-white"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item dropdown ms-lg-2">
+                    <a class="nav-link dropdown-toggle fw-bold" href="#" data-bs-toggle="dropdown" style="color:rgba(255,255,255,0.65) !important;">
+                        <i class="bi bi-person-badge me-1" style="color:#f59e0b;"></i> Registrar
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark shadow-lg border-0 mt-3 p-2">
+                        <li><a class="dropdown-item rounded-3" href="{% url 'registrar_dashboard_url' %}"><i class="bi bi-speedometer2 me-2" style="color:#f59e0b;"></i>Dashboard</a></li>
+                        <li><a class="dropdown-item rounded-3" href="{% url 'registrar_register_url' %}"><i class="bi bi-person-plus me-2" style="color:#f59e0b;"></i>Register</a></li>
+                        <li><a class="dropdown-item rounded-3 active" href="{% url 'registrar_scan_qr_url' %}"><i class="bi bi-qr-code-scan me-2" style="color:#f59e0b;"></i>QR Scan</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item rounded-3" href="{% url 'registrar_attendance_log_url' %}"><i class="bi bi-clock-history me-2" style="color:#f59e0b;"></i>Attendance Log</a></li>
+                        <li><a class="dropdown-item rounded-3" href="{% url 'home_url' %}#sessions"><i class="bi bi-calendar-event me-2" style="color:#f59e0b;"></i>Sessions</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'home_url' %}">Home</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="text-center mb-4">
+        <span class="badge-modern bg-primary mb-2">Registrar</span>
+        <h2 class="fw-bold"><i class="bi bi-qr-code-scan me-2"></i> Attendance Scanner</h2>
+        <p class="text-muted">Scan a member's QR code to record their entry</p>
+      </div>
+
+      <div class="card border-0 shadow-lg rounded-4 bg-dark">
+        <div class="card-body p-4">
+          <div id="reader"></div>
+          <div id="scan-result" class="mt-4" style="display:none;">
+            <div class="card scan-result-card rounded-4 p-4 text-center">
+              <div class="mb-2">
+                <span class="badge bg-success fs-5 px-3 py-1"><i class="bi bi-check-circle me-1"></i> CHECKED IN</span>
+              </div>
+              <h3 class="fw-bold text-white mb-1" id="result-name">—</h3>
+              <p class="text-white-50 mb-2">
+                <span id="result-role" class="badge bg-info">—</span>
+              </p>
+              <p class="small text-white-50 mb-0">
+                <i class="bi bi-clock me-1"></i> <span id="result-time">—</span>
+              </p>
+            </div>
+          </div>
+          <div id="scan-error" class="mt-4" style="display:none;">
+            <div class="alert alert-danger rounded-4">
+              <i class="bi bi-exclamation-triangle me-2"></i> <span id="error-msg">Unknown QR code</span>
+            </div>
+          </div>
+
+          <div class="mt-4 text-center">
+            <button class="btn btn-outline-secondary rounded-pill" onclick="resetScanner()">
+              <i class="bi bi-arrow-counterclockwise me-1"></i> Scan Again
+            </button>
+            <p class="small text-muted mt-3 mb-0">
+              <i class="bi bi-info-circle me-1"></i> Point the camera at a membership QR code
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-lg rounded-4 mt-4 bg-dark">
+        <div class="card-header bg-transparent border-secondary border-opacity-10 py-3">
+          <h5 class="mb-0 fw-bold"><i class="bi bi-clock-history me-2"></i> Recent Check-ins</h5>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-dark table-hover mb-0">
+              <thead>
+                <tr>
+                  <th class="ps-4">Member</th>
+                  <th>Role</th>
+                  <th>Time</th>
+                  <th class="pe-4">Scanned By</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for log in attendance %}
+                <tr>
+                  <td class="ps-4 fw-medium">{{ log.member.name }}</td>
+                  <td><span class="badge bg-{% if log.member.role == 'trainer' %}success{% else %}info{% endif %}">{{ log.member.get_role_display }}</span></td>
+                  <td class="small">{{ log.check_in|date:"M d, Y H:i" }}</td>
+                  <td class="pe-4">{{ log.checked_in_by.username|default:"—" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="4" class="text-center text-muted py-4">No check-ins yet</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block extra_scripts %}
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script>
+  let html5QrCode = null;
+  let scanning = true;
+
+  function startScanner() {
+    html5QrCode = new Html5Qrcode("reader");
+    html5QrCode.start(
+      { facingMode: "environment" },
+      { fps: 10, qrbox: { width: 250, height: 250 } },
+      onScanSuccess,
+      onScanFailure
+    ).catch(err => {
+      document.getElementById('reader').innerHTML =
+        `<div class="alert alert-warning rounded-4">
+          <i class="bi bi-camera-video-off me-2"></i>Camera access denied or not available.
+          <br><small class="d-block mt-2">Or enter a member ID manually:</small>
+          <div class="input-group mt-2">
+            <input type="text" id="manual-id" class="form-control" placeholder="Paste member unique ID here">
+            <button class="btn btn-primary" onclick="manualCheckin()">Check In</button>
+          </div>
+        </div>`;
+    });
+  }
+
+  function onScanSuccess(decodedText) {
+    if (!scanning) return;
+    scanning = false;
+    if (html5QrCode) html5QrCode.stop();
+
+    fetch('{% url "record_attendance_url" %}', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+      body: JSON.stringify({ unique_id: decodedText })
+    })
+    .then(r => r.json())
+    .then(data => {
+      document.getElementById('scan-error').style.display = 'none';
+      const el = document.getElementById('scan-result');
+      el.style.display = 'block';
+      el.classList.add('success-glow');
+      document.getElementById('result-name').textContent = data.member_name;
+      document.getElementById('result-role').textContent = data.role;
+      document.getElementById('result-time').textContent = data.time;
+      setTimeout(() => el.classList.remove('success-glow'), 2000);
+    })
+    .catch(err => {
+      const el = document.getElementById('scan-error');
+      el.style.display = 'block';
+      document.getElementById('error-msg').textContent = 'Error recording check-in';
+    });
+  }
+
+  function onScanFailure(err) {}
+
+  function resetScanner() {
+    scanning = true;
+    document.getElementById('scan-result').style.display = 'none';
+    document.getElementById('scan-error').style.display = 'none';
+    if (html5QrCode) {
+      html5QrCode.stop().then(() => html5QrCode.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        onScanSuccess,
+        onScanFailure
+      ));
+    }
+  }
+
+  function manualCheckin() {
+    const id = document.getElementById('manual-id').value.trim();
+    if (!id) return;
+    scanning = false;
+
+    fetch('{% url "record_attendance_url" %}', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+      body: JSON.stringify({ unique_id: id })
+    })
+    .then(r => r.json())
+    .then(data => {
+      document.getElementById('scan-error').style.display = 'none';
+      const el = document.getElementById('scan-result');
+      el.style.display = 'block';
+      document.getElementById('result-name').textContent = data.member_name;
+      document.getElementById('result-role').textContent = data.role;
+      document.getElementById('result-time').textContent = data.time;
+    })
+    .catch(() => {
+      document.getElementById('scan-error').style.display = 'block';
+      document.getElementById('error-msg').textContent = 'Unknown ID or error';
+    });
+  }
+
+  startScanner();
+</script>
+{% endblock %}

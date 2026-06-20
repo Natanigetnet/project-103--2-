@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block title %}Trainer Session Hub | Future Gym{% endblock %}
+{% block navbar %}
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold fs-4" href="{% url 'home_url' %}">
+                <i class="bi bi-lightning-charge-fill text-primary"></i> FUTURE<span class="text-primary">GYM</span>
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><i class="bi bi-list fs-2 text-white"></i></button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="{% url 'home_url' %}">Home</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+{% endblock %}
+{% block content %}
+    {% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show shadow-sm" role="alert">{{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <main class="container mt-5 pt-4">
+
+        <div class="gradient-header text-center fade-in">
+            <span class="badge-modern bg-primary mb-3">Trainer Workspace</span>
+            <h1 class="display-6 fw-bold">Session Hub</h1>
+            <p class="lead mb-0 opacity-75">Quickly create new training sessions or review your registered trainees from one place.</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6 fade-in-delay-1 fade-in">
+                <div class="glass-card p-5 h-100 text-center">
+                    <div class="mb-4">
+                        <div class="text-primary mb-3"><i class="bi bi-calendar-plus fs-1"></i></div>
+                        <h2 class="h4 fw-bold">Create Session</h2>
+                        <p class="text-muted mb-0">Publish a new training session with date, capacity, and details for your assigned trainees.</p>
+                    </div>
+                    <a href="{% url 'create_session_url' %}" class="btn btn-glow btn-lg"><i class="bi bi-plus-circle me-2"></i>Create Session</a>
+                </div>
+            </div>
+
+            <div class="col-md-6 fade-in-delay-3 fade-in">
+                <div class="glass-card p-5 h-100 text-center">
+                    <div class="mb-4">
+                        <div class="text-info mb-3"><i class="bi bi-people-fill fs-1"></i></div>
+                        <h2 class="h4 fw-bold">Track Registered Trainees</h2>
+                        <p class="text-muted mb-0">View trainees who signed up and manage attendance from one dashboard.</p>
+                    </div>
+                    <a href="{% url 'trainer_session_registrations_url' %}" class="btn btn-outline-glow btn-lg" style="color: var(--gym-blue); border-color: var(--gym-blue);">View Registrations</a>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="py-5 mt-5 border-top bg-white">
+        <div class="container text-center">
+        </div>
+    </footer>
+
+    <div class="modal fade" id="createSessionModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content modal-content-custom shadow">
+                <div class="modal-header modal-header-custom">
+                    <h5 class="modal-title fw-bold">Broadcast New Training Session</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="{% url 'create_session_url' %}" method="POST">{% csrf_token %}
+                    <div class="modal-body">
+                        <div class="mb-3"><label class="form-label small fw-bold text-secondary">SESSION TITLE</label><input type="text" name="title" class="form-control" placeholder="e.g., Extreme Core Conditioning" required></div>
+                        <div class="mb-3"><label class="form-label small fw-bold text-secondary">DESCRIPTION (OPTIONAL)</label><textarea name="description" class="form-control" rows="2" placeholder="Optional details..."></textarea></div>
+                        <div class="row g-3"><div class="col-6"><label class="form-label small fw-bold text-secondary">DATE & TIME</label><input type="datetime-local" name="session_date" class="form-control" required></div><div class="col-6"><label class="form-label small fw-bold text-secondary">MAX CAPACITY CAP</label><input type="number" name="max_trainees" class="form-control" min="1" value="10" required></div></div>
+                    </div>
+                    <div class="modal-footer border-top-0 pt-0"><button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-glow rounded-pill px-4 fw-bold">Broadcast Alert</button></div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
