@@ -2201,8 +2201,9 @@ def my_id_card(request):
         return redirect('home_url')
 
     mid, created = MemberID.objects.get_or_create(member=person)
-    if created or not mid.qr_code:
+    if created or not mid.unique_id:
         mid.unique_id = str(uuid.uuid4())
+        mid.save()
         generate_qr_image(mid)
 
     qr_uri = qr_data_uri(mid)
@@ -2233,8 +2234,9 @@ def id_card_pdf(request):
         return redirect('home_url')
 
     mid, created = MemberID.objects.get_or_create(member=person)
-    if created or not mid.qr_code:
+    if created or not mid.unique_id:
         mid.unique_id = str(uuid.uuid4())
+        mid.save()
         generate_qr_image(mid)
 
     qr_uri = qr_data_uri(mid)
@@ -2373,6 +2375,31 @@ def attendance_log_view(request):
         logs = AttendanceLog.objects.filter(member=person).select_related('member').order_by('-check_in')[:200]
 
     return render(request, 'attendance_log.html', {'logs': logs})
+
+
+@login_required
+def trainer_currently_in(request):
+    person = _get_names_profile(request.user)
+    if not person or person.role != 'trainer':
+        messages.error(request, "Only trainers can access this page.")
+        return redirect('home_url')
+    now = timezone.now()
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    today_logs = AttendanceLog.objects.filter(
+        check_in__gte=today_start,
+        member__trainer=request.user
+    ).select_related('member', 'member__category').order_by('-check_in')
+    members_in = {}
+    for log in today_logs:
+        mid = log.member_id
+        if mid not in members_in:
+            members_in[mid] = log
+    currently_in = list(members_in.values())
+    total = len(currently_in)
+    return render(request, 'trainer_currently_in.html', {
+        'currently_in': currently_in,
+        'total': total,
+    })
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -2533,6 +2560,24 @@ def registrar_scan_qr(request):
 def registrar_attendance_log(request):
     logs = AttendanceLog.objects.select_related('member', 'checked_in_by').order_by('-check_in')[:200]
     return render(request, 'attendance_log.html', {'logs': logs})
+
+
+@_require_registrar
+def registrar_currently_in(request):
+    now = timezone.now()
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    today_logs = AttendanceLog.objects.filter(check_in__gte=today_start).select_related('member', 'member__category', 'checked_in_by').order_by('-check_in')
+    members_in = {}
+    for log in today_logs:
+        mid = log.member_id
+        if mid not in members_in:
+            members_in[mid] = log
+    currently_in = list(members_in.values())
+    total = len(currently_in)
+    return render(request, 'registrar_currently_in.html', {
+        'currently_in': currently_in,
+        'total': total,
+    })
 
 
 @login_required

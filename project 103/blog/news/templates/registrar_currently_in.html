@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Currently In Gym{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold mb-0"><i class="bi bi-people-fill me-2"></i> Currently In Gym</h2>
+    <span class="badge bg-success fs-5 px-3 py-2">{{ total }} member{% if total != 1 %}s{% endif %}</span>
+  </div>
+
+  {% if currently_in %}
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead class="table-dark">
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Role</th>
+            <th>Category</th>
+            <th>Check-In Time</th>
+            <th>Scanned By</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for log in currently_in %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td class="fw-semibold">{{ log.member.name }}</td>
+            <td><span class="badge bg-{% if log.member.role == 'trainer' %}success{% else %}info{% endif %}">{{ log.member.get_role_display }}</span></td>
+            <td>{{ log.member.category.name|default:"—" }}</td>
+            <td>{{ log.check_in|date:"H:i" }}</td>
+            <td>{{ log.checked_in_by.username|default:"—" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="text-center py-5">
+      <i class="bi bi-emoji-neutral display-1 text-muted"></i>
+      <p class="text-muted mt-3 fs-5">No one has checked in today yet.</p>
+    </div>
+  {% endif %}
+
+  <div class="mt-3">
+    <a href="{% url 'registrar_dashboard_url' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i> Back to Dashboard</a>
+  </div>
+</div>
+{% endblock %}

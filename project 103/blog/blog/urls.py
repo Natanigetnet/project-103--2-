@@ -2,7 +2,7 @@
 from django.contrib import admin
 from django.urls import path, reverse_lazy
 from django.contrib.auth import views as auth_views
-from news.views import landing,admin_dash,home,members,Category_view,detail,about,contact,register,edit,delete_member,comm_edit,comm_delete,category_list,delete_cat,cat_edit,ques_list,ques_edit,signup,loginUser,logoutUser,user_list,manage_members,manage_staff,delete_user,delete_legacy_member,edit_legacy_member,ques_delete,response,response_list,response_edit,response_delete,record_payment,trainer_and_categories_list,trainer_category_selector,trainer_and_categories_api,trainer_tracker,assign_trainer,trainee_settings,trainee_update_account,trainee_medical_info,create_session,register_session,trainee_session_list,trainer_session_registrations,session_hub,user_profile,telegram_broadcast,trainee_bmi,trainer_bmi_tracker,trainer_settings,trainer_update_account,training_space_list,training_space_edit,training_space_delete,training_space_toggle_maintenance,api_available_spaces,category_catalog,my_id_card,generate_all_missing_ids,id_card_pdf,admin_scan_qr,record_attendance,scan_entry,attendance_log_view,attendance_dashboard,chat_page,chat_api,registrar_dashboard,registrar_register,registrar_scan_qr,registrar_attendance_log,create_desk,rate_trainer,trainer_ratings_dashboard,trainer_my_feedback,request_trainer_change,training_plan_view
+from news.views import landing,admin_dash,home,members,Category_view,detail,about,contact,register,edit,delete_member,comm_edit,comm_delete,category_list,delete_cat,cat_edit,ques_list,ques_edit,signup,loginUser,logoutUser,user_list,manage_members,manage_staff,delete_user,delete_legacy_member,edit_legacy_member,ques_delete,response,response_list,response_edit,response_delete,record_payment,trainer_and_categories_list,trainer_category_selector,trainer_and_categories_api,trainer_tracker,assign_trainer,trainee_settings,trainee_update_account,trainee_medical_info,create_session,register_session,trainee_session_list,trainer_session_registrations,session_hub,user_profile,telegram_broadcast,trainee_bmi,trainer_bmi_tracker,trainer_settings,trainer_update_account,training_space_list,training_space_edit,training_space_delete,training_space_toggle_maintenance,api_available_spaces,category_catalog,my_id_card,generate_all_missing_ids,id_card_pdf,admin_scan_qr,record_attendance,scan_entry,attendance_log_view,attendance_dashboard,chat_page,chat_api,registrar_dashboard,registrar_register,registrar_scan_qr,registrar_attendance_log,registrar_currently_in,trainer_currently_in,create_desk,rate_trainer,trainer_ratings_dashboard,trainer_my_feedback,request_trainer_change,training_plan_view
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -65,6 +65,7 @@ urlpatterns = [
     path('bmi/', trainee_bmi, name='trainee_bmi_url'),
     path('trainer-bmi/', trainer_bmi_tracker, name='trainer_bmi_tracker_url'),
     path('profile/<int:user_id>/', user_profile, name='user_profile_url'),
+    path('trainer/currently-in/', trainer_currently_in, name='trainer_currently_in_url'),
     path('telegram-broadcast/', telegram_broadcast, name='telegram_broadcast_url'),
     path('training-spaces/', training_space_list, name='training_space_list_url'),
     path('training-space/edit/<int:space_id>/', training_space_edit, name='training_space_edit_url'),
@@ -84,6 +85,7 @@ urlpatterns = [
     path('registrar/register/', registrar_register, name='registrar_register_url'),
     path('registrar/scan-qr/', registrar_scan_qr, name='registrar_scan_qr_url'),
     path('registrar/attendance-log/', registrar_attendance_log, name='registrar_attendance_log_url'),
+    path('registrar/currently-in/', registrar_currently_in, name='registrar_currently_in_url'),
     path('create-desk/', create_desk, name='create_desk_url'),
     path('rate-trainer/<str:trainer_name>/', rate_trainer, name='rate_trainer_url'),
     path('trainer-ratings/', trainer_ratings_dashboard, name='trainer_ratings_url'),

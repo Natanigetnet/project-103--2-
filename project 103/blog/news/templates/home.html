@@ -70,6 +70,7 @@
                                 <li><a class="dropdown-item rounded-3" href="{% url 'registrar_register_url' %}"><i class="bi bi-person-plus me-2" style="color:#f59e0b;"></i>Register</a></li>
                                 <li><a class="dropdown-item rounded-3" href="{% url 'registrar_scan_qr_url' %}"><i class="bi bi-qr-code-scan me-2" style="color:#f59e0b;"></i>QR Scan</a></li>
                                 <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item rounded-3" href="{% url 'registrar_currently_in_url' %}"><i class="bi bi-people-fill me-2" style="color:#f59e0b;"></i>Currently In Gym</a></li>
                                 <li><a class="dropdown-item rounded-3" href="{% url 'registrar_attendance_log_url' %}"><i class="bi bi-clock-history me-2" style="color:#f59e0b;"></i>Attendance Log</a></li>
                                 <li><a class="dropdown-item rounded-3" href="{% url 'home_url' %}#sessions"><i class="bi bi-calendar-event me-2" style="color:#f59e0b;"></i>Sessions</a></li>
                             </ul>
@@ -102,6 +103,7 @@
                                 </a></li>
                                 {% if user.profile.is_trainer %}
                                 <li><a class="dropdown-item rounded-3" href="{% url 'trainer_tracker_url' %}"><i class="bi bi-speedometer2 me-2"></i>Tracker</a></li>
+                                <li><a class="dropdown-item rounded-3" href="{% url 'trainer_currently_in_url' %}"><i class="bi bi-people-fill me-2"></i>My Trainees In Gym</a></li>
                                 <li><a class="dropdown-item rounded-3" href="{% url 'trainer_settings_url' %}"><i class="bi bi-gear me-2"></i>Profile</a></li>
                                 {% elif is_trainee %}
                                 <li><a class="dropdown-item rounded-3" href="{% url 'trainee_settings_url' %}"><i class="bi bi-gear me-2"></i>Settings</a></li>
