@@ -243,3 +243,63 @@ class TrainerChangeRequest(models.Model):
 
     def __str__(self):
         return f"{self.trainee.name} wants to change from {self.current_trainer.name} ({self.status})"
+
+
+class TrainingPlan(models.Model):
+    SPLIT_UPPER_LOWER = 'upper_lower'
+    SPLIT_PUSH_PULL_LEGS = 'push_pull_legs'
+    SPLIT_LEG_ARM_CHEST_BACK = 'leg_arm_chest_back'
+    SPLIT_FULL_BODY = 'full_body'
+    SPLIT_BRO_SPLIT = 'bro_split'
+    SPLIT_CUSTOM = 'custom'
+    SPLIT_CHOICES = [
+        (SPLIT_UPPER_LOWER, 'Upper / Lower'),
+        (SPLIT_PUSH_PULL_LEGS, 'Push / Pull / Legs'),
+        (SPLIT_LEG_ARM_CHEST_BACK, 'Leg / Arm / Chest / Back'),
+        (SPLIT_FULL_BODY, 'Full Body'),
+        (SPLIT_BRO_SPLIT, 'Bro Split (Chest/Back/Shoulders/Legs/Arms)'),
+        (SPLIT_CUSTOM, 'Custom'),
+    ]
+
+    trainee = models.ForeignKey('names', on_delete=models.CASCADE, related_name='training_plans')
+    trainer = models.ForeignKey('names', on_delete=models.CASCADE, related_name='created_training_plans')
+    split_type = models.CharField(max_length=50, choices=SPLIT_CHOICES, default=SPLIT_UPPER_LOWER)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    notes = models.TextField(blank=True, help_text='General notes for this training plan')
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-start_date']
+
+    def __str__(self):
+        return f"{self.trainer.name} → {self.trainee.name}: {self.get_split_type_display()} ({self.start_date} - {self.end_date})"
+
+    @property
+    def split_days(self):
+        mapping = {
+            self.SPLIT_UPPER_LOWER: ['Upper Body', 'Lower Body', 'Upper Body', 'Lower Body'],
+            self.SPLIT_PUSH_PULL_LEGS: ['Push', 'Pull', 'Legs', 'Push', 'Pull', 'Legs'],
+            self.SPLIT_LEG_ARM_CHEST_BACK: ['Legs', 'Arms', 'Chest', 'Back'],
+            self.SPLIT_FULL_BODY: ['Full Body', 'Full Body', 'Full Body'],
+            self.SPLIT_BRO_SPLIT: ['Chest', 'Back', 'Shoulders', 'Legs', 'Arms'],
+            self.SPLIT_CUSTOM: [],
+        }
+        return mapping.get(self.split_type, [])
+
+
+class TrainingPlanDay(models.Model):
+    plan = models.ForeignKey(TrainingPlan, on_delete=models.CASCADE, related_name='days')
+    day_index = models.IntegerField(help_text='0-based index within the split')
+    day_label = models.CharField(max_length=100, blank=True, help_text='e.g. Upper Body, Push, etc.')
+    is_rest_day = models.BooleanField(default=False)
+    exercises = models.JSONField(default=list, blank=True, help_text='List of {name, sets, reps, weight, notes}')
+
+    class Meta:
+        ordering = ['plan', 'day_index']
+        unique_together = ['plan', 'day_index']
+
+    def __str__(self):
+        return f"{self.plan} - Day {self.day_index + 1}: {self.day_label or 'Rest'}"

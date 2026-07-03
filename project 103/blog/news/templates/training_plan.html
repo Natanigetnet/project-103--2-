@@ -1,0 +1,424 @@
+{% extends 'base.html' %}
+{% block title %}Future Gym | {{ trainee.name }} Training Plan{% endblock %}
+{% block extra_head %}
+<style>
+    .day-card {
+        background: rgba(15, 17, 22, 0.85);
+        backdrop-filter: blur(14px);
+        border-radius: 16px;
+        border: 1px solid rgba(255,255,255,0.08);
+        padding: 1.25rem;
+        height: 100%;
+        transition: all 0.3s ease;
+    }
+    .day-card:hover {
+        border-color: rgba(99, 102, 241, 0.25);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+    }
+    .day-card.rest-day {
+        opacity: 0.6;
+        border-color: rgba(255,255,255,0.04);
+    }
+    .day-card.rest-day:hover {
+        opacity: 0.8;
+        border-color: rgba(245, 158, 11, 0.3);
+    }
+    .day-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #94a3b8;
+        font-weight: 600;
+    }
+    .day-focus {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #f1f5f9;
+    }
+    .date-badge {
+        font-size: 0.7rem;
+        color: #64748b;
+        background: rgba(255,255,255,0.06);
+        padding: 2px 10px;
+        border-radius: 20px;
+    }
+    .week-nav {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    .exercise-row {
+        display: grid;
+        grid-template-columns: 1fr 50px 50px 60px;
+        gap: 6px;
+        align-items: center;
+        margin-bottom: 6px;
+    }
+    .exercise-row input {
+        font-size: 0.8rem;
+        padding: 0.35rem 0.5rem;
+        border-radius: 8px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(0,0,0,0.3);
+        color: #e2e8f0;
+    }
+    .exercise-row input:focus {
+        border-color: #0d6efd;
+        outline: none;
+    }
+    .exercise-header {
+        display: grid;
+        grid-template-columns: 1fr 50px 50px 60px;
+        gap: 6px;
+        padding: 0 0 4px;
+        margin-bottom: 4px;
+        font-size: 0.6rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #64748b;
+        font-weight: 700;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .exercise-display {
+        padding: 4px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .exercise-display:last-child {
+        border-bottom: none;
+    }
+    .exercise-name {
+        font-weight: 600;
+        color: #e2e8f0;
+        font-size: 0.85rem;
+    }
+    .exercise-detail {
+        font-size: 0.75rem;
+        color: #94a3b8;
+    }
+    .split-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        background: rgba(99, 102, 241, 0.15);
+        color: #a5b4fc;
+    }
+    .empty-exercises {
+        color: #64748b;
+        font-size: 0.8rem;
+        font-style: italic;
+        text-align: center;
+        padding: 8px 0;
+    }
+    @media (max-width: 767.98px) {
+        .exercise-row {
+            grid-template-columns: 1fr 45px 45px 50px;
+        }
+        .exercise-header {
+            grid-template-columns: 1fr 45px 45px 50px;
+        }
+    }
+</style>
+{% endblock %}
+{% block navbar %}
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold fs-4" href="{% url 'home_url' %}">
+            <i class="bi bi-lightning-charge-fill text-primary"></i> FUTURE<span class="text-primary">GYM</span>
+        </a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><i class="bi bi-list fs-2 text-white"></i></button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a class="nav-link" href="{% url 'home_url' %}">Home</a></li>
+                {% if is_assigned_trainer %}
+                <li class="nav-item"><a class="nav-link" href="{% url 'trainer_tracker_url' %}">Tracker</a></li>
+                {% endif %}
+                <li class="nav-item"><a class="nav-link" href="{% url 'detail_url' trainee.name %}">Profile</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+{% endblock %}
+{% block content %}
+<main class="container py-5">
+    <div class="gradient-header fade-in">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3">
+            <div>
+                <span class="badge bg-primary px-3 py-2 mb-2 rounded-pill">Training Plan</span>
+                <h1 class="display-6 fw-bold mb-1">{{ trainee.name }}</h1>
+                <p class="lead opacity-75 mb-0">
+                    {% if is_assigned_trainer %}Edit your trainee's weekly schedule{% else %}Your personalized training schedule{% endif %}
+                </p>
+            </div>
+            <div class="d-flex gap-2 mt-3 mt-md-0">
+                <a href="{% url 'detail_url' trainee.name %}" class="btn btn-outline-glow btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i> Back
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {% if not plan and is_assigned_trainer %}
+    <div class="glass-card mb-4 fade-in text-center" style="max-width: 500px; margin: 0 auto;">
+        <h5 class="fw-bold mb-3"><i class="bi bi-calendar-plus text-primary me-2"></i>Create Training Plan</h5>
+        <p class="small text-muted mb-4">Select a workout split to create a weekly plan for {{ trainee.name }}.</p>
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <select name="split_type" class="form-select" required>
+                    <option value="">Choose a split...</option>
+                    {% for val, label in split_choices %}
+                    <option value="{{ val }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <input type="hidden" name="action" value="create_plan">
+            <button type="submit" class="btn btn-glow w-100">
+                <i class="bi bi-lightning-charge me-2"></i>Create Plan
+            </button>
+        </form>
+    </div>
+    {% endif %}
+
+    {% if plan %}
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
+        <div class="d-flex align-items-center gap-3">
+            <span class="split-badge"><i class="bi bi-diagram-3 me-1"></i>{{ plan.get_split_type_display }}</span>
+            {% if is_assigned_trainer %}
+            <button class="btn btn-outline-glow btn-sm" data-bs-toggle="modal" data-bs-target="#changeSplitModal">
+                <i class="bi bi-arrow-repeat me-1"></i>Change Split
+            </button>
+            {% endif %}
+        </div>
+        <div class="week-nav">
+            <a href="?week_start={{ prev_week|date:'Y-m-d' }}" class="btn btn-outline-glow btn-sm">
+                <i class="bi bi-chevron-left"></i>
+            </a>
+            <span class="fw-semibold" style="font-size:0.9rem; min-width:140px; text-align:center;">
+                {{ week_start|date:"M d" }} – {{ week_end|date:"M d, Y" }}
+            </span>
+            <a href="?week_start={{ next_week|date:'Y-m-d' }}" class="btn btn-outline-glow btn-sm">
+                <i class="bi bi-chevron-right"></i>
+            </a>
+            <a href="?" class="btn btn-outline-glow btn-sm" title="Today">
+                <i class="bi bi-calendar-check"></i>
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        {% for day in plan_days %}
+        {% with week_index=forloop.counter0 %}
+        <div class="col-lg-4 col-md-6">
+            <div class="day-card {% if day.is_rest_day %}rest-day{% endif %}">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                        <div class="day-label">
+                            {% if week_index == 0 %}Monday
+                            {% elif week_index == 1 %}Tuesday
+                            {% elif week_index == 2 %}Wednesday
+                            {% elif week_index == 3 %}Thursday
+                            {% elif week_index == 4 %}Friday
+                            {% elif week_index == 5 %}Saturday
+                            {% elif week_index == 6 %}Sunday
+                            {% endif %}
+                        </div>
+                        <div class="day-focus">
+                            {% if day.is_rest_day %}
+                            <i class="bi bi-moon text-warning me-1"></i>Rest Day
+                            {% else %}
+                            {{ day.day_label }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if is_assigned_trainer %}
+                    <div>
+                        <form method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="toggle_rest">
+                            <input type="hidden" name="day_id" value="{{ day.id }}">
+                            <button type="submit" class="btn btn-sm {% if day.is_rest_day %}btn-warning{% else %}btn-outline-secondary{% endif %} rounded-pill px-2 py-0" style="font-size:0.65rem;" title="Toggle rest day">
+                                <i class="bi {% if day.is_rest_day %}bi-sun{% else %}bi-moon{% endif %}"></i>
+                            </button>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+
+                {% if not day.is_rest_day %}
+                    {% if is_assigned_trainer %}
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="update_exercises">
+                        <input type="hidden" name="day_id" value="{{ day.id }}">
+                        <div class="exercise-header">
+                            <span>Exercise</span>
+                            <span style="text-align:center;">Sets</span>
+                            <span style="text-align:center;">Reps</span>
+                            <span style="text-align:center;">Weight</span>
+                        </div>
+                        <div id="exercises-{{ day.id }}">
+                            {% if day.exercises %}
+                                {% for ex in day.exercises %}
+                                <div class="exercise-row">
+                                    <input type="text" name="exercise_name_{{ day.id }}[]" value="{{ ex.name }}" placeholder="Exercise name">
+                                    <input type="text" name="exercise_sets_{{ day.id }}[]" value="{{ ex.sets }}" placeholder="Sets" style="text-align:center;">
+                                    <input type="text" name="exercise_reps_{{ day.id }}[]" value="{{ ex.reps }}" placeholder="Reps" style="text-align:center;">
+                                    <input type="text" name="exercise_weight_{{ day.id }}[]" value="{{ ex.weight }}" placeholder="kg" style="text-align:center;">
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                {% for i in "123" %}
+                                <div class="exercise-row">
+                                    <input type="text" name="exercise_name_{{ day.id }}[]" value="" placeholder="Exercise name">
+                                    <input type="text" name="exercise_sets_{{ day.id }}[]" value="" placeholder="Sets" style="text-align:center;">
+                                    <input type="text" name="exercise_reps_{{ day.id }}[]" value="" placeholder="Reps" style="text-align:center;">
+                                    <input type="text" name="exercise_weight_{{ day.id }}[]" value="" placeholder="kg" style="text-align:center;">
+                                </div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="mt-2 d-flex gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3" style="font-size:0.7rem;" onclick="addExerciseRow({{ day.id }})">
+                                <i class="bi bi-plus-lg me-1"></i>Add
+                            </button>
+                            <button type="submit" class="btn btn-sm btn-glow rounded-pill px-3" style="font-size:0.7rem;">
+                                <i class="bi bi-check-lg me-1"></i>Save
+                            </button>
+                        </div>
+                    </form>
+                    {% else %}
+                        {% if day.exercises %}
+                            {% for ex in day.exercises %}
+                            <div class="exercise-display">
+                                <div class="exercise-name">{{ ex.name }}</div>
+                                <div class="exercise-detail">
+                                    {{ ex.sets }} sets x {{ ex.reps }} reps{% if ex.weight %} @ {{ ex.weight }} kg{% endif %}
+                                    {% if ex.notes %}<br><span style="color:#a5b4fc;">{{ ex.notes }}</span>{% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="empty-exercises">No exercises assigned yet</div>
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+        {% endwith %}
+        {% endfor %}
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="glass-card">
+                <div class="section-title">
+                    <i class="bi bi-journal-text text-primary"></i> Plan Notes
+                </div>
+                {% if is_assigned_trainer %}
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="update_notes">
+                    <input type="hidden" name="plan_id" value="{{ plan.id }}">
+                    <textarea name="notes" class="form-control rounded-3" rows="3" placeholder="Add notes about this training plan...">{{ plan.notes }}</textarea>
+                    <button type="submit" class="btn btn-glow btn-sm mt-2">
+                        <i class="bi bi-save me-1"></i>Save Notes
+                    </button>
+                </form>
+                {% else %}
+                <p style="color:#cbd5e1; white-space:pre-line;">{{ plan.notes|default:'No notes from your trainer.' }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if existing_plans and is_assigned_trainer %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="glass-card">
+                <div class="section-title">
+                    <i class="bi bi-clock-history text-muted"></i> Previous Plans
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-custom mb-0">
+                        <thead>
+                            <tr>
+                                <th>Split</th>
+                                <th>Start</th>
+                                <th>End</th>
+                                <th>Active</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for p in existing_plans %}
+                            <tr>
+                                <td>{{ p.get_split_type_display }}</td>
+                                <td>{{ p.start_date|date:"M d, Y" }}</td>
+                                <td>{{ p.end_date|date:"M d, Y" }}</td>
+                                <td>
+                                    {% if p.is_active %}
+                                    <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Inactive</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</main>
+
+{% if is_assigned_trainer %}
+<div class="modal fade" id="changeSplitModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-light border-0 rounded-4">
+            <div class="modal-header border-bottom border-secondary">
+                <h5 class="modal-title"><i class="bi bi-arrow-repeat text-primary me-2"></i>Change Split Type</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p class="small text-muted mb-3">Changing the split will reset all exercises for this plan.</p>
+                    <input type="hidden" name="action" value="change_split">
+                    <input type="hidden" name="plan_id" value="{{ plan.id }}">
+                    <select name="split_type" class="form-select" required>
+                        {% for val, label in split_choices %}
+                        <option value="{{ val }}" {% if plan and plan.split_type == val %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="modal-footer border-top border-secondary">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-glow"><i class="bi bi-check-lg me-2"></i>Change Split</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function addExerciseRow(dayId) {
+    const container = document.getElementById('exercises-' + dayId);
+    const row = document.createElement('div');
+    row.className = 'exercise-row';
+    row.innerHTML = `
+        <input type="text" name="exercise_name_${dayId}[]" value="" placeholder="Exercise name">
+        <input type="text" name="exercise_sets_${dayId}[]" value="" placeholder="Sets" style="text-align:center;">
+        <input type="text" name="exercise_reps_${dayId}[]" value="" placeholder="Reps" style="text-align:center;">
+        <input type="text" name="exercise_weight_${dayId}[]" value="" placeholder="kg" style="text-align:center;">
+    `;
+    container.appendChild(row);
+}
+</script>
+{% endif %}
+{% endblock %}

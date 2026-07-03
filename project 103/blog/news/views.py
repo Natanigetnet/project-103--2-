@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.http import HttpResponse
 from django.utils.html import format_html   
-from .models import names,comments,Category,questions,response_model,TrainingSession,BodyMetric,TrainingSpace,MemberID,AttendanceLog,TrainerRating,TrainerChangeRequest
+from .models import names,comments,Category,questions,response_model,TrainingSession,BodyMetric,TrainingSpace,MemberID,AttendanceLog,TrainerRating,TrainerChangeRequest,TrainingPlan,TrainingPlanDay
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.backends import ModelBackend
 from django.contrib import messages
@@ -468,6 +468,7 @@ def home(request):
                 assigned_trainer_name = trainer_name_record.name
 
     my_detail_name = None
+    my_trainee_id = None
     if request.user.is_authenticated:
         my_record = names.objects.filter(
             Q(email__iexact=request.user.email) |
@@ -476,6 +477,7 @@ def home(request):
         ).first()
         if my_record:
             my_detail_name = my_record.name
+            my_trainee_id = my_record.id
 
     context = {
         'unread_count': unread_count,
@@ -485,6 +487,7 @@ def home(request):
         'upcoming_sessions': upcoming_sessions,
         'assigned_trainer_name': assigned_trainer_name,
         'my_detail_name': my_detail_name,
+        'my_trainee_id': my_trainee_id,
     }
     return render(request, 'home.html', context)
 
@@ -2577,3 +2580,180 @@ def trainer_my_feedback(request):
         'stats': stats,
         'trainer': trainer_names,
     })
+
+
+from datetime import date, timedelta
+
+
+def _notify_trainee_plan_update(trainer_user, trainee, plan, action_label):
+    trainee_user = None
+    if trainee.email:
+        trainee_user = User.objects.filter(email__iexact=trainee.email).first()
+    if not trainee_user:
+        return
+    trainer_display = trainer_user.get_full_name() or trainer_user.username
+    notification = questions.objects.create(
+        name=trainer_display,
+        email=trainer_user.email or '',
+        quest=f'Training plan {action_label}: {plan.get_split_type_display()}',
+    )
+    split_info = ', '.join(plan.split_days) if plan.split_days else 'Custom split'
+    response_model.objects.create(
+        name=trainer_user,
+        quest=notification,
+        text=(
+            f'Your trainer {trainer_display} has {action_label} your training plan.\n\n'
+            f'Split: {plan.get_split_type_display()}\n'
+            f'Days: {split_info}\n'
+            f'Week: {plan.start_date} – {plan.end_date}\n\n'
+            f'Check your schedule to see the details.'
+        ),
+        is_read=False,
+    )
+
+
+@login_required
+def training_plan_view(request, trainee_id):
+    trainee = get_object_or_404(names, id=trainee_id, role=names.ROLE_TRAINEE)
+    is_trainer = hasattr(request.user, 'profile') and request.user.profile.is_trainer
+    is_assigned_trainer = is_trainer and trainee.trainer == request.user
+    is_trainee_owner = False
+    if trainee.role == names.ROLE_TRAINEE:
+        if request.user.email and trainee.email and request.user.email.lower() == trainee.email.lower():
+            is_trainee_owner = True
+        elif trainee.trainer == request.user:
+            pass
+        elif request.user.is_authenticated:
+            user_record = names.objects.filter(
+                Q(email__iexact=request.user.email) |
+                Q(name__iexact=request.user.username) |
+                Q(name__iexact=request.user.get_full_name()),
+                role=names.ROLE_TRAINEE
+            ).first()
+            if user_record and user_record.id == trainee.id:
+                is_trainee_owner = True
+
+    if not (request.user.is_superuser or is_assigned_trainer or is_trainee_owner):
+        messages.error(request, 'You do not have access to this training plan.')
+        return redirect('home_url')
+
+    trainer_names = None
+    if is_assigned_trainer:
+        trainer_names = names.objects.filter(email=request.user.email, role=names.ROLE_TRAINER).first()
+
+    today = date.today()
+    current_week_start = today - timedelta(days=today.weekday())
+
+    week_start_str = request.GET.get('week_start', '')
+    if week_start_str:
+        try:
+            week_start = date.fromisoformat(week_start_str)
+        except (ValueError, TypeError):
+            week_start = current_week_start
+    else:
+        week_start = current_week_start
+
+    week_end = week_start + timedelta(days=6)
+
+    plan = TrainingPlan.objects.filter(
+        trainee=trainee, start_date__lte=week_end, end_date__gte=week_start, is_active=True
+    ).first()
+
+    if request.method == 'POST' and is_assigned_trainer:
+        action = request.POST.get('action')
+
+        if action == 'create_plan':
+            split_type = request.POST.get('split_type')
+            if split_type:
+                plan = TrainingPlan.objects.create(
+                    trainee=trainee,
+                    trainer=trainer_names,
+                    split_type=split_type,
+                    start_date=week_start,
+                    end_date=week_end,
+                )
+                split_days = plan.split_days
+                for i, label in enumerate(split_days):
+                    TrainingPlanDay.objects.create(
+                        plan=plan, day_index=i, day_label=label, is_rest_day=False, exercises=[]
+                    )
+                _notify_trainee_plan_update(request.user, trainee, plan, 'created a new')
+                messages.success(request, f'Training plan created with split: {plan.get_split_type_display()}')
+            return redirect(f'{request.path}?week_start={week_start}')
+
+        elif action == 'update_exercises':
+            day_id = request.POST.get('day_id')
+            day = get_object_or_404(TrainingPlanDay, id=day_id, plan__trainee=trainee)
+            exercises = []
+            exercise_names = request.POST.getlist(f'exercise_name_{day_id}[]')
+            exercise_sets = request.POST.getlist(f'exercise_sets_{day_id}[]')
+            exercise_reps = request.POST.getlist(f'exercise_reps_{day_id}[]')
+            exercise_weight = request.POST.getlist(f'exercise_weight_{day_id}[]')
+            exercise_notes = request.POST.getlist(f'exercise_notes_{day_id}[]')
+            for j in range(len(exercise_names)):
+                if exercise_names[j].strip():
+                    exercises.append({
+                        'name': exercise_names[j].strip(),
+                        'sets': exercise_sets[j].strip() if j < len(exercise_sets) else '',
+                        'reps': exercise_reps[j].strip() if j < len(exercise_reps) else '',
+                        'weight': exercise_weight[j].strip() if j < len(exercise_weight) else '',
+                        'notes': exercise_notes[j].strip() if j < len(exercise_notes) else '',
+                    })
+            day.exercises = exercises
+            day.save()
+            _notify_trainee_plan_update(request.user, trainee, day.plan, 'updated exercises for')
+            messages.success(request, f'Exercises updated for {day.day_label or f"Day {day.day_index + 1}"}')
+            return redirect(f'{request.path}?week_start={week_start}')
+
+        elif action == 'toggle_rest':
+            day_id = request.POST.get('day_id')
+            day = get_object_or_404(TrainingPlanDay, id=day_id, plan__trainee=trainee)
+            day.is_rest_day = not day.is_rest_day
+            day.exercises = []
+            day.save()
+            return redirect(f'{request.path}?week_start={week_start}')
+
+        elif action == 'update_notes':
+            plan_id = request.POST.get('plan_id')
+            plan_obj = get_object_or_404(TrainingPlan, id=plan_id, trainee=trainee)
+            plan_obj.notes = request.POST.get('notes', '')
+            plan_obj.save()
+            messages.success(request, 'Plan notes updated.')
+            return redirect(f'{request.path}?week_start={week_start}')
+
+        elif action == 'change_split':
+            plan_id = request.POST.get('plan_id')
+            new_split = request.POST.get('split_type')
+            plan_obj = get_object_or_404(TrainingPlan, id=plan_id, trainee=trainee)
+            plan_obj.split_type = new_split
+            plan_obj.save()
+            plan_obj.days.all().delete()
+            split_days = plan_obj.split_days
+            for i, label in enumerate(split_days):
+                TrainingPlanDay.objects.create(
+                    plan=plan_obj, day_index=i, day_label=label, is_rest_day=False, exercises=[]
+                )
+            _notify_trainee_plan_update(request.user, trainee, plan_obj, 'changed your split to')
+            messages.success(request, f'Split changed to: {plan_obj.get_split_type_display()}')
+            return redirect(f'{request.path}?week_start={week_start}')
+
+    week_dates = [week_start + timedelta(days=i) for i in range(7)]
+
+    existing_plans = TrainingPlan.objects.filter(trainee=trainee, is_active=True).order_by('-start_date')
+
+    context = {
+        'trainee': trainee,
+        'is_assigned_trainer': is_assigned_trainer,
+        'is_trainee_owner': is_trainee_owner,
+        'plan': plan,
+        'plan_days': plan.days.all() if plan else [],
+        'week_start': week_start,
+        'week_end': week_end,
+        'week_dates': week_dates,
+        'prev_week': week_start - timedelta(days=7),
+        'next_week': week_start + timedelta(days=7),
+        'today': today,
+        'existing_plans': existing_plans,
+        'split_choices': TrainingPlan.SPLIT_CHOICES,
+    }
+    return render(request, 'training_plan.html', context)

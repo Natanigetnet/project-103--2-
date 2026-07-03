@@ -135,6 +135,9 @@
                             <a href="{% url 'detail_url' member.name %}" class="btn btn-glow btn-sm">
                                 <i class="bi bi-eye"></i> View
                             </a>
+                            <a href="{% url 'training_plan_url' member.id %}" class="btn btn-outline-glow btn-sm">
+                                <i class="bi bi-calendar-week"></i> Plan
+                            </a>
                         </div>
                     </div>
                     {% endfor %}

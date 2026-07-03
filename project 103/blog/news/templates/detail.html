@@ -140,7 +140,18 @@
                 </div>
             </div>
 
-            {% if is_viewing_own_profile %}
+            {% if is_viewing_own_profile and name.role == 'trainee' %}
+            <div class="glass-card mb-4 fade-in fade-in-delay-2">
+                <div class="section-title">
+                    <i class="bi bi-calendar-week text-primary"></i> Training
+                </div>
+                <a href="{% url 'training_plan_url' name.id %}" class="btn btn-glow btn-sm w-100">
+                    <i class="bi bi-calendar-week me-2"></i>My Schedule
+                </a>
+            </div>
+            {% endif %}
+
+            {% if is_viewing_own_profile and name.role == 'trainer' %}
             <div class="glass-card mb-4 fade-in fade-in-delay-2">
                 <div class="section-title">
                     <i class="bi bi-star text-warning"></i> My Ratings
@@ -188,6 +199,11 @@
                     <i class="bi bi-star-fill text-warning"></i> Preferred: {{ name.preferred_trainer.username }}
                 </div>
                 {% endif %}
+                <div class="mt-3">
+                    <a href="{% url 'training_plan_url' name.id %}" class="btn btn-glow btn-sm w-100">
+                        <i class="bi bi-calendar-week me-2"></i>Training Plan
+                    </a>
+                </div>
             </div>
             {% endif %}
 

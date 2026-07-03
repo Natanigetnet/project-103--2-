@@ -181,6 +181,9 @@
                         {% if is_trainee %}
                         <a href="{% url 'trainee_sessions_url' %}" class="btn btn-outline-glow">Trainer Sessions</a>
                         {% endif %}
+                        {% if is_trainee and my_trainee_id %}
+                        <a href="{% url 'training_plan_url' my_trainee_id %}" class="btn btn-glow">Schedule</a>
+                        {% endif %}
                         {% if user.is_authenticated and user.profile.is_trainer %}
                         <a href="{% url 'session_hub_url' %}" class="btn btn-outline-glow">Sessions</a>
                         {% endif %}
