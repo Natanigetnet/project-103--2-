@@ -1,1818 +1,1818 @@
 [
-{
-  "model": "auth.user",
-  "fields": {
-    "password": "pbkdf2_sha256$1200000$ubKwmA4NkzPS45riQVqlGb$HjUfnD8UbpdbVKCYllYgNcsxIrrnH59TmLwoCjxhmUk=",
-    "last_login": "2026-07-02T11:51:47.679Z",
-    "is_superuser": true,
-    "username": "user",
-    "first_name": "",
-    "last_name": "",
-    "email": "mmm@gmail.com",
-    "is_staff": true,
-    "is_active": true,
-    "date_joined": "2025-12-23T18:47:22.844Z",
-    "groups": [],
-    "user_permissions": []
+  {
+    "model": "auth.user",
+    "fields": {
+      "password": "pbkdf2_sha256$1200000$ubKwmA4NkzPS45riQVqlGb$HjUfnD8UbpdbVKCYllYgNcsxIrrnH59TmLwoCjxhmUk=",
+      "last_login": "2026-07-02T11:51:47.679Z",
+      "is_superuser": true,
+      "username": "user",
+      "first_name": "",
+      "last_name": "",
+      "email": "mmm@gmail.com",
+      "is_staff": true,
+      "is_active": true,
+      "date_joined": "2025-12-23T18:47:22.844Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "auth.user",
+    "fields": {
+      "password": "pbkdf2_sha256$1200000$vTmJiKKIT1cLqhwSth5ijO$rPkAKprkMQiz2A1P04bX02eed6QCMGQZ8NWQtERyePE=",
+      "last_login": "2026-05-19T10:49:27.826Z",
+      "is_superuser": false,
+      "username": "mmmaa",
+      "first_name": "",
+      "last_name": "",
+      "email": "imkm@gmail.com",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2026-02-27T06:43:13.796Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "auth.user",
+    "fields": {
+      "password": "pbkdf2_sha256$1200000$DdSAyz9xAU5RgR2hHEx8Qv$+Jagy6uLamWkZLQEwg0bYq+Evc4d5wzw9fm8gH/l2Lo=",
+      "last_login": "2026-05-11T10:10:58.753Z",
+      "is_superuser": false,
+      "username": "mnm",
+      "first_name": "",
+      "last_name": "",
+      "email": "llkk@gmail.com",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2026-02-27T10:31:59.963Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "auth.user",
+    "fields": {
+      "password": "pbkdf2_sha256$1200000$ePcDXD9wq8tA1E6g8Cnu6A$k+CM0j8JqLXoC2G56rhOP1TrJfeWVB2eyRcPwfkAP/A=",
+      "last_login": "2026-07-02T15:50:33.868Z",
+      "is_superuser": false,
+      "username": "john",
+      "first_name": "john",
+      "last_name": "",
+      "email": "jj@gmail.com",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2026-05-21T11:29:52.353Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "auth.user",
+    "fields": {
+      "password": "pbkdf2_sha256$1200000$gD7YvRkfasCHRj23G4RrWG$Q6bvvrIb53e/TQD1XHatc4X0g/YZc6FPgevgbZwcic4=",
+      "last_login": "2026-07-02T15:50:51.464Z",
+      "is_superuser": false,
+      "username": "kyle",
+      "first_name": "kyle",
+      "last_name": "",
+      "email": "kylen@gmail.com",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2026-05-26T10:25:07.123Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "auth.user",
+    "fields": {
+      "password": "pbkdf2_sha256$1200000$k0t9tqsQonIvni63PSc3Yf$vj6rxr4spEsZb1iQRS4u9PolplUfsYnTP0OAEyZGAt4=",
+      "last_login": "2026-07-02T15:47:02.409Z",
+      "is_superuser": false,
+      "username": "karen",
+      "first_name": "Karen",
+      "last_name": "",
+      "email": "mj@gmail.com",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2026-06-07T11:48:57.837Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "auth.user",
+    "fields": {
+      "password": "pbkdf2_sha256$1200000$mZCZUzY6oDiQnsatcs581K$oHT0SnSYKutC3RSxeteg4OrVDHyM5hLKLkWrtiB0mF8=",
+      "last_login": "2026-07-02T15:50:06.472Z",
+      "is_superuser": false,
+      "username": "kate",
+      "first_name": "Kate",
+      "last_name": "",
+      "email": "kll@gmail.com",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2026-06-07T12:09:49.812Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "auth.user",
+    "fields": {
+      "password": "pbkdf2_sha256$1200000$KZgJKvWVDPk8xL3imdVJ2y$eGP+RpxUsDQqY5B+kQd6PN/5Dh77fBRllCPaAI2V2js=",
+      "last_login": "2026-07-02T15:44:26.738Z",
+      "is_superuser": false,
+      "username": "peter",
+      "first_name": "peter",
+      "last_name": "",
+      "email": "mkll@gmail.com",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2026-06-07T12:20:56.357Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "auth.user",
+    "fields": {
+      "password": "pbkdf2_sha256$1200000$byXtcrPmw4yS4QjnbTb2gF$FIkOXu5nnl63LllBOpwt8R/wC6r80thDaZAAiYlcwLM=",
+      "last_login": "2026-07-02T15:48:52.901Z",
+      "is_superuser": false,
+      "username": "jack",
+      "first_name": "Jack",
+      "last_name": "",
+      "email": "jack@gmail.com",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2026-06-16T11:16:10.093Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "auth.user",
+    "fields": {
+      "password": "pbkdf2_sha256$1200000$ZqlBC31n92HBjtkMMDMayN$5RjVShBVI1sbsM8Q6nbD9bJHmV9JWkqPF5ELHhwnqqk=",
+      "last_login": "2026-07-02T15:49:23.041Z",
+      "is_superuser": false,
+      "username": "yawza",
+      "first_name": "yawza",
+      "last_name": "",
+      "email": "yaw@gmail.com",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2026-06-16T17:04:26.943Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "1xbs9zwq081k4e2q73y1dzkcb3ep1sqq",
+    "fields": {
+      "session_data": ".eJxVjMsOwiAQRf-FtSE8C-PSvd9AgBmkaiAp7cr479qkC93ec859sRC3tYZt0BJmZGcm2el3SzE_qO0A77HdOs-9rcuc-K7wgw5-7UjPy-H-HdQ46rf2oDJY7QVQcahNsVY6mROlpNAJo4vPmIUA8EpZMxGaCQqUQtIKnSJ7fwDUOje6:1vZ4Ob:Uzb1LzIV2gmu14Uur69yNCGj2A8EGS-ZNxqRi9VdOpM",
+      "expire_date": "2026-01-09T09:46:05.971Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "29kgjnt39ix1ce69fqcp6h0iqu99n40z",
+    "fields": {
+      "session_data": ".eJxVjDsOwjAQBe_iGlnerL-U9DmDtbYXHECOFCcV4u4QKQW0b2beS0Ta1hq3zkucijgLEKffLVF-cNtBuVO7zTLPbV2mJHdFHrTLcS78vBzu30GlXr-1G6gE0MECUoHgjFeQ_BUROagMBKgzD177oNCySiqhc8WqwN6ATka8P7LZNn8:1vY7QX:3A6H_GY8Fml6WY8rMujIYOs-ojeq6eom1srUp2zHWUA",
+      "expire_date": "2026-01-06T18:48:09.909Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "5wzwvh35mtnaedszevbzwh5ucjr0xdo4",
+    "fields": {
+      "session_data": ".eJxVjEEOwiAQRe_C2pBCcRhcuvcMZBimUjU0Ke3KeHfbpAvd_vfef6tI61Li2mSOY1YXher0uyXip9Qd5AfV-6R5qss8Jr0r-qBN36Ysr-vh_h0UamWrvWQADkjYAwt0A6F3ZwneJJTEYCg5co4tMnSGNhl6a1E4OAqDR_X5AvFSN_U:1wVOvB:YZ_3qzDQIXf5p3yUyrqRmmFkNX7tRAzOVEUzNOjmrU8",
+      "expire_date": "2026-06-19T07:24:49.212Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "76xxz3xcwna07n0jbgoje2byze89g7im",
+    "fields": {
+      "session_data": ".eJxVjDsOwyAQBe9CHSHM8k2Z3mdAwC7BSYQlY1dR7h5bcpG0b2bem4W4rTVsnZYwIbsyYJffLcX8pHYAfMR2n3me27pMiR8KP2nn44z0up3u30GNve51ygTOWiChFXql3CARjNcEBUVy1kSZhPRUitKYE4IU1igw2kgx7DL7fAHTajbm:1vwa9W:zUXLiPOlcSkwq0XXoS30Q3tpYNbLAiLwPzVQ9NKBwaI",
+      "expire_date": "2026-03-15T06:19:42.890Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "7rzzmhlhsqlx7qwx9j3eu0h4pxtb27ru",
+    "fields": {
+      "session_data": ".eJxVjMsOgjAUBf-la9NQLsXWpXu-gdxXLWpKQmFl_HclYaHbMzPnZUbc1jxuVZdxEnMxYE6_GyE_tOxA7lhus-W5rMtEdlfsQasdZtHn9XD_DjLW_K2jNkSOUxvOFIMk3yXWTggEuPfgAVxgz-CchJYwNOydpAg9YlRKat4f_w44xA:1vvt7S:ftjQXPeoRNbZmgbIAN-Tn4XazqcrcYbfFX8Jzb4oDJs",
+      "expire_date": "2026-03-13T08:22:42.996Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "cg27z5lt86yhn3sfgl97j2fs11r8x8ha",
+    "fields": {
+      "session_data": ".eJxVjDsOwyAQBe9CHSHM8k2Z3mdAwC7BSYQlY1dR7h5bcpG0b2bem4W4rTVsnZYwIbsyYJffLcX8pHYAfMR2n3me27pMiR8KP2nn44z0up3u30GNve51ygTOWiChFXql3CARjNcEBUVy1kSZhPRUitKYE4IU1igw2kgx7DL7fAHTajbm:1wMNhR:nrev1k-o3gvyVLtbux8qzk_Sh6Aw_TwIf8L_kh5RSTQ",
+      "expire_date": "2026-05-25T10:17:21.877Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "kd1s6ppe00bsxqqbmpb5mxmeqyksb7jo",
+    "fields": {
+      "session_data": ".eJxVjMEOwiAQRP-FsyEQhAWP3v0GsuyCVA0kpT0Z_9026UGTOc17M28RcV1qXEee48TiIrQ4_XYJ6ZnbDviB7d4l9bbMU5K7Ig865K1zfl0P9--g4qjbGqyCYkNQWzIVw9aqlFVxPrEhDZ78GaCYQIDBgXYKCI1n8rlwMkF8vtCqN84:1vwaAv:wnbT6mReQBhCGN0gmgwUPTLp1imdkrEEaLJp8IYT2J4",
+      "expire_date": "2026-03-15T06:21:09.194Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "qdx88vny15l21sgbi5v3x0iyh7w17axp",
+    "fields": {
+      "session_data": ".eJxVjDkOwjAUBe_iGlnETrxQ0ucM1t-MA8iWslSIu0OkFNC-mXkvlWBbS9oWmdPE6qKcOv1uCPSQugO-Q701Ta2u84R6V_RBFz02luf1cP8OCizlWwNbg9Ajdew49AOBZDR2CGfbOQw2-9izH5giRxTvxIZghCSCIRcxq_cHB0g42g:1wVFtc:F7hgGWH52gnc4zGvdl_w0whph3G2HetTkyYLWQ67JxQ",
+      "expire_date": "2026-06-18T21:46:36.154Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "s04u71qzp68zsnorelbpkw3p9iooxgtq",
+    "fields": {
+      "session_data": ".eJxVjMsOwiAQRf-FtSEgb5fu-w1khgGpGkhKuzL-uzbpQrf3nHNfLMK21riNvMSZ2IUZdvrdENIjtx3QHdqt89TbuszId4UfdPCpU35eD_fvoMKo31olRRK00MEHMp4MACUpgnRgMaAuDlEY7fQZipLSiuJApWy09QqdkOz9Ad2ON2U:1vwaAG:lq4GZU-JRgnenznEQebG2q9jh3aCfb_NivTK20SLnJM",
+      "expire_date": "2026-03-15T06:20:28.556Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "s84gv7vuus72wkucboem0m4ghmu4fp9j",
+    "fields": {
+      "session_data": ".eJxVjEEOwiAQRe_C2pBCcRhcuvcMZBimUjU0Ke3KeHfbpAvd_vfef6tI61Li2mSOY1YXher0uyXip9Qd5AfV-6R5qss8Jr0r-qBN36Ysr-vh_h0UamWrvWQADkjYAwt0A6F3ZwneJJTEYCg5co4tMnSGNhl6a1E4OAqDR_X5AvFSN_U:1wWBcu:YH7I-2JeEs5hHfrRqArJz_gVzTeVlRhpdvhxaQflqR0",
+      "expire_date": "2026-06-21T11:25:12.574Z"
+    }
+  },
+  {
+    "model": "news.category",
+    "pk": 4,
+    "fields": {
+      "name": "Members",
+      "description": "General membership category for gym access and standard training programs."
+    }
+  },
+  {
+    "model": "news.category",
+    "pk": 5,
+    "fields": {
+      "name": "Aerobics",
+      "description": "High-energy fitness classes combining rhythmic movements, cardio exercises, and music to improve cardiovascular health, endurance, and coordination."
+    }
+  },
+  {
+    "model": "news.category",
+    "pk": 6,
+    "fields": {
+      "name": "Yoga",
+      "description": "Mind-body practice combining physical postures, breathing techniques, and meditation to enhance flexibility, strength, balance, and mental well-being."
+    }
+  },
+  {
+    "model": "news.category",
+    "pk": 14,
+    "fields": {
+      "name": "Calisthenics",
+      "description": "Bodyweight-based strength training focused on functional movements like pull-ups, push-ups, dips, and advanced skills using minimal equipment."
+    }
+  },
+  {
+    "model": "news.questions",
+    "pk": 4,
+    "fields": {
+      "name": "mmmaa",
+      "email": "imkm@gmail.com",
+      "quest": "ddd",
+      "ai_answered": false
+    }
+  },
+  {
+    "model": "news.questions",
+    "pk": 7,
+    "fields": {
+      "name": "mnm",
+      "email": "llkk@gmail.com",
+      "quest": "mmmana",
+      "ai_answered": false
+    }
+  },
+  {
+    "model": "news.questions",
+    "pk": 8,
+    "fields": {
+      "name": "mnm",
+      "email": "llkk@gmail.com",
+      "quest": "Payment Confirmation: 5555 received via CASH on 2026-05-11.",
+      "ai_answered": false
+    }
+  },
+  {
+    "model": "news.questions",
+    "pk": 9,
+    "fields": {
+      "name": "mnm",
+      "email": "llkk@gmail.com",
+      "quest": "Payment Confirmation: 5555 received via CASH on 2026-05-11.",
+      "ai_answered": false
+    }
+  },
+  {
+    "model": "news.questions",
+    "pk": 10,
+    "fields": {
+      "name": "mnm",
+      "email": "llkk@gmail.com",
+      "quest": "Payment Logged: 5555 via CASH on 2026-05-11.",
+      "ai_answered": false
+    }
+  },
+  {
+    "model": "news.questions",
+    "pk": 11,
+    "fields": {
+      "name": "mmmaa",
+      "email": "imkm@gmail.com",
+      "quest": "Payment Logged: 55555 via CASH on 2026-05-11.",
+      "ai_answered": false
+    }
+  },
+  {
+    "model": "news.questions",
+    "pk": 12,
+    "fields": {
+      "name": "john",
+      "email": "jj@gmail.com",
+      "quest": "New assignment: n",
+      "ai_answered": false
+    }
+  },
+  {
+    "model": "news.questions",
+    "pk": 13,
+    "fields": {
+      "name": "john",
+      "email": "kylen@gmail.com",
+      "quest": "New assignment: kyle",
+      "ai_answered": false
+    }
+  },
+  {
+    "model": "news.questions",
+    "pk": 14,
+    "fields": {
+      "name": "john",
+      "email": "kylen@gmail.com",
+      "quest": "New training session: kk",
+      "ai_answered": false
+    }
+  },
+  {
+    "model": "news.questions",
+    "pk": 15,
+    "fields": {
+      "name": "john",
+      "email": "kylen@gmail.com",
+      "quest": "New training session: mm",
+      "ai_answered": false
+    }
+  },
+  {
+    "model": "news.questions",
+    "pk": 16,
+    "fields": {
+      "name": "kyle",
+      "email": "kylen@gmail.com",
+      "quest": "New training session: bb",
+      "ai_answered": false
+    }
+  },
+  {
+    "model": "news.questions",
+    "pk": 17,
+    "fields": {
+      "name": "john",
+      "email": "kylen@gmail.com",
+      "quest": "New assignment: kyle",
+      "ai_answered": false
+    }
+  },
+  {
+    "model": "news.questions",
+    "pk": 18,
+    "fields": {
+      "name": "peter",
+      "email": "mj@gmail.com",
+      "quest": "New assignment: Karen",
+      "ai_answered": false
+    }
+  },
+  {
+    "model": "news.questions",
+    "pk": 19,
+    "fields": {
+      "name": "john",
+      "email": "kll@gmail.com",
+      "quest": "New assignment: Kate",
+      "ai_answered": false
+    }
+  },
+  {
+    "model": "news.questions",
+    "pk": 20,
+    "fields": {
+      "name": "me",
+      "email": "you@gmail.com",
+      "quest": "what is the date today\r\n",
+      "ai_answered": false
+    }
+  },
+  {
+    "model": "news.questions",
+    "pk": 21,
+    "fields": {
+      "name": "john",
+      "email": "jj@gmail.com",
+      "quest": "what is the gyms name\r\n",
+      "ai_answered": false
+    }
+  },
+  {
+    "model": "news.questions",
+    "pk": 22,
+    "fields": {
+      "name": "john",
+      "email": "jj@gmail.com",
+      "quest": "what are the trainers names in this gym\r\n",
+      "ai_answered": false
+    }
+  },
+  {
+    "model": "news.questions",
+    "pk": 23,
+    "fields": {
+      "name": "user",
+      "email": "mmm@gmail.com",
+      "quest": "What are your gym hours?",
+      "ai_answered": true
+    }
+  },
+  {
+    "model": "news.questions",
+    "pk": 24,
+    "fields": {
+      "name": "user",
+      "email": "mmm@gmail.com",
+      "quest": "Trainer change request from Karen",
+      "ai_answered": false
+    }
+  },
+  {
+    "model": "news.questions",
+    "pk": 25,
+    "fields": {
+      "name": "Karen",
+      "email": "mj@gmail.com",
+      "quest": "Trainer change request: Karen wants to leave peter",
+      "ai_answered": false
+    }
+  },
+  {
+    "model": "news.response_model",
+    "pk": 2,
+    "fields": {
+      "name": [
+        "user"
+      ],
+      "quest": 7,
+      "text": "mmmmkmkmkkmm",
+      "is_read": true
+    }
+  },
+  {
+    "model": "news.response_model",
+    "pk": 3,
+    "fields": {
+      "name": [
+        "user"
+      ],
+      "quest": 7,
+      "text": "kkk",
+      "is_read": true
+    }
+  },
+  {
+    "model": "news.response_model",
+    "pk": 4,
+    "fields": {
+      "name": [
+        "mnm"
+      ],
+      "quest": 10,
+      "text": "Official Confirmation: Your payment of 5555 has been verified by the gym management. Your status has been updated.",
+      "is_read": true
+    }
+  },
+  {
+    "model": "news.response_model",
+    "pk": 5,
+    "fields": {
+      "name": [
+        "mmmaa"
+      ],
+      "quest": 11,
+      "text": "Official Confirmation: Your payment of 55555 has been verified by the gym management. Your status has been updated.",
+      "is_read": true
+    }
+  },
+  {
+    "model": "news.response_model",
+    "pk": 6,
+    "fields": {
+      "name": [
+        "user"
+      ],
+      "quest": 12,
+      "text": "You have been assigned a new trainee: n. Category: aerobics . Phone: ù. Email: ù.",
+      "is_read": true
+    }
+  },
+  {
+    "model": "news.response_model",
+    "pk": 7,
+    "fields": {
+      "name": [
+        "user"
+      ],
+      "quest": 13,
+      "text": "You have been assigned a new trainee: kyle. Category: aerobics . Phone: 0355555555. Email: kylen@gmail.com.",
+      "is_read": true
+    }
+  },
+  {
+    "model": "news.response_model",
+    "pk": 8,
+    "fields": {
+      "name": [
+        "john"
+      ],
+      "quest": 14,
+      "text": "Your trainer has created a new session: \"kk\". Session details: mm",
+      "is_read": true
+    }
+  },
+  {
+    "model": "news.response_model",
+    "pk": 9,
+    "fields": {
+      "name": [
+        "john"
+      ],
+      "quest": 15,
+      "text": "Your trainer has created a new session: \"mm\". Session details: kk\n\nRegister for this session: http://127.0.0.1:8000/session/register/3/",
+      "is_read": true
+    }
+  },
+  {
+    "model": "news.response_model",
+    "pk": 10,
+    "fields": {
+      "name": [
+        "john"
+      ],
+      "quest": 16,
+      "text": "Your trainer has created a new session: \"bb\"\n\nSession details: gg\n\nRegister for this session:\nhttp://127.0.0.1:8000/session/register/4/",
+      "is_read": true
+    }
+  },
+  {
+    "model": "news.response_model",
+    "pk": 11,
+    "fields": {
+      "name": [
+        "user"
+      ],
+      "quest": 17,
+      "text": "You have been assigned a new trainee: kyle. Category: aerobics . Phone: 0355555555. Email: kylen@gmail.com.",
+      "is_read": true
+    }
+  },
+  {
+    "model": "news.response_model",
+    "pk": 12,
+    "fields": {
+      "name": [
+        "user"
+      ],
+      "quest": 18,
+      "text": "You have been assigned a new trainee: Karen. Category: Calisthenics . Phone: +251988888899. Email: mj@gmail.com.",
+      "is_read": true
+    }
+  },
+  {
+    "model": "news.response_model",
+    "pk": 13,
+    "fields": {
+      "name": [
+        "user"
+      ],
+      "quest": 19,
+      "text": "You have been assigned a new trainee: Kate. Category: Aerobics . Phone: +251988888898. Email: kll@gmail.com.",
+      "is_read": true
+    }
+  },
+  {
+    "model": "news.response_model",
+    "pk": 14,
+    "fields": {
+      "name": [
+        "user"
+      ],
+      "quest": 23,
+      "text": "Our gym is open MondayûFriday 6:00 AM û 10:00 PM, Saturday 8:00 AM û 8:00 PM, and Sunday 9:00 AM û 6:00 PM. Category-specific training spaces may have separate schedules.",
+      "is_read": true
+    }
+  },
+  {
+    "model": "news.response_model",
+    "pk": 15,
+    "fields": {
+      "name": [
+        "user"
+      ],
+      "quest": 24,
+      "text": "Trainee Karen (mj@gmail.com) wants to change from trainer peter.\n\nReason: change",
+      "is_read": false
+    }
+  },
+  {
+    "model": "news.response_model",
+    "pk": 16,
+    "fields": {
+      "name": [
+        "karen"
+      ],
+      "quest": 25,
+      "text": "Trainee Karen (mj@gmail.com) wants to change from trainer peter.\n\nReason: nn",
+      "is_read": false
+    }
+  },
+  {
+    "model": "news.names",
+    "pk": 15,
+    "fields": {
+      "name": "john",
+      "email": "jj@gmail.com",
+      "phone_number": "+251988888888",
+      "detail": "yeah yeah",
+      "date": "2026-05-21T11:29:53.068Z",
+      "image": "Winterfell_Game_of_Thrones_t45mktw.jpg",
+      "role": "trainer",
+      "gender": "male",
+      "trainer": null,
+      "preferred_trainer": null,
+      "category": 5
+    }
+  },
+  {
+    "model": "news.names",
+    "pk": 16,
+    "fields": {
+      "name": "kyle",
+      "email": "kylen@gmail.com",
+      "phone_number": "+251988888888",
+      "detail": "Joined via website signup",
+      "date": "2026-05-26T10:25:09.154Z",
+      "image": "",
+      "role": "trainee",
+      "gender": "male",
+      "trainer": [
+        "john"
+      ],
+      "preferred_trainer": [
+        "john"
+      ],
+      "category": 5
+    }
+  },
+  {
+    "model": "news.names",
+    "pk": 17,
+    "fields": {
+      "name": "Karen",
+      "email": "mj@gmail.com",
+      "phone_number": "+251988888899",
+      "detail": "yes sir",
+      "date": "2026-06-07T11:48:59.842Z",
+      "image": "",
+      "role": "trainee",
+      "gender": "female",
+      "trainer": [
+        "peter"
+      ],
+      "preferred_trainer": null,
+      "category": 14
+    }
+  },
+  {
+    "model": "news.names",
+    "pk": 18,
+    "fields": {
+      "name": "Kate",
+      "email": "kll@gmail.com",
+      "phone_number": "+251988888898",
+      "detail": "bb",
+      "date": "2026-06-07T12:09:51.951Z",
+      "image": "",
+      "role": "trainee",
+      "gender": "female",
+      "trainer": [
+        "john"
+      ],
+      "preferred_trainer": null,
+      "category": 5
+    }
+  },
+  {
+    "model": "news.names",
+    "pk": 20,
+    "fields": {
+      "name": "peter",
+      "email": "mkll@gmail.com",
+      "phone_number": "+251988888897",
+      "detail": "mmm",
+      "date": "2026-06-07T12:20:58.519Z",
+      "image": "",
+      "role": "trainer",
+      "gender": "male",
+      "trainer": null,
+      "preferred_trainer": null,
+      "category": 14
+    }
+  },
+  {
+    "model": "news.names",
+    "pk": 21,
+    "fields": {
+      "name": "user",
+      "email": "mmm@gmail.com",
+      "phone_number": null,
+      "detail": "",
+      "date": "2026-06-15T12:46:15.702Z",
+      "image": "",
+      "role": "trainee",
+      "gender": null,
+      "trainer": null,
+      "preferred_trainer": null,
+      "category": null
+    }
+  },
+  {
+    "model": "news.names",
+    "pk": 22,
+    "fields": {
+      "name": "Jack",
+      "email": "jack@gmail.com",
+      "phone_number": "0988888800",
+      "detail": "default",
+      "date": "2026-06-16T11:16:12.240Z",
+      "image": "",
+      "role": "trainer",
+      "gender": "male",
+      "trainer": null,
+      "preferred_trainer": null,
+      "category": 14
+    }
+  },
+  {
+    "model": "news.names",
+    "pk": 23,
+    "fields": {
+      "name": "yawza",
+      "email": "yaw@gmail.com",
+      "phone_number": "0988888877",
+      "detail": "",
+      "date": "2026-06-16T17:04:28.980Z",
+      "image": "",
+      "role": "trainee",
+      "gender": null,
+      "trainer": null,
+      "preferred_trainer": null,
+      "category": null
+    }
+  },
+  {
+    "model": "news.comments",
+    "pk": 4,
+    "fields": {
+      "email": "",
+      "comment": "yes",
+      "post": null
+    }
+  },
+  {
+    "model": "news.userprofile",
+    "pk": 1,
+    "fields": {
+      "user": [
+        "john"
+      ],
+      "role": "trainer",
+      "gender": "male",
+      "category": 5,
+      "medical_info": "",
+      "image": "",
+      "created_at": "2026-05-21T11:29:53.054Z"
+    }
+  },
+  {
+    "model": "news.userprofile",
+    "pk": 3,
+    "fields": {
+      "user": [
+        "kyle"
+      ],
+      "role": "trainee",
+      "gender": "male",
+      "category": 5,
+      "medical_info": "",
+      "image": "",
+      "created_at": "2026-05-26T10:25:09.126Z"
+    }
+  },
+  {
+    "model": "news.userprofile",
+    "pk": 4,
+    "fields": {
+      "user": [
+        "karen"
+      ],
+      "role": "trainee",
+      "gender": "female",
+      "category": 14,
+      "medical_info": "allergy of nuts",
+      "image": "",
+      "created_at": "2026-06-07T11:48:59.825Z"
+    }
+  },
+  {
+    "model": "news.userprofile",
+    "pk": 5,
+    "fields": {
+      "user": [
+        "kate"
+      ],
+      "role": "trainee",
+      "gender": "female",
+      "category": 5,
+      "medical_info": "",
+      "image": "",
+      "created_at": "2026-06-07T12:09:51.926Z"
+    }
+  },
+  {
+    "model": "news.userprofile",
+    "pk": 7,
+    "fields": {
+      "user": [
+        "peter"
+      ],
+      "role": "trainer",
+      "gender": "male",
+      "category": 14,
+      "medical_info": "",
+      "image": "",
+      "created_at": "2026-06-07T12:20:58.499Z"
+    }
+  },
+  {
+    "model": "news.userprofile",
+    "pk": 8,
+    "fields": {
+      "user": [
+        "jack"
+      ],
+      "role": "trainer",
+      "gender": "male",
+      "category": 14,
+      "medical_info": "",
+      "image": "",
+      "created_at": "2026-06-16T11:16:12.214Z"
+    }
+  },
+  {
+    "model": "news.userprofile",
+    "pk": 9,
+    "fields": {
+      "user": [
+        "yawza"
+      ],
+      "role": "registrar",
+      "gender": null,
+      "category": null,
+      "medical_info": "",
+      "image": "",
+      "created_at": "2026-06-16T17:04:28.962Z"
+    }
+  },
+  {
+    "model": "news.membershippayment",
+    "pk": 1,
+    "fields": {
+      "user": [
+        "mnm"
+      ],
+      "amount": "5555.00",
+      "payment_date": "2026-05-11",
+      "entry_date": "2026-05-11T10:00:06.299Z",
+      "payment_method": "CASH",
+      "receipt_number": null,
+      "is_verified": true
+    }
+  },
+  {
+    "model": "news.membershippayment",
+    "pk": 2,
+    "fields": {
+      "user": [
+        "mnm"
+      ],
+      "amount": "5555.00",
+      "payment_date": "2026-05-11",
+      "entry_date": "2026-05-11T10:00:34.465Z",
+      "payment_method": "CASH",
+      "receipt_number": null,
+      "is_verified": true
+    }
+  },
+  {
+    "model": "news.membershippayment",
+    "pk": 3,
+    "fields": {
+      "user": [
+        "mnm"
+      ],
+      "amount": "5555.00",
+      "payment_date": "2026-05-11",
+      "entry_date": "2026-05-11T10:02:18.968Z",
+      "payment_method": "CASH",
+      "receipt_number": null,
+      "is_verified": true
+    }
+  },
+  {
+    "model": "news.membershippayment",
+    "pk": 4,
+    "fields": {
+      "user": [
+        "mmmaa"
+      ],
+      "amount": "55555.00",
+      "payment_date": "2026-05-11",
+      "entry_date": "2026-05-11T10:17:14.224Z",
+      "payment_method": "CASH",
+      "receipt_number": null,
+      "is_verified": true
+    }
+  },
+  {
+    "model": "news.bodymetric",
+    "pk": 1,
+    "fields": {
+      "user": [
+        "kyle"
+      ],
+      "weight": 99.0,
+      "height": 150.0,
+      "bmi": 44.0,
+      "recorded_at": "2026-06-06T11:48:49.913Z"
+    }
+  },
+  {
+    "model": "news.bodymetric",
+    "pk": 2,
+    "fields": {
+      "user": [
+        "kyle"
+      ],
+      "weight": 66.0,
+      "height": 191.0,
+      "bmi": 18.1,
+      "recorded_at": "2026-06-06T11:49:33.832Z"
+    }
+  },
+  {
+    "model": "news.bodymetric",
+    "pk": 3,
+    "fields": {
+      "user": [
+        "karen"
+      ],
+      "weight": 88.0,
+      "height": 160.0,
+      "bmi": 34.4,
+      "recorded_at": "2026-06-07T12:49:35.073Z"
+    }
+  },
+  {
+    "model": "news.trainingspace",
+    "pk": 1,
+    "fields": {
+      "name": "Aerobics Studio",
+      "category": 5,
+      "description": "High-energy studio with mirrors and sound system for aerobics classes",
+      "is_under_maintenance": false
+    }
+  },
+  {
+    "model": "news.trainingspace",
+    "pk": 2,
+    "fields": {
+      "name": "Aerobics Hall B",
+      "category": 5,
+      "description": "Spacious hall with sprung floor for low-impact aerobics",
+      "is_under_maintenance": false
+    }
+  },
+  {
+    "model": "news.trainingspace",
+    "pk": 3,
+    "fields": {
+      "name": "Calisthenics Park",
+      "category": 14,
+      "description": "Outdoor area with pull-up bars, dip stations and parallel bars",
+      "is_under_maintenance": true
+    }
+  },
+  {
+    "model": "news.trainingspace",
+    "pk": 4,
+    "fields": {
+      "name": "Calisthenics Indoor Gym",
+      "category": 14,
+      "description": "Indoor rig with rings, ropes and matted floor area",
+      "is_under_maintenance": false
+    }
+  },
+  {
+    "model": "news.trainingspace",
+    "pk": 5,
+    "fields": {
+      "name": "Yoga Sanctuary",
+      "category": 6,
+      "description": "Peaceful studio with natural light, mats and props provided",
+      "is_under_maintenance": false
+    }
+  },
+  {
+    "model": "news.trainingspace",
+    "pk": 6,
+    "fields": {
+      "name": "Yoga Meditation Dome",
+      "category": 6,
+      "description": "Quiet dome space for meditation and restorative yoga",
+      "is_under_maintenance": false
+    }
+  },
+  {
+    "model": "news.trainingsession",
+    "pk": 1,
+    "fields": {
+      "title": "mk",
+      "description": "mkm",
+      "session_date": "2026-06-07T00:16:00Z",
+      "duration_minutes": 60,
+      "space": null,
+      "trainer": 15,
+      "max_trainees": 10,
+      "created_at": "2026-06-04T21:24:45.054Z",
+      "registered_trainees": [
+        16
+      ]
+    }
+  },
+  {
+    "model": "news.trainingsession",
+    "pk": 2,
+    "fields": {
+      "title": "kk",
+      "description": "mm",
+      "session_date": "2026-06-11T00:27:00Z",
+      "duration_minutes": 60,
+      "space": null,
+      "trainer": 15,
+      "max_trainees": 10,
+      "created_at": "2026-06-04T21:27:04.305Z",
+      "registered_trainees": []
+    }
+  },
+  {
+    "model": "news.trainingsession",
+    "pk": 3,
+    "fields": {
+      "title": "mm",
+      "description": "kk",
+      "session_date": "2026-06-19T02:32:00Z",
+      "duration_minutes": 60,
+      "space": null,
+      "trainer": 15,
+      "max_trainees": 10,
+      "created_at": "2026-06-04T21:30:59.249Z",
+      "registered_trainees": []
+    }
+  },
+  {
+    "model": "news.trainingsession",
+    "pk": 4,
+    "fields": {
+      "title": "bb",
+      "description": "gg",
+      "session_date": "2026-06-26T00:34:00Z",
+      "duration_minutes": 60,
+      "space": null,
+      "trainer": 15,
+      "max_trainees": 10,
+      "created_at": "2026-06-04T21:34:35.086Z",
+      "registered_trainees": [
+        16
+      ]
+    }
+  },
+  {
+    "model": "news.trainingsession",
+    "pk": 5,
+    "fields": {
+      "title": "mm",
+      "description": "kk",
+      "session_date": "2026-06-17T15:01:00Z",
+      "duration_minutes": 60,
+      "space": 3,
+      "trainer": 22,
+      "max_trainees": 10,
+      "created_at": "2026-06-16T11:20:33.194Z",
+      "registered_trainees": []
+    }
+  },
+  {
+    "model": "news.memberid",
+    "pk": 1,
+    "fields": {
+      "member": 15,
+      "unique_id": "4c936164-0d59-4b8a-8ffd-2f021ea9fe97",
+      "qr_code": null,
+      "created_at": "2026-06-15T11:30:54.558Z"
+    }
+  },
+  {
+    "model": "news.memberid",
+    "pk": 2,
+    "fields": {
+      "member": 16,
+      "unique_id": "4c5740d4-da5c-4435-97ac-5014c59d1f97",
+      "qr_code": null,
+      "created_at": "2026-06-15T11:30:54.996Z"
+    }
+  },
+  {
+    "model": "news.memberid",
+    "pk": 3,
+    "fields": {
+      "member": 17,
+      "unique_id": "439ca3c0-d5c6-442b-b118-610521f7c718",
+      "qr_code": null,
+      "created_at": "2026-06-15T11:30:55.047Z"
+    }
+  },
+  {
+    "model": "news.memberid",
+    "pk": 4,
+    "fields": {
+      "member": 18,
+      "unique_id": "72928a27-7892-4438-978b-d350d242342e",
+      "qr_code": null,
+      "created_at": "2026-06-15T11:30:55.089Z"
+    }
+  },
+  {
+    "model": "news.memberid",
+    "pk": 5,
+    "fields": {
+      "member": 20,
+      "unique_id": "b8395dc8-5def-4910-ad26-169706f70a33",
+      "qr_code": null,
+      "created_at": "2026-06-15T11:30:55.138Z"
+    }
+  },
+  {
+    "model": "news.memberid",
+    "pk": 6,
+    "fields": {
+      "member": 21,
+      "unique_id": "35a010bf-69cd-4de4-99eb-4b7bd21d8abb",
+      "qr_code": null,
+      "created_at": "2026-06-15T13:34:18.050Z"
+    }
+  },
+  {
+    "model": "news.memberid",
+    "pk": 7,
+    "fields": {
+      "member": 23,
+      "unique_id": "01e90964-e21b-4101-833d-c01f805c3dd2",
+      "qr_code": null,
+      "created_at": "2026-06-20T09:03:00.627Z"
+    }
+  },
+  {
+    "model": "news.trainerrating",
+    "pk": 1,
+    "fields": {
+      "trainee": 17,
+      "trainer": 20,
+      "rating": 4,
+      "comment": "",
+      "created_at": "2026-06-20T09:44:05.182Z"
+    }
+  },
+  {
+    "model": "news.trainerchangerequest",
+    "pk": 1,
+    "fields": {
+      "trainee": 17,
+      "current_trainer": 20,
+      "reason": "change",
+      "status": "pending",
+      "created_at": "2026-06-20T10:30:25.301Z"
+    }
+  },
+  {
+    "model": "news.trainerchangerequest",
+    "pk": 2,
+    "fields": {
+      "trainee": 17,
+      "current_trainer": 20,
+      "reason": "nn",
+      "status": "pending",
+      "created_at": "2026-06-20T11:06:45.207Z"
+    }
+  },
+  {
+    "model": "news.trainingplan",
+    "pk": 1,
+    "fields": {
+      "trainee": 17,
+      "trainer": 20,
+      "split_type": "push_pull_legs",
+      "start_date": "2026-06-29",
+      "end_date": "2026-07-05",
+      "notes": "gggs",
+      "is_active": true,
+      "created_at": "2026-07-02T15:44:52.579Z",
+      "updated_at": "2026-07-02T15:46:30.056Z"
+    }
+  },
+  {
+    "model": "news.trainingplan",
+    "pk": 2,
+    "fields": {
+      "trainee": 18,
+      "trainer": 15,
+      "split_type": "leg_arm_chest_back",
+      "start_date": "2026-06-29",
+      "end_date": "2026-07-05",
+      "notes": "",
+      "is_active": true,
+      "created_at": "2026-07-02T15:48:14.723Z",
+      "updated_at": "2026-07-02T15:48:14.723Z"
+    }
+  },
+  {
+    "model": "news.trainingplanday",
+    "pk": 1,
+    "fields": {
+      "plan": 1,
+      "day_index": 0,
+      "day_label": "Push",
+      "is_rest_day": false,
+      "exercises": [
+        {
+          "name": "mmm",
+          "sets": "55",
+          "reps": "85",
+          "weight": "255",
+          "notes": ""
+        },
+        {
+          "name": "m o",
+          "sets": "55",
+          "reps": "55",
+          "weight": "255",
+          "notes": ""
+        },
+        {
+          "name": "km",
+          "sets": "25",
+          "reps": "55",
+          "weight": "999",
+          "notes": ""
+        }
+      ]
+    }
+  },
+  {
+    "model": "news.trainingplanday",
+    "pk": 2,
+    "fields": {
+      "plan": 1,
+      "day_index": 1,
+      "day_label": "Pull",
+      "is_rest_day": false,
+      "exercises": []
+    }
+  },
+  {
+    "model": "news.trainingplanday",
+    "pk": 3,
+    "fields": {
+      "plan": 1,
+      "day_index": 2,
+      "day_label": "Legs",
+      "is_rest_day": false,
+      "exercises": []
+    }
+  },
+  {
+    "model": "news.trainingplanday",
+    "pk": 4,
+    "fields": {
+      "plan": 1,
+      "day_index": 3,
+      "day_label": "Push",
+      "is_rest_day": false,
+      "exercises": []
+    }
+  },
+  {
+    "model": "news.trainingplanday",
+    "pk": 5,
+    "fields": {
+      "plan": 1,
+      "day_index": 4,
+      "day_label": "Pull",
+      "is_rest_day": false,
+      "exercises": []
+    }
+  },
+  {
+    "model": "news.trainingplanday",
+    "pk": 6,
+    "fields": {
+      "plan": 1,
+      "day_index": 5,
+      "day_label": "Legs",
+      "is_rest_day": false,
+      "exercises": []
+    }
+  },
+  {
+    "model": "news.trainingplanday",
+    "pk": 7,
+    "fields": {
+      "plan": 2,
+      "day_index": 0,
+      "day_label": "Legs",
+      "is_rest_day": false,
+      "exercises": [
+        {
+          "name": "nn",
+          "sets": "sd",
+          "reps": "",
+          "weight": "",
+          "notes": ""
+        },
+        {
+          "name": "mna",
+          "sets": "",
+          "reps": "",
+          "weight": "",
+          "notes": ""
+        }
+      ]
+    }
+  },
+  {
+    "model": "news.trainingplanday",
+    "pk": 8,
+    "fields": {
+      "plan": 2,
+      "day_index": 1,
+      "day_label": "Arms",
+      "is_rest_day": false,
+      "exercises": []
+    }
+  },
+  {
+    "model": "news.trainingplanday",
+    "pk": 9,
+    "fields": {
+      "plan": 2,
+      "day_index": 2,
+      "day_label": "Chest",
+      "is_rest_day": false,
+      "exercises": []
+    }
+  },
+  {
+    "model": "news.trainingplanday",
+    "pk": 10,
+    "fields": {
+      "plan": 2,
+      "day_index": 3,
+      "day_label": "Back",
+      "is_rest_day": false,
+      "exercises": []
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 1,
+    "fields": {
+      "action_time": "2025-12-23T18:48:20.648Z",
+      "user": [
+        "user"
+      ],
+      "content_type": [
+        "news",
+        "names"
+      ],
+      "object_id": "1",
+      "object_repr": "nezha",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 2,
+    "fields": {
+      "action_time": "2025-12-23T18:52:40.619Z",
+      "user": [
+        "user"
+      ],
+      "content_type": [
+        "news",
+        "names"
+      ],
+      "object_id": "2",
+      "object_repr": "xaomi",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 3,
+    "fields": {
+      "action_time": "2025-12-23T19:04:26.348Z",
+      "user": [
+        "user"
+      ],
+      "content_type": [
+        "news",
+        "names"
+      ],
+      "object_id": "3",
+      "object_repr": "shujushiro",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 4,
+    "fields": {
+      "action_time": "2025-12-24T07:06:51.144Z",
+      "user": [
+        "user"
+      ],
+      "content_type": [
+        "news",
+        "names"
+      ],
+      "object_id": "3",
+      "object_repr": "shujushiro",
+      "action_flag": 2,
+      "change_message": "[{\"changed\": {\"fields\": [\"Image\"]}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 5,
+    "fields": {
+      "action_time": "2025-12-24T07:13:42.673Z",
+      "user": [
+        "user"
+      ],
+      "content_type": [
+        "news",
+        "names"
+      ],
+      "object_id": "3",
+      "object_repr": "shujushiro",
+      "action_flag": 2,
+      "change_message": "[{\"changed\": {\"fields\": [\"Image\"]}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 6,
+    "fields": {
+      "action_time": "2025-12-24T07:19:33.911Z",
+      "user": [
+        "user"
+      ],
+      "content_type": [
+        "news",
+        "names"
+      ],
+      "object_id": "2",
+      "object_repr": "xaomi",
+      "action_flag": 2,
+      "change_message": "[{\"changed\": {\"fields\": [\"Image\"]}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 7,
+    "fields": {
+      "action_time": "2025-12-24T07:20:03.814Z",
+      "user": [
+        "user"
+      ],
+      "content_type": [
+        "news",
+        "names"
+      ],
+      "object_id": "1",
+      "object_repr": "nezha",
+      "action_flag": 2,
+      "change_message": "[{\"changed\": {\"fields\": [\"Image\"]}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 8,
+    "fields": {
+      "action_time": "2025-12-24T07:56:05.827Z",
+      "user": [
+        "user"
+      ],
+      "content_type": [
+        "news",
+        "category"
+      ],
+      "object_id": "1",
+      "object_repr": "Category object (1)",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 9,
+    "fields": {
+      "action_time": "2025-12-24T07:56:12.399Z",
+      "user": [
+        "user"
+      ],
+      "content_type": [
+        "news",
+        "category"
+      ],
+      "object_id": "2",
+      "object_repr": "Category object (2)",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 10,
+    "fields": {
+      "action_time": "2025-12-24T07:56:55.528Z",
+      "user": [
+        "user"
+      ],
+      "content_type": [
+        "news",
+        "category"
+      ],
+      "object_id": "2",
+      "object_repr": "Category object (2)",
+      "action_flag": 3,
+      "change_message": ""
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 11,
+    "fields": {
+      "action_time": "2025-12-24T07:56:55.528Z",
+      "user": [
+        "user"
+      ],
+      "content_type": [
+        "news",
+        "category"
+      ],
+      "object_id": "1",
+      "object_repr": "Category object (1)",
+      "action_flag": 3,
+      "change_message": ""
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 12,
+    "fields": {
+      "action_time": "2025-12-24T07:57:36.611Z",
+      "user": [
+        "user"
+      ],
+      "content_type": [
+        "news",
+        "category"
+      ],
+      "object_id": "3",
+      "object_repr": "Category object (3)",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 13,
+    "fields": {
+      "action_time": "2025-12-24T07:59:15.432Z",
+      "user": [
+        "user"
+      ],
+      "content_type": [
+        "news",
+        "category"
+      ],
+      "object_id": "3",
+      "object_repr": "Category object (3)",
+      "action_flag": 3,
+      "change_message": ""
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 14,
+    "fields": {
+      "action_time": "2025-12-24T08:01:28.470Z",
+      "user": [
+        "user"
+      ],
+      "content_type": [
+        "news",
+        "category"
+      ],
+      "object_id": "4",
+      "object_repr": "Category object (4)",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 15,
+    "fields": {
+      "action_time": "2025-12-24T08:01:53.724Z",
+      "user": [
+        "user"
+      ],
+      "content_type": [
+        "news",
+        "category"
+      ],
+      "object_id": "5",
+      "object_repr": "Category object (5)",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 16,
+    "fields": {
+      "action_time": "2025-12-24T08:02:36.872Z",
+      "user": [
+        "user"
+      ],
+      "content_type": [
+        "news",
+        "names"
+      ],
+      "object_id": "3",
+      "object_repr": "shujushiro",
+      "action_flag": 2,
+      "change_message": "[{\"changed\": {\"fields\": [\"Category\"]}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 17,
+    "fields": {
+      "action_time": "2025-12-24T08:02:42.370Z",
+      "user": [
+        "user"
+      ],
+      "content_type": [
+        "news",
+        "names"
+      ],
+      "object_id": "2",
+      "object_repr": "xaomi",
+      "action_flag": 2,
+      "change_message": "[{\"changed\": {\"fields\": [\"Category\"]}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 18,
+    "fields": {
+      "action_time": "2025-12-24T08:02:48.073Z",
+      "user": [
+        "user"
+      ],
+      "content_type": [
+        "news",
+        "names"
+      ],
+      "object_id": "1",
+      "object_repr": "nezha",
+      "action_flag": 2,
+      "change_message": "[{\"changed\": {\"fields\": [\"Category\"]}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 19,
+    "fields": {
+      "action_time": "2025-12-24T08:03:22.622Z",
+      "user": [
+        "user"
+      ],
+      "content_type": [
+        "news",
+        "names"
+      ],
+      "object_id": "4",
+      "object_repr": "satoshi",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 20,
+    "fields": {
+      "action_time": "2025-12-24T08:03:52.676Z",
+      "user": [
+        "user"
+      ],
+      "content_type": [
+        "news",
+        "names"
+      ],
+      "object_id": "5",
+      "object_repr": "nakumoto",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 21,
+    "fields": {
+      "action_time": "2025-12-24T08:04:55.876Z",
+      "user": [
+        "user"
+      ],
+      "content_type": [
+        "news",
+        "names"
+      ],
+      "object_id": "6",
+      "object_repr": "nakamura",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
   }
-},
-{
-  "model": "auth.user",
-  "fields": {
-    "password": "pbkdf2_sha256$1200000$vTmJiKKIT1cLqhwSth5ijO$rPkAKprkMQiz2A1P04bX02eed6QCMGQZ8NWQtERyePE=",
-    "last_login": "2026-05-19T10:49:27.826Z",
-    "is_superuser": false,
-    "username": "mmmaa",
-    "first_name": "",
-    "last_name": "",
-    "email": "imkm@gmail.com",
-    "is_staff": false,
-    "is_active": true,
-    "date_joined": "2026-02-27T06:43:13.796Z",
-    "groups": [],
-    "user_permissions": []
-  }
-},
-{
-  "model": "auth.user",
-  "fields": {
-    "password": "pbkdf2_sha256$1200000$DdSAyz9xAU5RgR2hHEx8Qv$+Jagy6uLamWkZLQEwg0bYq+Evc4d5wzw9fm8gH/l2Lo=",
-    "last_login": "2026-05-11T10:10:58.753Z",
-    "is_superuser": false,
-    "username": "mnm",
-    "first_name": "",
-    "last_name": "",
-    "email": "llkk@gmail.com",
-    "is_staff": false,
-    "is_active": true,
-    "date_joined": "2026-02-27T10:31:59.963Z",
-    "groups": [],
-    "user_permissions": []
-  }
-},
-{
-  "model": "auth.user",
-  "fields": {
-    "password": "pbkdf2_sha256$1200000$ePcDXD9wq8tA1E6g8Cnu6A$k+CM0j8JqLXoC2G56rhOP1TrJfeWVB2eyRcPwfkAP/A=",
-    "last_login": "2026-07-02T15:50:33.868Z",
-    "is_superuser": false,
-    "username": "john",
-    "first_name": "john",
-    "last_name": "",
-    "email": "jj@gmail.com",
-    "is_staff": false,
-    "is_active": true,
-    "date_joined": "2026-05-21T11:29:52.353Z",
-    "groups": [],
-    "user_permissions": []
-  }
-},
-{
-  "model": "auth.user",
-  "fields": {
-    "password": "pbkdf2_sha256$1200000$gD7YvRkfasCHRj23G4RrWG$Q6bvvrIb53e/TQD1XHatc4X0g/YZc6FPgevgbZwcic4=",
-    "last_login": "2026-07-02T15:50:51.464Z",
-    "is_superuser": false,
-    "username": "kyle",
-    "first_name": "kyle",
-    "last_name": "",
-    "email": "kylen@gmail.com",
-    "is_staff": false,
-    "is_active": true,
-    "date_joined": "2026-05-26T10:25:07.123Z",
-    "groups": [],
-    "user_permissions": []
-  }
-},
-{
-  "model": "auth.user",
-  "fields": {
-    "password": "pbkdf2_sha256$1200000$k0t9tqsQonIvni63PSc3Yf$vj6rxr4spEsZb1iQRS4u9PolplUfsYnTP0OAEyZGAt4=",
-    "last_login": "2026-07-02T15:47:02.409Z",
-    "is_superuser": false,
-    "username": "karen",
-    "first_name": "Karen",
-    "last_name": "",
-    "email": "mj@gmail.com",
-    "is_staff": false,
-    "is_active": true,
-    "date_joined": "2026-06-07T11:48:57.837Z",
-    "groups": [],
-    "user_permissions": []
-  }
-},
-{
-  "model": "auth.user",
-  "fields": {
-    "password": "pbkdf2_sha256$1200000$mZCZUzY6oDiQnsatcs581K$oHT0SnSYKutC3RSxeteg4OrVDHyM5hLKLkWrtiB0mF8=",
-    "last_login": "2026-07-02T15:50:06.472Z",
-    "is_superuser": false,
-    "username": "kate",
-    "first_name": "Kate",
-    "last_name": "",
-    "email": "kll@gmail.com",
-    "is_staff": false,
-    "is_active": true,
-    "date_joined": "2026-06-07T12:09:49.812Z",
-    "groups": [],
-    "user_permissions": []
-  }
-},
-{
-  "model": "auth.user",
-  "fields": {
-    "password": "pbkdf2_sha256$1200000$KZgJKvWVDPk8xL3imdVJ2y$eGP+RpxUsDQqY5B+kQd6PN/5Dh77fBRllCPaAI2V2js=",
-    "last_login": "2026-07-02T15:44:26.738Z",
-    "is_superuser": false,
-    "username": "peter",
-    "first_name": "peter",
-    "last_name": "",
-    "email": "mkll@gmail.com",
-    "is_staff": false,
-    "is_active": true,
-    "date_joined": "2026-06-07T12:20:56.357Z",
-    "groups": [],
-    "user_permissions": []
-  }
-},
-{
-  "model": "auth.user",
-  "fields": {
-    "password": "pbkdf2_sha256$1200000$byXtcrPmw4yS4QjnbTb2gF$FIkOXu5nnl63LllBOpwt8R/wC6r80thDaZAAiYlcwLM=",
-    "last_login": "2026-07-02T15:48:52.901Z",
-    "is_superuser": false,
-    "username": "jack",
-    "first_name": "Jack",
-    "last_name": "",
-    "email": "jack@gmail.com",
-    "is_staff": false,
-    "is_active": true,
-    "date_joined": "2026-06-16T11:16:10.093Z",
-    "groups": [],
-    "user_permissions": []
-  }
-},
-{
-  "model": "auth.user",
-  "fields": {
-    "password": "pbkdf2_sha256$1200000$ZqlBC31n92HBjtkMMDMayN$5RjVShBVI1sbsM8Q6nbD9bJHmV9JWkqPF5ELHhwnqqk=",
-    "last_login": "2026-07-02T15:49:23.041Z",
-    "is_superuser": false,
-    "username": "yawza",
-    "first_name": "yawza",
-    "last_name": "",
-    "email": "yaw@gmail.com",
-    "is_staff": false,
-    "is_active": true,
-    "date_joined": "2026-06-16T17:04:26.943Z",
-    "groups": [],
-    "user_permissions": []
-  }
-},
-{
-  "model": "sessions.session",
-  "pk": "1xbs9zwq081k4e2q73y1dzkcb3ep1sqq",
-  "fields": {
-    "session_data": ".eJxVjMsOwiAQRf-FtSE8C-PSvd9AgBmkaiAp7cr479qkC93ec859sRC3tYZt0BJmZGcm2el3SzE_qO0A77HdOs-9rcuc-K7wgw5-7UjPy-H-HdQ46rf2oDJY7QVQcahNsVY6mROlpNAJo4vPmIUA8EpZMxGaCQqUQtIKnSJ7fwDUOje6:1vZ4Ob:Uzb1LzIV2gmu14Uur69yNCGj2A8EGS-ZNxqRi9VdOpM",
-    "expire_date": "2026-01-09T09:46:05.971Z"
-  }
-},
-{
-  "model": "sessions.session",
-  "pk": "29kgjnt39ix1ce69fqcp6h0iqu99n40z",
-  "fields": {
-    "session_data": ".eJxVjDsOwjAQBe_iGlnerL-U9DmDtbYXHECOFCcV4u4QKQW0b2beS0Ta1hq3zkucijgLEKffLVF-cNtBuVO7zTLPbV2mJHdFHrTLcS78vBzu30GlXr-1G6gE0MECUoHgjFeQ_BUROagMBKgzD177oNCySiqhc8WqwN6ATka8P7LZNn8:1vY7QX:3A6H_GY8Fml6WY8rMujIYOs-ojeq6eom1srUp2zHWUA",
-    "expire_date": "2026-01-06T18:48:09.909Z"
-  }
-},
-{
-  "model": "sessions.session",
-  "pk": "5wzwvh35mtnaedszevbzwh5ucjr0xdo4",
-  "fields": {
-    "session_data": ".eJxVjEEOwiAQRe_C2pBCcRhcuvcMZBimUjU0Ke3KeHfbpAvd_vfef6tI61Li2mSOY1YXher0uyXip9Qd5AfV-6R5qss8Jr0r-qBN36Ysr-vh_h0UamWrvWQADkjYAwt0A6F3ZwneJJTEYCg5co4tMnSGNhl6a1E4OAqDR_X5AvFSN_U:1wVOvB:YZ_3qzDQIXf5p3yUyrqRmmFkNX7tRAzOVEUzNOjmrU8",
-    "expire_date": "2026-06-19T07:24:49.212Z"
-  }
-},
-{
-  "model": "sessions.session",
-  "pk": "76xxz3xcwna07n0jbgoje2byze89g7im",
-  "fields": {
-    "session_data": ".eJxVjDsOwyAQBe9CHSHM8k2Z3mdAwC7BSYQlY1dR7h5bcpG0b2bem4W4rTVsnZYwIbsyYJffLcX8pHYAfMR2n3me27pMiR8KP2nn44z0up3u30GNve51ygTOWiChFXql3CARjNcEBUVy1kSZhPRUitKYE4IU1igw2kgx7DL7fAHTajbm:1vwa9W:zUXLiPOlcSkwq0XXoS30Q3tpYNbLAiLwPzVQ9NKBwaI",
-    "expire_date": "2026-03-15T06:19:42.890Z"
-  }
-},
-{
-  "model": "sessions.session",
-  "pk": "7rzzmhlhsqlx7qwx9j3eu0h4pxtb27ru",
-  "fields": {
-    "session_data": ".eJxVjMsOgjAUBf-la9NQLsXWpXu-gdxXLWpKQmFl_HclYaHbMzPnZUbc1jxuVZdxEnMxYE6_GyE_tOxA7lhus-W5rMtEdlfsQasdZtHn9XD_DjLW_K2jNkSOUxvOFIMk3yXWTggEuPfgAVxgz-CchJYwNOydpAg9YlRKat4f_w44xA:1vvt7S:ftjQXPeoRNbZmgbIAN-Tn4XazqcrcYbfFX8Jzb4oDJs",
-    "expire_date": "2026-03-13T08:22:42.996Z"
-  }
-},
-{
-  "model": "sessions.session",
-  "pk": "cg27z5lt86yhn3sfgl97j2fs11r8x8ha",
-  "fields": {
-    "session_data": ".eJxVjDsOwyAQBe9CHSHM8k2Z3mdAwC7BSYQlY1dR7h5bcpG0b2bem4W4rTVsnZYwIbsyYJffLcX8pHYAfMR2n3me27pMiR8KP2nn44z0up3u30GNve51ygTOWiChFXql3CARjNcEBUVy1kSZhPRUitKYE4IU1igw2kgx7DL7fAHTajbm:1wMNhR:nrev1k-o3gvyVLtbux8qzk_Sh6Aw_TwIf8L_kh5RSTQ",
-    "expire_date": "2026-05-25T10:17:21.877Z"
-  }
-},
-{
-  "model": "sessions.session",
-  "pk": "kd1s6ppe00bsxqqbmpb5mxmeqyksb7jo",
-  "fields": {
-    "session_data": ".eJxVjMEOwiAQRP-FsyEQhAWP3v0GsuyCVA0kpT0Z_9026UGTOc17M28RcV1qXEee48TiIrQ4_XYJ6ZnbDviB7d4l9bbMU5K7Ig865K1zfl0P9--g4qjbGqyCYkNQWzIVw9aqlFVxPrEhDZ78GaCYQIDBgXYKCI1n8rlwMkF8vtCqN84:1vwaAv:wnbT6mReQBhCGN0gmgwUPTLp1imdkrEEaLJp8IYT2J4",
-    "expire_date": "2026-03-15T06:21:09.194Z"
-  }
-},
-{
-  "model": "sessions.session",
-  "pk": "qdx88vny15l21sgbi5v3x0iyh7w17axp",
-  "fields": {
-    "session_data": ".eJxVjDkOwjAUBe_iGlnETrxQ0ucM1t-MA8iWslSIu0OkFNC-mXkvlWBbS9oWmdPE6qKcOv1uCPSQugO-Q701Ta2u84R6V_RBFz02luf1cP8OCizlWwNbg9Ajdew49AOBZDR2CGfbOQw2-9izH5giRxTvxIZghCSCIRcxq_cHB0g42g:1wVFtc:F7hgGWH52gnc4zGvdl_w0whph3G2HetTkyYLWQ67JxQ",
-    "expire_date": "2026-06-18T21:46:36.154Z"
-  }
-},
-{
-  "model": "sessions.session",
-  "pk": "s04u71qzp68zsnorelbpkw3p9iooxgtq",
-  "fields": {
-    "session_data": ".eJxVjMsOwiAQRf-FtSEgb5fu-w1khgGpGkhKuzL-uzbpQrf3nHNfLMK21riNvMSZ2IUZdvrdENIjtx3QHdqt89TbuszId4UfdPCpU35eD_fvoMKo31olRRK00MEHMp4MACUpgnRgMaAuDlEY7fQZipLSiuJApWy09QqdkOz9Ad2ON2U:1vwaAG:lq4GZU-JRgnenznEQebG2q9jh3aCfb_NivTK20SLnJM",
-    "expire_date": "2026-03-15T06:20:28.556Z"
-  }
-},
-{
-  "model": "sessions.session",
-  "pk": "s84gv7vuus72wkucboem0m4ghmu4fp9j",
-  "fields": {
-    "session_data": ".eJxVjEEOwiAQRe_C2pBCcRhcuvcMZBimUjU0Ke3KeHfbpAvd_vfef6tI61Li2mSOY1YXher0uyXip9Qd5AfV-6R5qss8Jr0r-qBN36Ysr-vh_h0UamWrvWQADkjYAwt0A6F3ZwneJJTEYCg5co4tMnSGNhl6a1E4OAqDR_X5AvFSN_U:1wWBcu:YH7I-2JeEs5hHfrRqArJz_gVzTeVlRhpdvhxaQflqR0",
-    "expire_date": "2026-06-21T11:25:12.574Z"
-  }
-},
-{
-  "model": "news.category",
-  "pk": 4,
-  "fields": {
-    "name": "Members",
-    "description": "General membership category for gym access and standard training programs."
-  }
-},
-{
-  "model": "news.category",
-  "pk": 5,
-  "fields": {
-    "name": "Aerobics",
-    "description": "High-energy fitness classes combining rhythmic movements, cardio exercises, and music to improve cardiovascular health, endurance, and coordination."
-  }
-},
-{
-  "model": "news.category",
-  "pk": 6,
-  "fields": {
-    "name": "Yoga",
-    "description": "Mind-body practice combining physical postures, breathing techniques, and meditation to enhance flexibility, strength, balance, and mental well-being."
-  }
-},
-{
-  "model": "news.category",
-  "pk": 14,
-  "fields": {
-    "name": "Calisthenics",
-    "description": "Bodyweight-based strength training focused on functional movements like pull-ups, push-ups, dips, and advanced skills using minimal equipment."
-  }
-},
-{
-  "model": "news.questions",
-  "pk": 4,
-  "fields": {
-    "name": "mmmaa",
-    "email": "imkm@gmail.com",
-    "quest": "ddd",
-    "ai_answered": false
-  }
-},
-{
-  "model": "news.questions",
-  "pk": 7,
-  "fields": {
-    "name": "mnm",
-    "email": "llkk@gmail.com",
-    "quest": "mmmana",
-    "ai_answered": false
-  }
-},
-{
-  "model": "news.questions",
-  "pk": 8,
-  "fields": {
-    "name": "mnm",
-    "email": "llkk@gmail.com",
-    "quest": "Payment Confirmation: 5555 received via CASH on 2026-05-11.",
-    "ai_answered": false
-  }
-},
-{
-  "model": "news.questions",
-  "pk": 9,
-  "fields": {
-    "name": "mnm",
-    "email": "llkk@gmail.com",
-    "quest": "Payment Confirmation: 5555 received via CASH on 2026-05-11.",
-    "ai_answered": false
-  }
-},
-{
-  "model": "news.questions",
-  "pk": 10,
-  "fields": {
-    "name": "mnm",
-    "email": "llkk@gmail.com",
-    "quest": "Payment Logged: 5555 via CASH on 2026-05-11.",
-    "ai_answered": false
-  }
-},
-{
-  "model": "news.questions",
-  "pk": 11,
-  "fields": {
-    "name": "mmmaa",
-    "email": "imkm@gmail.com",
-    "quest": "Payment Logged: 55555 via CASH on 2026-05-11.",
-    "ai_answered": false
-  }
-},
-{
-  "model": "news.questions",
-  "pk": 12,
-  "fields": {
-    "name": "john",
-    "email": "jj@gmail.com",
-    "quest": "New assignment: n",
-    "ai_answered": false
-  }
-},
-{
-  "model": "news.questions",
-  "pk": 13,
-  "fields": {
-    "name": "john",
-    "email": "kylen@gmail.com",
-    "quest": "New assignment: kyle",
-    "ai_answered": false
-  }
-},
-{
-  "model": "news.questions",
-  "pk": 14,
-  "fields": {
-    "name": "john",
-    "email": "kylen@gmail.com",
-    "quest": "New training session: kk",
-    "ai_answered": false
-  }
-},
-{
-  "model": "news.questions",
-  "pk": 15,
-  "fields": {
-    "name": "john",
-    "email": "kylen@gmail.com",
-    "quest": "New training session: mm",
-    "ai_answered": false
-  }
-},
-{
-  "model": "news.questions",
-  "pk": 16,
-  "fields": {
-    "name": "kyle",
-    "email": "kylen@gmail.com",
-    "quest": "New training session: bb",
-    "ai_answered": false
-  }
-},
-{
-  "model": "news.questions",
-  "pk": 17,
-  "fields": {
-    "name": "john",
-    "email": "kylen@gmail.com",
-    "quest": "New assignment: kyle",
-    "ai_answered": false
-  }
-},
-{
-  "model": "news.questions",
-  "pk": 18,
-  "fields": {
-    "name": "peter",
-    "email": "mj@gmail.com",
-    "quest": "New assignment: Karen",
-    "ai_answered": false
-  }
-},
-{
-  "model": "news.questions",
-  "pk": 19,
-  "fields": {
-    "name": "john",
-    "email": "kll@gmail.com",
-    "quest": "New assignment: Kate",
-    "ai_answered": false
-  }
-},
-{
-  "model": "news.questions",
-  "pk": 20,
-  "fields": {
-    "name": "me",
-    "email": "you@gmail.com",
-    "quest": "what is the date today\r\n",
-    "ai_answered": false
-  }
-},
-{
-  "model": "news.questions",
-  "pk": 21,
-  "fields": {
-    "name": "john",
-    "email": "jj@gmail.com",
-    "quest": "what is the gyms name\r\n",
-    "ai_answered": false
-  }
-},
-{
-  "model": "news.questions",
-  "pk": 22,
-  "fields": {
-    "name": "john",
-    "email": "jj@gmail.com",
-    "quest": "what are the trainers names in this gym\r\n",
-    "ai_answered": false
-  }
-},
-{
-  "model": "news.questions",
-  "pk": 23,
-  "fields": {
-    "name": "user",
-    "email": "mmm@gmail.com",
-    "quest": "What are your gym hours?",
-    "ai_answered": true
-  }
-},
-{
-  "model": "news.questions",
-  "pk": 24,
-  "fields": {
-    "name": "user",
-    "email": "mmm@gmail.com",
-    "quest": "Trainer change request from Karen",
-    "ai_answered": false
-  }
-},
-{
-  "model": "news.questions",
-  "pk": 25,
-  "fields": {
-    "name": "Karen",
-    "email": "mj@gmail.com",
-    "quest": "Trainer change request: Karen wants to leave peter",
-    "ai_answered": false
-  }
-},
-{
-  "model": "news.response_model",
-  "pk": 2,
-  "fields": {
-    "name": [
-      "user"
-    ],
-    "quest": 7,
-    "text": "mmmmkmkmkkmm",
-    "is_read": true
-  }
-},
-{
-  "model": "news.response_model",
-  "pk": 3,
-  "fields": {
-    "name": [
-      "user"
-    ],
-    "quest": 7,
-    "text": "kkk",
-    "is_read": true
-  }
-},
-{
-  "model": "news.response_model",
-  "pk": 4,
-  "fields": {
-    "name": [
-      "mnm"
-    ],
-    "quest": 10,
-    "text": "Official Confirmation: Your payment of 5555 has been verified by the gym management. Your status has been updated.",
-    "is_read": true
-  }
-},
-{
-  "model": "news.response_model",
-  "pk": 5,
-  "fields": {
-    "name": [
-      "mmmaa"
-    ],
-    "quest": 11,
-    "text": "Official Confirmation: Your payment of 55555 has been verified by the gym management. Your status has been updated.",
-    "is_read": true
-  }
-},
-{
-  "model": "news.response_model",
-  "pk": 6,
-  "fields": {
-    "name": [
-      "user"
-    ],
-    "quest": 12,
-    "text": "You have been assigned a new trainee: n. Category: aerobics . Phone: ù. Email: ù.",
-    "is_read": true
-  }
-},
-{
-  "model": "news.response_model",
-  "pk": 7,
-  "fields": {
-    "name": [
-      "user"
-    ],
-    "quest": 13,
-    "text": "You have been assigned a new trainee: kyle. Category: aerobics . Phone: 0355555555. Email: kylen@gmail.com.",
-    "is_read": true
-  }
-},
-{
-  "model": "news.response_model",
-  "pk": 8,
-  "fields": {
-    "name": [
-      "john"
-    ],
-    "quest": 14,
-    "text": "Your trainer has created a new session: \"kk\". Session details: mm",
-    "is_read": true
-  }
-},
-{
-  "model": "news.response_model",
-  "pk": 9,
-  "fields": {
-    "name": [
-      "john"
-    ],
-    "quest": 15,
-    "text": "Your trainer has created a new session: \"mm\". Session details: kk\n\nRegister for this session: http://127.0.0.1:8000/session/register/3/",
-    "is_read": true
-  }
-},
-{
-  "model": "news.response_model",
-  "pk": 10,
-  "fields": {
-    "name": [
-      "john"
-    ],
-    "quest": 16,
-    "text": "Your trainer has created a new session: \"bb\"\n\nSession details: gg\n\nRegister for this session:\nhttp://127.0.0.1:8000/session/register/4/",
-    "is_read": true
-  }
-},
-{
-  "model": "news.response_model",
-  "pk": 11,
-  "fields": {
-    "name": [
-      "user"
-    ],
-    "quest": 17,
-    "text": "You have been assigned a new trainee: kyle. Category: aerobics . Phone: 0355555555. Email: kylen@gmail.com.",
-    "is_read": true
-  }
-},
-{
-  "model": "news.response_model",
-  "pk": 12,
-  "fields": {
-    "name": [
-      "user"
-    ],
-    "quest": 18,
-    "text": "You have been assigned a new trainee: Karen. Category: Calisthenics . Phone: +251988888899. Email: mj@gmail.com.",
-    "is_read": true
-  }
-},
-{
-  "model": "news.response_model",
-  "pk": 13,
-  "fields": {
-    "name": [
-      "user"
-    ],
-    "quest": 19,
-    "text": "You have been assigned a new trainee: Kate. Category: Aerobics . Phone: +251988888898. Email: kll@gmail.com.",
-    "is_read": true
-  }
-},
-{
-  "model": "news.response_model",
-  "pk": 14,
-  "fields": {
-    "name": [
-      "user"
-    ],
-    "quest": 23,
-    "text": "Our gym is open MondayûFriday 6:00 AM û 10:00 PM, Saturday 8:00 AM û 8:00 PM, and Sunday 9:00 AM û 6:00 PM. Category-specific training spaces may have separate schedules.",
-    "is_read": true
-  }
-},
-{
-  "model": "news.response_model",
-  "pk": 15,
-  "fields": {
-    "name": [
-      "user"
-    ],
-    "quest": 24,
-    "text": "Trainee Karen (mj@gmail.com) wants to change from trainer peter.\n\nReason: change",
-    "is_read": false
-  }
-},
-{
-  "model": "news.response_model",
-  "pk": 16,
-  "fields": {
-    "name": [
-      "karen"
-    ],
-    "quest": 25,
-    "text": "Trainee Karen (mj@gmail.com) wants to change from trainer peter.\n\nReason: nn",
-    "is_read": false
-  }
-},
-{
-  "model": "news.names",
-  "pk": 15,
-  "fields": {
-    "name": "john",
-    "email": "jj@gmail.com",
-    "phone_number": "+251988888888",
-    "detail": "yeah yeah",
-    "date": "2026-05-21T11:29:53.068Z",
-    "image": "Winterfell_Game_of_Thrones_t45mktw.jpg",
-    "role": "trainer",
-    "gender": "male",
-    "trainer": null,
-    "preferred_trainer": null,
-    "category": 5
-  }
-},
-{
-  "model": "news.names",
-  "pk": 16,
-  "fields": {
-    "name": "kyle",
-    "email": "kylen@gmail.com",
-    "phone_number": "+251988888888",
-    "detail": "Joined via website signup",
-    "date": "2026-05-26T10:25:09.154Z",
-    "image": "",
-    "role": "trainee",
-    "gender": "male",
-    "trainer": [
-      "john"
-    ],
-    "preferred_trainer": [
-      "john"
-    ],
-    "category": 5
-  }
-},
-{
-  "model": "news.names",
-  "pk": 17,
-  "fields": {
-    "name": "Karen",
-    "email": "mj@gmail.com",
-    "phone_number": "+251988888899",
-    "detail": "yes sir",
-    "date": "2026-06-07T11:48:59.842Z",
-    "image": "",
-    "role": "trainee",
-    "gender": "female",
-    "trainer": [
-      "peter"
-    ],
-    "preferred_trainer": null,
-    "category": 14
-  }
-},
-{
-  "model": "news.names",
-  "pk": 18,
-  "fields": {
-    "name": "Kate",
-    "email": "kll@gmail.com",
-    "phone_number": "+251988888898",
-    "detail": "bb",
-    "date": "2026-06-07T12:09:51.951Z",
-    "image": "",
-    "role": "trainee",
-    "gender": "female",
-    "trainer": [
-      "john"
-    ],
-    "preferred_trainer": null,
-    "category": 5
-  }
-},
-{
-  "model": "news.names",
-  "pk": 20,
-  "fields": {
-    "name": "peter",
-    "email": "mkll@gmail.com",
-    "phone_number": "+251988888897",
-    "detail": "mmm",
-    "date": "2026-06-07T12:20:58.519Z",
-    "image": "",
-    "role": "trainer",
-    "gender": "male",
-    "trainer": null,
-    "preferred_trainer": null,
-    "category": 14
-  }
-},
-{
-  "model": "news.names",
-  "pk": 21,
-  "fields": {
-    "name": "user",
-    "email": "mmm@gmail.com",
-    "phone_number": null,
-    "detail": "",
-    "date": "2026-06-15T12:46:15.702Z",
-    "image": "",
-    "role": "trainee",
-    "gender": null,
-    "trainer": null,
-    "preferred_trainer": null,
-    "category": null
-  }
-},
-{
-  "model": "news.names",
-  "pk": 22,
-  "fields": {
-    "name": "Jack",
-    "email": "jack@gmail.com",
-    "phone_number": "0988888800",
-    "detail": "default",
-    "date": "2026-06-16T11:16:12.240Z",
-    "image": "",
-    "role": "trainer",
-    "gender": "male",
-    "trainer": null,
-    "preferred_trainer": null,
-    "category": 14
-  }
-},
-{
-  "model": "news.names",
-  "pk": 23,
-  "fields": {
-    "name": "yawza",
-    "email": "yaw@gmail.com",
-    "phone_number": "0988888877",
-    "detail": "",
-    "date": "2026-06-16T17:04:28.980Z",
-    "image": "",
-    "role": "trainee",
-    "gender": null,
-    "trainer": null,
-    "preferred_trainer": null,
-    "category": null
-  }
-},
-{
-  "model": "news.comments",
-  "pk": 4,
-  "fields": {
-    "email": "",
-    "comment": "yes",
-    "post": null
-  }
-},
-{
-  "model": "news.userprofile",
-  "pk": 1,
-  "fields": {
-    "user": [
-      "john"
-    ],
-    "role": "trainer",
-    "gender": "male",
-    "category": 5,
-    "medical_info": "",
-    "image": "",
-    "created_at": "2026-05-21T11:29:53.054Z"
-  }
-},
-{
-  "model": "news.userprofile",
-  "pk": 3,
-  "fields": {
-    "user": [
-      "kyle"
-    ],
-    "role": "trainee",
-    "gender": "male",
-    "category": 5,
-    "medical_info": "",
-    "image": "",
-    "created_at": "2026-05-26T10:25:09.126Z"
-  }
-},
-{
-  "model": "news.userprofile",
-  "pk": 4,
-  "fields": {
-    "user": [
-      "karen"
-    ],
-    "role": "trainee",
-    "gender": "female",
-    "category": 14,
-    "medical_info": "allergy of nuts",
-    "image": "",
-    "created_at": "2026-06-07T11:48:59.825Z"
-  }
-},
-{
-  "model": "news.userprofile",
-  "pk": 5,
-  "fields": {
-    "user": [
-      "kate"
-    ],
-    "role": "trainee",
-    "gender": "female",
-    "category": 5,
-    "medical_info": "",
-    "image": "",
-    "created_at": "2026-06-07T12:09:51.926Z"
-  }
-},
-{
-  "model": "news.userprofile",
-  "pk": 7,
-  "fields": {
-    "user": [
-      "peter"
-    ],
-    "role": "trainer",
-    "gender": "male",
-    "category": 14,
-    "medical_info": "",
-    "image": "",
-    "created_at": "2026-06-07T12:20:58.499Z"
-  }
-},
-{
-  "model": "news.userprofile",
-  "pk": 8,
-  "fields": {
-    "user": [
-      "jack"
-    ],
-    "role": "trainer",
-    "gender": "male",
-    "category": 14,
-    "medical_info": "",
-    "image": "",
-    "created_at": "2026-06-16T11:16:12.214Z"
-  }
-},
-{
-  "model": "news.userprofile",
-  "pk": 9,
-  "fields": {
-    "user": [
-      "yawza"
-    ],
-    "role": "registrar",
-    "gender": null,
-    "category": null,
-    "medical_info": "",
-    "image": "",
-    "created_at": "2026-06-16T17:04:28.962Z"
-  }
-},
-{
-  "model": "news.membershippayment",
-  "pk": 1,
-  "fields": {
-    "user": [
-      "mnm"
-    ],
-    "amount": "5555.00",
-    "payment_date": "2026-05-11",
-    "entry_date": "2026-05-11T10:00:06.299Z",
-    "payment_method": "CASH",
-    "receipt_number": null,
-    "is_verified": true
-  }
-},
-{
-  "model": "news.membershippayment",
-  "pk": 2,
-  "fields": {
-    "user": [
-      "mnm"
-    ],
-    "amount": "5555.00",
-    "payment_date": "2026-05-11",
-    "entry_date": "2026-05-11T10:00:34.465Z",
-    "payment_method": "CASH",
-    "receipt_number": null,
-    "is_verified": true
-  }
-},
-{
-  "model": "news.membershippayment",
-  "pk": 3,
-  "fields": {
-    "user": [
-      "mnm"
-    ],
-    "amount": "5555.00",
-    "payment_date": "2026-05-11",
-    "entry_date": "2026-05-11T10:02:18.968Z",
-    "payment_method": "CASH",
-    "receipt_number": null,
-    "is_verified": true
-  }
-},
-{
-  "model": "news.membershippayment",
-  "pk": 4,
-  "fields": {
-    "user": [
-      "mmmaa"
-    ],
-    "amount": "55555.00",
-    "payment_date": "2026-05-11",
-    "entry_date": "2026-05-11T10:17:14.224Z",
-    "payment_method": "CASH",
-    "receipt_number": null,
-    "is_verified": true
-  }
-},
-{
-  "model": "news.bodymetric",
-  "pk": 1,
-  "fields": {
-    "user": [
-      "kyle"
-    ],
-    "weight": 99.0,
-    "height": 150.0,
-    "bmi": 44.0,
-    "recorded_at": "2026-06-06T11:48:49.913Z"
-  }
-},
-{
-  "model": "news.bodymetric",
-  "pk": 2,
-  "fields": {
-    "user": [
-      "kyle"
-    ],
-    "weight": 66.0,
-    "height": 191.0,
-    "bmi": 18.1,
-    "recorded_at": "2026-06-06T11:49:33.832Z"
-  }
-},
-{
-  "model": "news.bodymetric",
-  "pk": 3,
-  "fields": {
-    "user": [
-      "karen"
-    ],
-    "weight": 88.0,
-    "height": 160.0,
-    "bmi": 34.4,
-    "recorded_at": "2026-06-07T12:49:35.073Z"
-  }
-},
-{
-  "model": "news.trainingspace",
-  "pk": 1,
-  "fields": {
-    "name": "Aerobics Studio",
-    "category": 5,
-    "description": "High-energy studio with mirrors and sound system for aerobics classes",
-    "is_under_maintenance": false
-  }
-},
-{
-  "model": "news.trainingspace",
-  "pk": 2,
-  "fields": {
-    "name": "Aerobics Hall B",
-    "category": 5,
-    "description": "Spacious hall with sprung floor for low-impact aerobics",
-    "is_under_maintenance": false
-  }
-},
-{
-  "model": "news.trainingspace",
-  "pk": 3,
-  "fields": {
-    "name": "Calisthenics Park",
-    "category": 14,
-    "description": "Outdoor area with pull-up bars, dip stations and parallel bars",
-    "is_under_maintenance": true
-  }
-},
-{
-  "model": "news.trainingspace",
-  "pk": 4,
-  "fields": {
-    "name": "Calisthenics Indoor Gym",
-    "category": 14,
-    "description": "Indoor rig with rings, ropes and matted floor area",
-    "is_under_maintenance": false
-  }
-},
-{
-  "model": "news.trainingspace",
-  "pk": 5,
-  "fields": {
-    "name": "Yoga Sanctuary",
-    "category": 6,
-    "description": "Peaceful studio with natural light, mats and props provided",
-    "is_under_maintenance": false
-  }
-},
-{
-  "model": "news.trainingspace",
-  "pk": 6,
-  "fields": {
-    "name": "Yoga Meditation Dome",
-    "category": 6,
-    "description": "Quiet dome space for meditation and restorative yoga",
-    "is_under_maintenance": false
-  }
-},
-{
-  "model": "news.trainingsession",
-  "pk": 1,
-  "fields": {
-    "title": "mk",
-    "description": "mkm",
-    "session_date": "2026-06-07T00:16:00Z",
-    "duration_minutes": 60,
-    "space": null,
-    "trainer": 15,
-    "max_trainees": 10,
-    "created_at": "2026-06-04T21:24:45.054Z",
-    "registered_trainees": [
-      16
-    ]
-  }
-},
-{
-  "model": "news.trainingsession",
-  "pk": 2,
-  "fields": {
-    "title": "kk",
-    "description": "mm",
-    "session_date": "2026-06-11T00:27:00Z",
-    "duration_minutes": 60,
-    "space": null,
-    "trainer": 15,
-    "max_trainees": 10,
-    "created_at": "2026-06-04T21:27:04.305Z",
-    "registered_trainees": []
-  }
-},
-{
-  "model": "news.trainingsession",
-  "pk": 3,
-  "fields": {
-    "title": "mm",
-    "description": "kk",
-    "session_date": "2026-06-19T02:32:00Z",
-    "duration_minutes": 60,
-    "space": null,
-    "trainer": 15,
-    "max_trainees": 10,
-    "created_at": "2026-06-04T21:30:59.249Z",
-    "registered_trainees": []
-  }
-},
-{
-  "model": "news.trainingsession",
-  "pk": 4,
-  "fields": {
-    "title": "bb",
-    "description": "gg",
-    "session_date": "2026-06-26T00:34:00Z",
-    "duration_minutes": 60,
-    "space": null,
-    "trainer": 15,
-    "max_trainees": 10,
-    "created_at": "2026-06-04T21:34:35.086Z",
-    "registered_trainees": [
-      16
-    ]
-  }
-},
-{
-  "model": "news.trainingsession",
-  "pk": 5,
-  "fields": {
-    "title": "mm",
-    "description": "kk",
-    "session_date": "2026-06-17T15:01:00Z",
-    "duration_minutes": 60,
-    "space": 3,
-    "trainer": 22,
-    "max_trainees": 10,
-    "created_at": "2026-06-16T11:20:33.194Z",
-    "registered_trainees": []
-  }
-},
-{
-  "model": "news.memberid",
-  "pk": 1,
-  "fields": {
-    "member": 15,
-    "unique_id": "4c936164-0d59-4b8a-8ffd-2f021ea9fe97",
-    "qr_code": "member_qr_codes/qr_4c936164-0d59-4b.png",
-    "created_at": "2026-06-15T11:30:54.558Z"
-  }
-},
-{
-  "model": "news.memberid",
-  "pk": 2,
-  "fields": {
-    "member": 16,
-    "unique_id": "4c5740d4-da5c-4435-97ac-5014c59d1f97",
-    "qr_code": "member_qr_codes/qr_4c5740d4-da5c-44.png",
-    "created_at": "2026-06-15T11:30:54.996Z"
-  }
-},
-{
-  "model": "news.memberid",
-  "pk": 3,
-  "fields": {
-    "member": 17,
-    "unique_id": "439ca3c0-d5c6-442b-b118-610521f7c718",
-    "qr_code": "member_qr_codes/qr_439ca3c0-d5c6-44.png",
-    "created_at": "2026-06-15T11:30:55.047Z"
-  }
-},
-{
-  "model": "news.memberid",
-  "pk": 4,
-  "fields": {
-    "member": 18,
-    "unique_id": "72928a27-7892-4438-978b-d350d242342e",
-    "qr_code": "member_qr_codes/qr_72928a27-7892-44.png",
-    "created_at": "2026-06-15T11:30:55.089Z"
-  }
-},
-{
-  "model": "news.memberid",
-  "pk": 5,
-  "fields": {
-    "member": 20,
-    "unique_id": "b8395dc8-5def-4910-ad26-169706f70a33",
-    "qr_code": "member_qr_codes/qr_b8395dc8-5def-49.png",
-    "created_at": "2026-06-15T11:30:55.138Z"
-  }
-},
-{
-  "model": "news.memberid",
-  "pk": 6,
-  "fields": {
-    "member": 21,
-    "unique_id": "35a010bf-69cd-4de4-99eb-4b7bd21d8abb",
-    "qr_code": "member_qr_codes/qr_35a010bf-69cd-4d.png",
-    "created_at": "2026-06-15T13:34:18.050Z"
-  }
-},
-{
-  "model": "news.memberid",
-  "pk": 7,
-  "fields": {
-    "member": 23,
-    "unique_id": "01e90964-e21b-4101-833d-c01f805c3dd2",
-    "qr_code": "member_qr_codes/qr_01e90964-e21b-41.png",
-    "created_at": "2026-06-20T09:03:00.627Z"
-  }
-},
-{
-  "model": "news.trainerrating",
-  "pk": 1,
-  "fields": {
-    "trainee": 17,
-    "trainer": 20,
-    "rating": 4,
-    "comment": "",
-    "created_at": "2026-06-20T09:44:05.182Z"
-  }
-},
-{
-  "model": "news.trainerchangerequest",
-  "pk": 1,
-  "fields": {
-    "trainee": 17,
-    "current_trainer": 20,
-    "reason": "change",
-    "status": "pending",
-    "created_at": "2026-06-20T10:30:25.301Z"
-  }
-},
-{
-  "model": "news.trainerchangerequest",
-  "pk": 2,
-  "fields": {
-    "trainee": 17,
-    "current_trainer": 20,
-    "reason": "nn",
-    "status": "pending",
-    "created_at": "2026-06-20T11:06:45.207Z"
-  }
-},
-{
-  "model": "news.trainingplan",
-  "pk": 1,
-  "fields": {
-    "trainee": 17,
-    "trainer": 20,
-    "split_type": "push_pull_legs",
-    "start_date": "2026-06-29",
-    "end_date": "2026-07-05",
-    "notes": "gggs",
-    "is_active": true,
-    "created_at": "2026-07-02T15:44:52.579Z",
-    "updated_at": "2026-07-02T15:46:30.056Z"
-  }
-},
-{
-  "model": "news.trainingplan",
-  "pk": 2,
-  "fields": {
-    "trainee": 18,
-    "trainer": 15,
-    "split_type": "leg_arm_chest_back",
-    "start_date": "2026-06-29",
-    "end_date": "2026-07-05",
-    "notes": "",
-    "is_active": true,
-    "created_at": "2026-07-02T15:48:14.723Z",
-    "updated_at": "2026-07-02T15:48:14.723Z"
-  }
-},
-{
-  "model": "news.trainingplanday",
-  "pk": 1,
-  "fields": {
-    "plan": 1,
-    "day_index": 0,
-    "day_label": "Push",
-    "is_rest_day": false,
-    "exercises": [
-      {
-        "name": "mmm",
-        "sets": "55",
-        "reps": "85",
-        "weight": "255",
-        "notes": ""
-      },
-      {
-        "name": "m o",
-        "sets": "55",
-        "reps": "55",
-        "weight": "255",
-        "notes": ""
-      },
-      {
-        "name": "km",
-        "sets": "25",
-        "reps": "55",
-        "weight": "999",
-        "notes": ""
-      }
-    ]
-  }
-},
-{
-  "model": "news.trainingplanday",
-  "pk": 2,
-  "fields": {
-    "plan": 1,
-    "day_index": 1,
-    "day_label": "Pull",
-    "is_rest_day": false,
-    "exercises": []
-  }
-},
-{
-  "model": "news.trainingplanday",
-  "pk": 3,
-  "fields": {
-    "plan": 1,
-    "day_index": 2,
-    "day_label": "Legs",
-    "is_rest_day": false,
-    "exercises": []
-  }
-},
-{
-  "model": "news.trainingplanday",
-  "pk": 4,
-  "fields": {
-    "plan": 1,
-    "day_index": 3,
-    "day_label": "Push",
-    "is_rest_day": false,
-    "exercises": []
-  }
-},
-{
-  "model": "news.trainingplanday",
-  "pk": 5,
-  "fields": {
-    "plan": 1,
-    "day_index": 4,
-    "day_label": "Pull",
-    "is_rest_day": false,
-    "exercises": []
-  }
-},
-{
-  "model": "news.trainingplanday",
-  "pk": 6,
-  "fields": {
-    "plan": 1,
-    "day_index": 5,
-    "day_label": "Legs",
-    "is_rest_day": false,
-    "exercises": []
-  }
-},
-{
-  "model": "news.trainingplanday",
-  "pk": 7,
-  "fields": {
-    "plan": 2,
-    "day_index": 0,
-    "day_label": "Legs",
-    "is_rest_day": false,
-    "exercises": [
-      {
-        "name": "nn",
-        "sets": "sd",
-        "reps": "",
-        "weight": "",
-        "notes": ""
-      },
-      {
-        "name": "mna",
-        "sets": "",
-        "reps": "",
-        "weight": "",
-        "notes": ""
-      }
-    ]
-  }
-},
-{
-  "model": "news.trainingplanday",
-  "pk": 8,
-  "fields": {
-    "plan": 2,
-    "day_index": 1,
-    "day_label": "Arms",
-    "is_rest_day": false,
-    "exercises": []
-  }
-},
-{
-  "model": "news.trainingplanday",
-  "pk": 9,
-  "fields": {
-    "plan": 2,
-    "day_index": 2,
-    "day_label": "Chest",
-    "is_rest_day": false,
-    "exercises": []
-  }
-},
-{
-  "model": "news.trainingplanday",
-  "pk": 10,
-  "fields": {
-    "plan": 2,
-    "day_index": 3,
-    "day_label": "Back",
-    "is_rest_day": false,
-    "exercises": []
-  }
-},
-{
-  "model": "admin.logentry",
-  "pk": 1,
-  "fields": {
-    "action_time": "2025-12-23T18:48:20.648Z",
-    "user": [
-      "user"
-    ],
-    "content_type": [
-      "news",
-      "names"
-    ],
-    "object_id": "1",
-    "object_repr": "nezha",
-    "action_flag": 1,
-    "change_message": "[{\"added\": {}}]"
-  }
-},
-{
-  "model": "admin.logentry",
-  "pk": 2,
-  "fields": {
-    "action_time": "2025-12-23T18:52:40.619Z",
-    "user": [
-      "user"
-    ],
-    "content_type": [
-      "news",
-      "names"
-    ],
-    "object_id": "2",
-    "object_repr": "xaomi",
-    "action_flag": 1,
-    "change_message": "[{\"added\": {}}]"
-  }
-},
-{
-  "model": "admin.logentry",
-  "pk": 3,
-  "fields": {
-    "action_time": "2025-12-23T19:04:26.348Z",
-    "user": [
-      "user"
-    ],
-    "content_type": [
-      "news",
-      "names"
-    ],
-    "object_id": "3",
-    "object_repr": "shujushiro",
-    "action_flag": 1,
-    "change_message": "[{\"added\": {}}]"
-  }
-},
-{
-  "model": "admin.logentry",
-  "pk": 4,
-  "fields": {
-    "action_time": "2025-12-24T07:06:51.144Z",
-    "user": [
-      "user"
-    ],
-    "content_type": [
-      "news",
-      "names"
-    ],
-    "object_id": "3",
-    "object_repr": "shujushiro",
-    "action_flag": 2,
-    "change_message": "[{\"changed\": {\"fields\": [\"Image\"]}}]"
-  }
-},
-{
-  "model": "admin.logentry",
-  "pk": 5,
-  "fields": {
-    "action_time": "2025-12-24T07:13:42.673Z",
-    "user": [
-      "user"
-    ],
-    "content_type": [
-      "news",
-      "names"
-    ],
-    "object_id": "3",
-    "object_repr": "shujushiro",
-    "action_flag": 2,
-    "change_message": "[{\"changed\": {\"fields\": [\"Image\"]}}]"
-  }
-},
-{
-  "model": "admin.logentry",
-  "pk": 6,
-  "fields": {
-    "action_time": "2025-12-24T07:19:33.911Z",
-    "user": [
-      "user"
-    ],
-    "content_type": [
-      "news",
-      "names"
-    ],
-    "object_id": "2",
-    "object_repr": "xaomi",
-    "action_flag": 2,
-    "change_message": "[{\"changed\": {\"fields\": [\"Image\"]}}]"
-  }
-},
-{
-  "model": "admin.logentry",
-  "pk": 7,
-  "fields": {
-    "action_time": "2025-12-24T07:20:03.814Z",
-    "user": [
-      "user"
-    ],
-    "content_type": [
-      "news",
-      "names"
-    ],
-    "object_id": "1",
-    "object_repr": "nezha",
-    "action_flag": 2,
-    "change_message": "[{\"changed\": {\"fields\": [\"Image\"]}}]"
-  }
-},
-{
-  "model": "admin.logentry",
-  "pk": 8,
-  "fields": {
-    "action_time": "2025-12-24T07:56:05.827Z",
-    "user": [
-      "user"
-    ],
-    "content_type": [
-      "news",
-      "category"
-    ],
-    "object_id": "1",
-    "object_repr": "Category object (1)",
-    "action_flag": 1,
-    "change_message": "[{\"added\": {}}]"
-  }
-},
-{
-  "model": "admin.logentry",
-  "pk": 9,
-  "fields": {
-    "action_time": "2025-12-24T07:56:12.399Z",
-    "user": [
-      "user"
-    ],
-    "content_type": [
-      "news",
-      "category"
-    ],
-    "object_id": "2",
-    "object_repr": "Category object (2)",
-    "action_flag": 1,
-    "change_message": "[{\"added\": {}}]"
-  }
-},
-{
-  "model": "admin.logentry",
-  "pk": 10,
-  "fields": {
-    "action_time": "2025-12-24T07:56:55.528Z",
-    "user": [
-      "user"
-    ],
-    "content_type": [
-      "news",
-      "category"
-    ],
-    "object_id": "2",
-    "object_repr": "Category object (2)",
-    "action_flag": 3,
-    "change_message": ""
-  }
-},
-{
-  "model": "admin.logentry",
-  "pk": 11,
-  "fields": {
-    "action_time": "2025-12-24T07:56:55.528Z",
-    "user": [
-      "user"
-    ],
-    "content_type": [
-      "news",
-      "category"
-    ],
-    "object_id": "1",
-    "object_repr": "Category object (1)",
-    "action_flag": 3,
-    "change_message": ""
-  }
-},
-{
-  "model": "admin.logentry",
-  "pk": 12,
-  "fields": {
-    "action_time": "2025-12-24T07:57:36.611Z",
-    "user": [
-      "user"
-    ],
-    "content_type": [
-      "news",
-      "category"
-    ],
-    "object_id": "3",
-    "object_repr": "Category object (3)",
-    "action_flag": 1,
-    "change_message": "[{\"added\": {}}]"
-  }
-},
-{
-  "model": "admin.logentry",
-  "pk": 13,
-  "fields": {
-    "action_time": "2025-12-24T07:59:15.432Z",
-    "user": [
-      "user"
-    ],
-    "content_type": [
-      "news",
-      "category"
-    ],
-    "object_id": "3",
-    "object_repr": "Category object (3)",
-    "action_flag": 3,
-    "change_message": ""
-  }
-},
-{
-  "model": "admin.logentry",
-  "pk": 14,
-  "fields": {
-    "action_time": "2025-12-24T08:01:28.470Z",
-    "user": [
-      "user"
-    ],
-    "content_type": [
-      "news",
-      "category"
-    ],
-    "object_id": "4",
-    "object_repr": "Category object (4)",
-    "action_flag": 1,
-    "change_message": "[{\"added\": {}}]"
-  }
-},
-{
-  "model": "admin.logentry",
-  "pk": 15,
-  "fields": {
-    "action_time": "2025-12-24T08:01:53.724Z",
-    "user": [
-      "user"
-    ],
-    "content_type": [
-      "news",
-      "category"
-    ],
-    "object_id": "5",
-    "object_repr": "Category object (5)",
-    "action_flag": 1,
-    "change_message": "[{\"added\": {}}]"
-  }
-},
-{
-  "model": "admin.logentry",
-  "pk": 16,
-  "fields": {
-    "action_time": "2025-12-24T08:02:36.872Z",
-    "user": [
-      "user"
-    ],
-    "content_type": [
-      "news",
-      "names"
-    ],
-    "object_id": "3",
-    "object_repr": "shujushiro",
-    "action_flag": 2,
-    "change_message": "[{\"changed\": {\"fields\": [\"Category\"]}}]"
-  }
-},
-{
-  "model": "admin.logentry",
-  "pk": 17,
-  "fields": {
-    "action_time": "2025-12-24T08:02:42.370Z",
-    "user": [
-      "user"
-    ],
-    "content_type": [
-      "news",
-      "names"
-    ],
-    "object_id": "2",
-    "object_repr": "xaomi",
-    "action_flag": 2,
-    "change_message": "[{\"changed\": {\"fields\": [\"Category\"]}}]"
-  }
-},
-{
-  "model": "admin.logentry",
-  "pk": 18,
-  "fields": {
-    "action_time": "2025-12-24T08:02:48.073Z",
-    "user": [
-      "user"
-    ],
-    "content_type": [
-      "news",
-      "names"
-    ],
-    "object_id": "1",
-    "object_repr": "nezha",
-    "action_flag": 2,
-    "change_message": "[{\"changed\": {\"fields\": [\"Category\"]}}]"
-  }
-},
-{
-  "model": "admin.logentry",
-  "pk": 19,
-  "fields": {
-    "action_time": "2025-12-24T08:03:22.622Z",
-    "user": [
-      "user"
-    ],
-    "content_type": [
-      "news",
-      "names"
-    ],
-    "object_id": "4",
-    "object_repr": "satoshi",
-    "action_flag": 1,
-    "change_message": "[{\"added\": {}}]"
-  }
-},
-{
-  "model": "admin.logentry",
-  "pk": 20,
-  "fields": {
-    "action_time": "2025-12-24T08:03:52.676Z",
-    "user": [
-      "user"
-    ],
-    "content_type": [
-      "news",
-      "names"
-    ],
-    "object_id": "5",
-    "object_repr": "nakumoto",
-    "action_flag": 1,
-    "change_message": "[{\"added\": {}}]"
-  }
-},
-{
-  "model": "admin.logentry",
-  "pk": 21,
-  "fields": {
-    "action_time": "2025-12-24T08:04:55.876Z",
-    "user": [
-      "user"
-    ],
-    "content_type": [
-      "news",
-      "names"
-    ],
-    "object_id": "6",
-    "object_repr": "nakamura",
-    "action_flag": 1,
-    "change_message": "[{\"added\": {}}]"
-  }
-}
 ]
