@@ -2159,6 +2159,21 @@ def generate_qr_image(member_id_obj):
     member_id_obj.save()
 
 
+def qr_data_uri(member_id_obj):
+    import qrcode
+    from io import BytesIO
+    import base64
+
+    qr = qrcode.QRCode(box_size=10, border=2)
+    qr.add_data(member_id_obj.unique_id)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
+    buffer = BytesIO()
+    img.save(buffer, format='PNG')
+    b64 = base64.b64encode(buffer.getvalue()).decode()
+    return f"data:image/png;base64,{b64}"
+
+
 def _get_names_profile(user):
     """Match a names record to a User via email, or auto-create one."""
     if not user or not user.is_authenticated:
@@ -2186,11 +2201,12 @@ def my_id_card(request):
         return redirect('home_url')
 
     mid, created = MemberID.objects.get_or_create(member=person)
-    if created or not mid.qr_code or not mid.qr_code.storage.exists(mid.qr_code.name):
+    if created or not mid.qr_code:
         mid.unique_id = str(uuid.uuid4())
         generate_qr_image(mid)
 
-    return render(request, 'my_id_card.html', {'mid': mid, 'person': person})
+    qr_uri = qr_data_uri(mid)
+    return render(request, 'my_id_card.html', {'mid': mid, 'person': person, 'qr_uri': qr_uri})
 
 
 @login_required
@@ -2201,7 +2217,7 @@ def generate_all_missing_ids(request):
     count = 0
     for person in names.objects.all():
         mid, created = MemberID.objects.get_or_create(member=person)
-        if created or not mid.qr_code or not mid.unique_id or not mid.qr_code.storage.exists(mid.qr_code.name):
+        if created or not mid.qr_code or not mid.unique_id:
             mid.unique_id = str(uuid.uuid4())
             generate_qr_image(mid)
             count += 1
@@ -2217,11 +2233,12 @@ def id_card_pdf(request):
         return redirect('home_url')
 
     mid, created = MemberID.objects.get_or_create(member=person)
-    if created or not mid.qr_code or not mid.qr_code.storage.exists(mid.qr_code.name):
+    if created or not mid.qr_code:
         mid.unique_id = str(uuid.uuid4())
         generate_qr_image(mid)
 
-    return render(request, 'id_card_pdf.html', {'mid': mid, 'person': person})
+    qr_uri = qr_data_uri(mid)
+    return render(request, 'id_card_pdf.html', {'mid': mid, 'person': person, 'qr_uri': qr_uri})
 
 
 # ─── QR Scanner (Admin) ────────────────────────────────────────────────────────

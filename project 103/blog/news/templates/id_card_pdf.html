@@ -47,11 +47,7 @@
 <body>
   <div class="id-card">
     <div>
-      {% if mid.qr_code %}
-        <img src="{{ mid.qr_code.url }}" alt="QR" class="qr-img">
-      {% else %}
-        <div style="width:32mm;height:32mm;background:#333;display:flex;align-items:center;justify-content:center;color:#666;font-size:2.5mm;">No QR</div>
-      {% endif %}
+        <img src="{{ qr_uri }}" alt="QR" class="qr-img">
     </div>
     <div class="info">
       <div class="gym-name"><i class="bi bi-lightning-charge-fill"></i> FUTURE GYM</div>

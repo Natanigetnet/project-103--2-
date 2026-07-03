@@ -21,11 +21,7 @@
           </div>
 
           <div class="my-4">
-            {% if mid.qr_code %}
-              <img src="{{ mid.qr_code.url }}" alt="QR Code" class="img-fluid" style="max-width: 180px;">
-            {% else %}
-              <div class="bg-light p-4 rounded-3">QR code not available</div>
-            {% endif %}
+            <img src="{{ qr_uri }}" alt="QR Code" class="img-fluid" style="max-width: 180px;">
           </div>
 
           <h3 class="fw-bold text-white mb-1">{{ person.name }}</h3>
