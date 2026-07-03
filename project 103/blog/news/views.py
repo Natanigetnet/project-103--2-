@@ -2186,7 +2186,7 @@ def my_id_card(request):
         return redirect('home_url')
 
     mid, created = MemberID.objects.get_or_create(member=person)
-    if created or not mid.qr_code:
+    if created or not mid.qr_code or not mid.qr_code.storage.exists(mid.qr_code.name):
         mid.unique_id = str(uuid.uuid4())
         generate_qr_image(mid)
 
@@ -2201,7 +2201,7 @@ def generate_all_missing_ids(request):
     count = 0
     for person in names.objects.all():
         mid, created = MemberID.objects.get_or_create(member=person)
-        if created or not mid.qr_code or not mid.unique_id:
+        if created or not mid.qr_code or not mid.unique_id or not mid.qr_code.storage.exists(mid.qr_code.name):
             mid.unique_id = str(uuid.uuid4())
             generate_qr_image(mid)
             count += 1
@@ -2217,7 +2217,7 @@ def id_card_pdf(request):
         return redirect('home_url')
 
     mid, created = MemberID.objects.get_or_create(member=person)
-    if created or not mid.qr_code:
+    if created or not mid.qr_code or not mid.qr_code.storage.exists(mid.qr_code.name):
         mid.unique_id = str(uuid.uuid4())
         generate_qr_image(mid)
 
