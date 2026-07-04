@@ -40,6 +40,14 @@ import secrets
 import string
 
 import json
+from zoneinfo import ZoneInfo
+
+_GYM_TZ = ZoneInfo("Asia/Jerusalem")
+
+def _gym_today_start():
+    """Return midnight today in the gym's local timezone, converted to UTC."""
+    now_local = timezone.localtime(timezone.now(), _GYM_TZ)
+    return now_local.replace(hour=0, minute=0, second=0, microsecond=0).astimezone(timezone.utc)
 
 @user_passes_test(lambda u: u.is_superuser, login_url='login_url')
 def admin_dash(request):
@@ -2280,8 +2288,7 @@ def record_attendance(request):
         return JsonResponse({'ok': False, 'error': 'Unknown ID card', 'debug': {'received': unique_id, 'len': len(unique_id), 'chars': [ord(c) for c in unique_id[:50]]}}, status=404)
 
     # Find today's active check-in for this member
-    now = timezone.now()
-    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    today_start = _gym_today_start()
     tomorrow_start = today_start + timezone.timedelta(days=1)
     active = AttendanceLog.objects.filter(
         member=mid.member,
@@ -2333,8 +2340,7 @@ def scan_entry(request):
     except MemberID.DoesNotExist:
         return JsonResponse({'ok': False, 'error': 'Unknown ID card', 'debug': {'received': unique_id, 'len': len(unique_id), 'chars': [ord(c) for c in unique_id[:50]]}}, status=404)
 
-    now = timezone.now()
-    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    today_start = _gym_today_start()
     tomorrow_start = today_start + timezone.timedelta(days=1)
     active = AttendanceLog.objects.filter(
         member=mid.member,
@@ -2393,8 +2399,7 @@ def check_out_entry(request):
     except MemberID.DoesNotExist:
         return JsonResponse({'ok': False, 'error': 'Unknown ID card', 'debug': {'received': unique_id, 'len': len(unique_id), 'chars': [ord(c) for c in unique_id[:50]]}}, status=404)
 
-    now = timezone.now()
-    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    today_start = _gym_today_start()
     tomorrow_start = today_start + timezone.timedelta(days=1)
 
     attendance = AttendanceLog.objects.filter(
@@ -2434,8 +2439,7 @@ def check_in_entry(request):
     except MemberID.DoesNotExist:
         return JsonResponse({'ok': False, 'error': 'Unknown ID card', 'debug': {'received': unique_id, 'len': len(unique_id), 'chars': [ord(c) for c in unique_id[:50]]}}, status=404)
 
-    now = timezone.now()
-    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    today_start = _gym_today_start()
     tomorrow_start = today_start + timezone.timedelta(days=1)
 
     active = AttendanceLog.objects.filter(
@@ -2470,8 +2474,7 @@ def check_in_entry(request):
 @user_passes_test(lambda u: u.is_superuser)
 def attendance_dashboard(request):
     from django.db.models import Count
-    now = timezone.now()
-    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    today_start = _gym_today_start()
     week_ago = today_start - timezone.timedelta(days=7)
     month_ago = today_start - timezone.timedelta(days=30)
 
@@ -2531,8 +2534,7 @@ def trainer_currently_in(request):
     if not person or person.role != 'trainer':
         messages.error(request, "Only trainers can access this page.")
         return redirect('home_url')
-    now = timezone.now()
-    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    today_start = _gym_today_start()
     today_logs = AttendanceLog.objects.filter(
         check_in__gte=today_start,
         check_out__isnull=True,
@@ -2573,8 +2575,7 @@ def _require_registrar(view_func):
 @_require_registrar
 def registrar_dashboard(request):
     from django.db.models import Count
-    now = timezone.now()
-    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    today_start = _gym_today_start()
 
     # People checked in today (currently in the gym)
     today_logs = AttendanceLog.objects.filter(check_in__gte=today_start, check_out__isnull=True).select_related('member', 'member__category')
@@ -2701,8 +2702,7 @@ Future Gym Management"""
 
 @_require_registrar
 def registrar_scan_qr(request):
-    now = timezone.now()
-    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    today_start = _gym_today_start()
     attendance = AttendanceLog.objects.filter(
         check_in__gte=today_start, check_out__isnull=True
     ).select_related('member', 'checked_in_by').order_by('-check_in')[:50]
@@ -2722,8 +2722,7 @@ def registrar_attendance_log(request):
 
 @_require_registrar
 def registrar_currently_in(request):
-    now = timezone.now()
-    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    today_start = _gym_today_start()
     today_logs = AttendanceLog.objects.filter(
         check_in__gte=today_start,
         check_out__isnull=True
