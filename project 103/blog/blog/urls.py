@@ -2,12 +2,14 @@
 from django.contrib import admin
 from django.urls import path, reverse_lazy
 from django.contrib.auth import views as auth_views
-from news.views import landing,admin_dash,home,members,Category_view,detail,about,contact,register,edit,delete_member,comm_edit,comm_delete,category_list,delete_cat,cat_edit,ques_list,ques_edit,signup,loginUser,logoutUser,user_list,manage_members,manage_staff,delete_user,delete_legacy_member,edit_legacy_member,ques_delete,response,response_list,response_edit,response_delete,record_payment,trainer_and_categories_list,trainer_category_selector,trainer_and_categories_api,trainer_tracker,assign_trainer,trainee_settings,trainee_update_account,trainee_medical_info,create_session,register_session,trainee_session_list,trainer_session_registrations,session_hub,user_profile,telegram_broadcast,trainee_bmi,trainer_bmi_tracker,trainer_settings,trainer_update_account,training_space_list,training_space_edit,training_space_delete,training_space_toggle_maintenance,api_available_spaces,category_catalog,my_id_card,generate_all_missing_ids,id_card_pdf,admin_scan_qr,record_attendance,scan_entry,attendance_log_view,attendance_dashboard,chat_page,chat_api,registrar_dashboard,registrar_register,registrar_scan_qr,registrar_attendance_log,registrar_currently_in,trainer_currently_in,create_desk,rate_trainer,trainer_ratings_dashboard,trainer_my_feedback,request_trainer_change,training_plan_view
+from news.views import landing,admin_dash,home,members,Category_view,detail,about,contact,register,edit,delete_member,comm_edit,comm_delete,category_list,delete_cat,cat_edit,ques_list,ques_edit,signup,loginUser,logoutUser,user_list,manage_members,manage_staff,delete_user,delete_legacy_member,edit_legacy_member,ques_delete,response,response_list,response_edit,response_delete,record_payment,trainer_and_categories_list,trainer_category_selector,trainer_and_categories_api,trainer_tracker,assign_trainer,trainee_settings,trainee_update_account,trainee_medical_info,create_session,register_session,trainee_session_list,trainer_session_registrations,session_hub,user_profile,telegram_broadcast,trainee_bmi,trainer_bmi_tracker,trainer_settings,trainer_update_account,training_space_list,training_space_edit,training_space_delete,training_space_toggle_maintenance,api_available_spaces,category_catalog,my_id_card,generate_all_missing_ids,id_card_pdf,admin_scan_qr,admin_scan_checkin,admin_scan_checkout,record_attendance,scan_entry,check_in_entry,check_out_entry,attendance_log_view,attendance_dashboard,chat_page,chat_api,registrar_dashboard,registrar_register,registrar_scan_qr,registrar_scan_checkout,registrar_attendance_log,registrar_currently_in,trainer_currently_in,create_desk,rate_trainer,trainer_ratings_dashboard,trainer_my_feedback,request_trainer_change,training_plan_view
 from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/qr-scanner/', admin_scan_qr, name='admin_scan_qr_url'),
+    path('admin/qr-checkin/', admin_scan_checkin, name='admin_scan_checkin_url'),
+    path('admin/qr-checkout/', admin_scan_checkout, name='admin_scan_checkout_url'),
     path('admin/attendance-dashboard/', attendance_dashboard, name='attendance_dashboard_url'),
     path('admin/generate-all-ids/', generate_all_missing_ids, name='generate_all_ids_url'),
     path('admin/', admin.site.urls),
@@ -76,6 +78,8 @@ urlpatterns = [
     path('id-card-pdf/', id_card_pdf, name='id_card_pdf_url'),
     path('api/record-attendance/', record_attendance, name='record_attendance_url'),
     path('api/scan-entry/', scan_entry, name='scan_entry_url'),
+    path('api/check-in/', check_in_entry, name='check_in_entry_url'),
+    path('api/check-out/', check_out_entry, name='check_out_entry_url'),
     path('attendance-log/', attendance_log_view, name='attendance_log_url'),
     path('chat/', chat_page, name='chat_url'),
     path('api/chat/', chat_api, name='chat_api_url'),
@@ -84,6 +88,7 @@ urlpatterns = [
     path('registrar/dashboard/', registrar_dashboard, name='registrar_dashboard_url'),
     path('registrar/register/', registrar_register, name='registrar_register_url'),
     path('registrar/scan-qr/', registrar_scan_qr, name='registrar_scan_qr_url'),
+    path('registrar/scan-checkout/', registrar_scan_checkout, name='registrar_scan_checkout_url'),
     path('registrar/attendance-log/', registrar_attendance_log, name='registrar_attendance_log_url'),
     path('registrar/currently-in/', registrar_currently_in, name='registrar_currently_in_url'),
     path('create-desk/', create_desk, name='create_desk_url'),

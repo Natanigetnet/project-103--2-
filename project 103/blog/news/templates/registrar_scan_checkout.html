@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% block title %}Scan QR - Check Out{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <div class="text-center mb-4">
+        <h2 class="fw-bold"><i class="bi bi-box-arrow-right me-2 text-warning"></i> Check Out</h2>
+        <p class="text-muted">Scan member QR code to record their departure</p>
+      </div>
+
+      <div class="card border-0 shadow-lg rounded-4">
+        <div class="card-body p-4">
+          <div id="qr-reader" style="width:100%;"></div>
+          <div id="scan-result" class="mt-3"></div>
+
+          <hr class="my-4">
+          <p class="text-muted small mb-2">Or enter ID manually:</p>
+          <form id="manual-form" class="input-group">
+            <input type="text" id="manual-id" class="form-control" placeholder="Paste or type unique ID" required>
+            <button type="submit" class="btn btn-warning"><i class="bi bi-box-arrow-right me-1"></i> Check Out</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="text-center mt-3">
+        <a href="{% url 'registrar_dashboard_url' %}" class="btn btn-outline-secondary rounded-pill"><i class="bi bi-arrow-left me-1"></i> Dashboard</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script>
+function onScanSuccess(decodedText) {
+  document.getElementById('qr-reader').style.display = 'none';
+  sendCheckout(decodedText);
+}
+
+function sendCheckout(uniqueId) {
+  const resultDiv = document.getElementById('scan-result');
+  resultDiv.innerHTML = `<div class="text-center"><div class="spinner-border text-warning" role="status"></div><p class="mt-2">Checking out...</p></div>`;
+
+  fetch('{% url "check_out_entry_url" %}', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}'},
+    body: JSON.stringify({unique_id: uniqueId})
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.ok) {
+      resultDiv.innerHTML = `
+        <div class="alert alert-success text-center">
+          <i class="bi bi-check-circle-fill fs-3"></i>
+          <h5 class="mt-2">${data.member_name} checked out</h5>
+          <p class="mb-1">Role: ${data.role}</p>
+          <p class="mb-0 small">In: ${data.check_in} → Out: ${data.check_out}</p>
+        </div>
+        <button class="btn btn-outline-warning rounded-pill w-100" onclick="resetScanner()">
+          <i class="bi bi-qr-code-scan me-1"></i> Scan Next
+        </button>`;
+    } else {
+      resultDiv.innerHTML = `
+        <div class="alert alert-danger text-center">
+          <i class="bi bi-x-circle-fill fs-3"></i>
+          <h5 class="mt-2">Error</h5>
+          <p class="mb-0">${data.error}</p>
+        </div>
+        <button class="btn btn-outline-warning rounded-pill w-100" onclick="resetScanner()">
+          <i class="bi bi-arrow-repeat me-1"></i> Try Again
+        </button>`;
+    }
+  })
+  .catch(err => {
+    resultDiv.innerHTML = `<div class="alert alert-danger text-center"><h5>Network error</h5></div>`;
+  });
+}
+
+function resetScanner() {
+  document.getElementById('scan-result').innerHTML = '';
+  document.getElementById('qr-reader').style.display = 'block';
+  html5QrCode.start({facingMode: 'environment'}, {fps: 10, qrbox: {width: 250, height: 250}}, onScanSuccess);
+}
+
+document.getElementById('manual-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const val = document.getElementById('manual-id').value.trim();
+  if (val) sendCheckout(val);
+});
+
+let html5QrCode = new Html5Qrcode('qr-reader');
+html5QrCode.start({facingMode: 'environment'}, {fps: 10, qrbox: {width: 250, height: 250}}, onScanSuccess);
+</script>
+{% endblock %}

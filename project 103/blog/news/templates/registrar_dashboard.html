@@ -36,7 +36,8 @@
             <ul class="navbar-nav ms-auto align-items-center">
                 <li class="nav-item"><a class="nav-link active" href="{% url 'registrar_dashboard_url' %}">Dashboard</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'registrar_register_url' %}">Register</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'registrar_scan_qr_url' %}">QR Scan</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'registrar_scan_qr_url' %}">Check In</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'registrar_scan_checkout_url' %}">Check Out</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'home_url' %}">Home</a></li>
                 <li class="nav-item ms-lg-3"><a href="{% url 'logout_url' %}" class="btn btn-outline-danger btn-sm rounded-pill px-4">Logout</a></li>
             </ul>
@@ -138,7 +139,10 @@
                         <i class="bi bi-person-plus-fill me-2"></i> Register New Trainee
                     </a>
                     <a href="{% url 'registrar_scan_qr_url' %}" class="btn btn-outline-glow">
-                        <i class="bi bi-qr-code-scan me-2"></i> Scan QR Attendance
+                        <i class="bi bi-qr-code-scan me-2"></i> Scan QR Check In
+                    </a>
+                    <a href="{% url 'registrar_scan_checkout_url' %}" class="btn btn-outline-glow">
+                        <i class="bi bi-box-arrow-right me-2"></i> Scan QR Check Out
                     </a>
                     <a href="{% url 'registrar_attendance_log_url' %}" class="btn btn-outline-glow">
                         <i class="bi bi-clock-history me-2"></i> View Attendance Log

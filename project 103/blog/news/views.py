@@ -2247,14 +2247,23 @@ def id_card_pdf(request):
 
 @user_passes_test(lambda u: u.is_superuser)
 def admin_scan_qr(request):
+    return render(request, 'admin_scan_qr.html')
+
+
+def admin_scan_checkin(request):
     attendance = AttendanceLog.objects.select_related('member', 'checked_in_by').order_by('-check_in')[:50]
-    return render(request, 'admin_scan_qr.html', {'attendance': attendance})
+    return render(request, 'admin_scan_checkin.html', {'attendance': attendance})
+
+
+def admin_scan_checkout(request):
+    return render(request, 'admin_scan_checkout.html')
 
 
 @login_required
 @require_http_methods(["POST"])
 def record_attendance(request):
     import json
+    from datetime import datetime
     data = json.loads(request.body)
     unique_id = data.get('unique_id', '').strip()
 
@@ -2266,6 +2275,27 @@ def record_attendance(request):
     except MemberID.DoesNotExist:
         return JsonResponse({'ok': False, 'error': 'Unknown ID card'}, status=404)
 
+    # Find today's active check-in for this member
+    today = timezone.localtime(timezone.now()).date()
+    active = AttendanceLog.objects.filter(
+        member=mid.member,
+        check_in__date=today,
+        check_out__isnull=True
+    ).first()
+
+    if active is not None:
+        active.check_out = timezone.now()
+        active.checked_out_by = request.user if request.user.is_authenticated else None
+        active.save(update_fields=['check_out', 'checked_out_by'])
+        return JsonResponse({
+            'ok': True,
+            'action': 'checkout',
+            'member_name': mid.member.name,
+            'role': mid.member.role,
+            'check_in': timezone.localtime(active.check_in).strftime('%H:%M'),
+            'check_out': timezone.localtime(active.check_out).strftime('%H:%M'),
+        })
+
     attendance = AttendanceLog.objects.create(
         member=mid.member,
         checked_in_by=request.user if request.user.is_authenticated else None,
@@ -2273,9 +2303,10 @@ def record_attendance(request):
 
     return JsonResponse({
         'ok': True,
+        'action': 'checkin',
         'member_name': mid.member.name,
         'role': mid.member.role,
-        'time': attendance.check_in.strftime('%Y-%m-%d %H:%M'),
+        'time': timezone.localtime(attendance.check_in).strftime('%Y-%m-%d %H:%M'),
     })
 
 
@@ -2295,6 +2326,25 @@ def scan_entry(request):
     except MemberID.DoesNotExist:
         return JsonResponse({'ok': False, 'error': 'Unknown ID card'}, status=404)
 
+    today = timezone.localtime(timezone.now()).date()
+    active = AttendanceLog.objects.filter(
+        member=mid.member,
+        check_in__date=today,
+        check_out__isnull=True
+    ).first()
+    if active:
+        active.check_out = timezone.now()
+        active.checked_out_by = request.user if request.user.is_authenticated else None
+        active.save(update_fields=['check_out', 'checked_out_by'])
+        return JsonResponse({
+            'ok': True,
+            'action': 'checkout',
+            'member_name': mid.member.name,
+            'role': mid.member.role,
+            'check_in': timezone.localtime(active.check_in).strftime('%H:%M'),
+            'check_out': timezone.localtime(active.check_out).strftime('%H:%M'),
+        })
+
     session = None
     if session_id:
         try:
@@ -2310,10 +2360,91 @@ def scan_entry(request):
 
     return JsonResponse({
         'ok': True,
+        'action': 'checkin',
         'member_name': mid.member.name,
         'role': mid.member.role,
-        'time': attendance.check_in.strftime('%Y-%m-%d %H:%M'),
+        'time': timezone.localtime(attendance.check_in).strftime('%Y-%m-%d %H:%M'),
         'session': session.title if session else None,
+    })
+
+
+@login_required
+@require_http_methods(["POST"])
+def check_out_entry(request):
+    import json
+    data = json.loads(request.body)
+    unique_id = data.get('unique_id', '').strip()
+
+    if not unique_id:
+        return JsonResponse({'ok': False, 'error': 'No ID provided'}, status=400)
+
+    try:
+        mid = MemberID.objects.get(unique_id=unique_id)
+    except MemberID.DoesNotExist:
+        return JsonResponse({'ok': False, 'error': 'Unknown ID card'}, status=404)
+
+    today = timezone.localtime(timezone.now()).date()
+    attendance = AttendanceLog.objects.filter(
+        member=mid.member,
+        check_in__date=today,
+        check_out__isnull=True
+    ).first()
+
+    if not attendance:
+        return JsonResponse({'ok': False, 'error': 'No active check-in found for today'}, status=404)
+
+    attendance.check_out = timezone.now()
+    attendance.checked_out_by = request.user if request.user.is_authenticated else None
+    attendance.save(update_fields=['check_out', 'checked_out_by'])
+
+    return JsonResponse({
+        'ok': True,
+        'member_name': mid.member.name,
+        'role': mid.member.role,
+        'check_in': timezone.localtime(attendance.check_in).strftime('%Y-%m-%d %H:%M'),
+        'check_out': timezone.localtime(attendance.check_out).strftime('%Y-%m-%d %H:%M'),
+    })
+
+
+@login_required
+@require_http_methods(["POST"])
+def check_in_entry(request):
+    import json
+    data = json.loads(request.body)
+    unique_id = data.get('unique_id', '').strip()
+
+    if not unique_id:
+        return JsonResponse({'ok': False, 'error': 'No ID provided'}, status=400)
+
+    try:
+        mid = MemberID.objects.get(unique_id=unique_id)
+    except MemberID.DoesNotExist:
+        return JsonResponse({'ok': False, 'error': 'Unknown ID card'}, status=404)
+
+    today = timezone.localtime(timezone.now()).date()
+    active = AttendanceLog.objects.filter(
+        member=mid.member,
+        check_in__date=today,
+        check_out__isnull=True
+    ).first()
+
+    if active is not None:
+        return JsonResponse({
+            'ok': False,
+            'error': f'{mid.member.name} is already checked in since {timezone.localtime(active.check_in).strftime("%H:%M")}'
+        }, status=409)
+
+    attendance = AttendanceLog.objects.create(
+        member=mid.member,
+        checked_in_by=request.user if request.user.is_authenticated else None,
+    )
+
+    return JsonResponse({
+        'ok': True,
+        'action': 'checkin',
+        'member_name': mid.member.name,
+        'role': mid.member.role,
+        'time': timezone.localtime(attendance.check_in).strftime('%Y-%m-%d %H:%M'),
     })
 
 
@@ -2387,6 +2518,7 @@ def trainer_currently_in(request):
     today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
     today_logs = AttendanceLog.objects.filter(
         check_in__gte=today_start,
+        check_out__isnull=True,
         member__trainer=request.user
     ).select_related('member', 'member__category').order_by('-check_in')
     members_in = {}
@@ -2557,6 +2689,11 @@ def registrar_scan_qr(request):
 
 
 @_require_registrar
+def registrar_scan_checkout(request):
+    return render(request, 'registrar_scan_checkout.html')
+
+
+@_require_registrar
 def registrar_attendance_log(request):
     logs = AttendanceLog.objects.select_related('member', 'checked_in_by').order_by('-check_in')[:200]
     return render(request, 'attendance_log.html', {'logs': logs})
@@ -2566,7 +2703,10 @@ def registrar_attendance_log(request):
 def registrar_currently_in(request):
     now = timezone.now()
     today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
-    today_logs = AttendanceLog.objects.filter(check_in__gte=today_start).select_related('member', 'member__category', 'checked_in_by').order_by('-check_in')
+    today_logs = AttendanceLog.objects.filter(
+        check_in__gte=today_start,
+        check_out__isnull=True
+    ).select_related('member', 'member__category', 'checked_in_by').order_by('-check_in')
     members_in = {}
     for log in today_logs:
         mid = log.member_id

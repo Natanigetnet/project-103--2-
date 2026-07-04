@@ -68,7 +68,8 @@
                             <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark shadow-lg border-0 mt-3 p-2">
                                 <li><a class="dropdown-item rounded-3" href="{% url 'registrar_dashboard_url' %}"><i class="bi bi-speedometer2 me-2" style="color:#f59e0b;"></i>Dashboard</a></li>
                                 <li><a class="dropdown-item rounded-3" href="{% url 'registrar_register_url' %}"><i class="bi bi-person-plus me-2" style="color:#f59e0b;"></i>Register</a></li>
-                                <li><a class="dropdown-item rounded-3" href="{% url 'registrar_scan_qr_url' %}"><i class="bi bi-qr-code-scan me-2" style="color:#f59e0b;"></i>QR Scan</a></li>
+                                <li><a class="dropdown-item rounded-3" href="{% url 'registrar_scan_qr_url' %}"><i class="bi bi-box-arrow-in-right me-2 text-success"></i>Check In</a></li>
+                                <li><a class="dropdown-item rounded-3" href="{% url 'registrar_scan_checkout_url' %}"><i class="bi bi-box-arrow-right me-2 text-warning"></i>Check Out</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item rounded-3" href="{% url 'registrar_currently_in_url' %}"><i class="bi bi-people-fill me-2" style="color:#f59e0b;"></i>Currently In Gym</a></li>
                                 <li><a class="dropdown-item rounded-3" href="{% url 'registrar_attendance_log_url' %}"><i class="bi bi-clock-history me-2" style="color:#f59e0b;"></i>Attendance Log</a></li>
@@ -199,7 +200,8 @@
                         {% if is_registrar %}
                         <a href="{% url 'registrar_dashboard_url' %}" class="btn btn-glow">Dashboard</a>
                         <a href="{% url 'registrar_register_url' %}" class="btn btn-outline-glow">Register Trainee</a>
-                        <a href="{% url 'registrar_scan_qr_url' %}" class="btn btn-outline-glow">QR Scan</a>
+                        <a href="{% url 'registrar_scan_qr_url' %}" class="btn btn-outline-glow"><i class="bi bi-box-arrow-in-right me-1"></i>Check In</a>
+                        <a href="{% url 'registrar_scan_checkout_url' %}" class="btn btn-outline-glow"><i class="bi bi-box-arrow-right me-1"></i>Check Out</a>
                         {% endif %}
                     </div>
                 </div>
