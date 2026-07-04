@@ -2276,10 +2276,13 @@ def record_attendance(request):
         return JsonResponse({'ok': False, 'error': 'Unknown ID card'}, status=404)
 
     # Find today's active check-in for this member
-    today = timezone.localtime(timezone.now()).date()
+    now = timezone.now()
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    tomorrow_start = today_start + timezone.timedelta(days=1)
     active = AttendanceLog.objects.filter(
         member=mid.member,
-        check_in__date=today,
+        check_in__gte=today_start,
+        check_in__lt=tomorrow_start,
         check_out__isnull=True
     ).first()
 
@@ -2326,10 +2329,13 @@ def scan_entry(request):
     except MemberID.DoesNotExist:
         return JsonResponse({'ok': False, 'error': 'Unknown ID card'}, status=404)
 
-    today = timezone.localtime(timezone.now()).date()
+    now = timezone.now()
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    tomorrow_start = today_start + timezone.timedelta(days=1)
     active = AttendanceLog.objects.filter(
         member=mid.member,
-        check_in__date=today,
+        check_in__gte=today_start,
+        check_in__lt=tomorrow_start,
         check_out__isnull=True
     ).first()
     if active:
@@ -2383,10 +2389,14 @@ def check_out_entry(request):
     except MemberID.DoesNotExist:
         return JsonResponse({'ok': False, 'error': 'Unknown ID card'}, status=404)
 
-    today = timezone.localtime(timezone.now()).date()
+    now = timezone.now()
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    tomorrow_start = today_start + timezone.timedelta(days=1)
+
     attendance = AttendanceLog.objects.filter(
         member=mid.member,
-        check_in__date=today,
+        check_in__gte=today_start,
+        check_in__lt=tomorrow_start,
         check_out__isnull=True
     ).first()
 
@@ -2421,10 +2431,13 @@ def check_in_entry(request):
     except MemberID.DoesNotExist:
         return JsonResponse({'ok': False, 'error': 'Unknown ID card'}, status=404)
 
-    today = timezone.localtime(timezone.now()).date()
+    now = timezone.now()
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    tomorrow_start = today_start + timezone.timedelta(days=1)
     active = AttendanceLog.objects.filter(
         member=mid.member,
-        check_in__date=today,
+        check_in__gte=today_start,
+        check_in__lt=tomorrow_start,
         check_out__isnull=True
     ).first()
 

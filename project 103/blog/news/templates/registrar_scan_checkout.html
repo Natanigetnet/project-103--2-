@@ -34,7 +34,11 @@
 {% block extra_scripts %}
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script>
+let scanning = true;
+
 function onScanSuccess(decodedText) {
+  if (!scanning) return;
+  scanning = false;
   document.getElementById('qr-reader').style.display = 'none';
   sendCheckout(decodedText);
 }
@@ -48,7 +52,12 @@ function sendCheckout(uniqueId) {
     headers: {'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}'},
     body: JSON.stringify({unique_id: uniqueId})
   })
-  .then(r => r.json())
+  .then(r => {
+    if (!r.ok) {
+      return r.text().then(text => { throw new Error('HTTP ' + r.status + ': ' + text.slice(0, 300)); });
+    }
+    return r.json();
+  })
   .then(data => {
     if (data.ok) {
       resultDiv.innerHTML = `
@@ -67,6 +76,7 @@ function sendCheckout(uniqueId) {
           <i class="bi bi-x-circle-fill fs-3"></i>
           <h5 class="mt-2">Error</h5>
           <p class="mb-0">${data.error}</p>
+          ${data.debug ? '<pre class="mt-2 small text-start" style="background:#000;padding:8px;border-radius:8px;overflow:auto;">' + JSON.stringify(data.debug, null, 2) + '</pre>' : ''}
         </div>
         <button class="btn btn-outline-warning rounded-pill w-100" onclick="resetScanner()">
           <i class="bi bi-arrow-repeat me-1"></i> Try Again
@@ -74,11 +84,13 @@ function sendCheckout(uniqueId) {
     }
   })
   .catch(err => {
-    resultDiv.innerHTML = `<div class="alert alert-danger text-center"><h5>Network error</h5></div>`;
+    resultDiv.innerHTML = `<div class="alert alert-danger text-center"><h5>${err.message}</h5></div>`;
+    scanning = true;
   });
 }
 
 function resetScanner() {
+  scanning = true;
   document.getElementById('scan-result').innerHTML = '';
   document.getElementById('qr-reader').style.display = 'block';
   html5QrCode.start({facingMode: 'environment'}, {fps: 10, qrbox: {width: 250, height: 250}}, onScanSuccess);
@@ -87,7 +99,7 @@ function resetScanner() {
 document.getElementById('manual-form').addEventListener('submit', function(e) {
   e.preventDefault();
   const val = document.getElementById('manual-id').value.trim();
-  if (val) sendCheckout(val);
+  if (val) { scanning = false; sendCheckout(val); }
 });
 
 let html5QrCode = new Html5Qrcode('qr-reader');
