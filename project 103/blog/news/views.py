@@ -2213,6 +2213,21 @@ def my_id_card(request):
 
 
 @login_required
+def regenerate_qr(request):
+    person = _get_names_profile(request.user)
+    if not person or person.role not in ('trainer', 'trainee'):
+        messages.error(request, "ID cards are only available for trainers and trainees.")
+        return redirect('home_url')
+    mid = MemberID.objects.get(member=person)
+    if not mid.unique_id:
+        mid.unique_id = str(uuid.uuid4())
+        mid.save()
+    generate_qr_image(mid)
+    messages.success(request, "QR code regenerated — use this new code for printing.")
+    return redirect('my_id_card_url')
+
+
+@login_required
 def generate_all_missing_ids(request):
     if not request.user.is_superuser:
         messages.error(request, "Admin only.")
@@ -2227,6 +2242,23 @@ def generate_all_missing_ids(request):
             generate_qr_image(mid)
             count += 1
     messages.success(request, f"Generated {count} ID card(s). All members now have IDs.")
+    return redirect('admin_scan_qr')
+
+
+@login_required
+def regenerate_all_qr_codes(request):
+    if not request.user.is_superuser:
+        messages.error(request, "Admin only.")
+        return redirect('home_url')
+    count = 0
+    for person in names.objects.all():
+        mid, created = MemberID.objects.get_or_create(member=person)
+        if not mid.unique_id:
+            mid.unique_id = str(uuid.uuid4())
+            mid.save()
+        generate_qr_image(mid)
+        count += 1
+    messages.success(request, f"Regenerated QR codes for {count} member(s). UUIDs were NOT changed.")
     return redirect('admin_scan_qr')
 
 
