@@ -2573,7 +2573,7 @@ def registrar_dashboard(request):
     today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
 
     # People checked in today (currently in the gym)
-    today_logs = AttendanceLog.objects.filter(check_in__gte=today_start).select_related('member', 'member__category')
+    today_logs = AttendanceLog.objects.filter(check_in__gte=today_start, check_out__isnull=True).select_related('member', 'member__category')
 
     total_today = today_logs.count()
 
