@@ -2697,7 +2697,11 @@ Future Gym Management"""
 
 @_require_registrar
 def registrar_scan_qr(request):
-    attendance = AttendanceLog.objects.select_related('member', 'checked_in_by').order_by('-check_in')[:50]
+    now = timezone.now()
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    attendance = AttendanceLog.objects.filter(
+        check_in__gte=today_start, check_out__isnull=True
+    ).select_related('member', 'checked_in_by').order_by('-check_in')[:50]
     return render(request, 'registrar_scan_qr.html', {'attendance': attendance})
 
 
