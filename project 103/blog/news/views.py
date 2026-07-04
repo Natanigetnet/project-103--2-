@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.http import HttpResponse
 from django.utils.html import format_html   
-from .models import names,comments,Category,questions,response_model,TrainingSession,BodyMetric,TrainingSpace,MemberID,AttendanceLog,TrainerRating,TrainerChangeRequest,TrainingPlan,TrainingPlanDay
+from .models import names,comments,Category,questions,response_model,TrainingSession,BodyMetric,TrainingSpace,MemberID,AttendanceLog,TrainerRating,TrainerChangeRequest,TrainingPlan,TrainingPlanDay,TrainerPayment,TrainerSchedule
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.backends import ModelBackend
 from django.contrib import messages
@@ -44,6 +44,125 @@ import json
 @user_passes_test(lambda u: u.is_superuser, login_url='login_url')
 def admin_dash(request):
     return render(request, 'admin.html')
+
+@user_passes_test(lambda u: u.is_superuser, login_url='login_url')
+def admin_trainer_dashboard(request):
+    from datetime import timedelta, date
+    import calendar
+
+    today = timezone.now()
+    today_date = today.date()
+
+    # Week boundaries: Sunday-Saturday (Israeli convention)
+    days_since_sunday = (today_date.weekday() + 1) % 7
+    week_start = today_date - timedelta(days=days_since_sunday)
+    week_end = week_start + timedelta(days=6)
+
+    # Month boundaries
+    month_start = today_date.replace(day=1)
+
+    # Build list of days in current month for checking scheduled vs attended
+    if month_start.month == 12:
+        next_month = month_start.replace(year=month_start.year + 1, month=1)
+    else:
+        next_month = month_start.replace(month=month_start.month + 1)
+    month_end = next_month - timedelta(days=1)
+
+    # Query all trainers
+    trainers = names.objects.filter(role='trainer').order_by('name')
+
+    trainer_data = []
+    for trainer in trainers:
+        payment_info = getattr(trainer, 'payment_info', None)
+
+        schedules = list(trainer.schedules.all().order_by('day_of_week'))
+
+        # Attendance logs this month
+        monthly_logs = AttendanceLog.objects.filter(
+            member=trainer,
+            check_in__date__gte=month_start,
+            check_in__date__lte=month_end,
+        ).order_by('check_in')
+
+        # Total hours this month
+        total_seconds = 0
+        attended_dates = set()
+        for log in monthly_logs:
+            if log.check_out:
+                duration = log.check_out - log.check_in
+                total_seconds += duration.total_seconds()
+            attended_dates.add(log.check_in.date())
+
+        monthly_hours = round(total_seconds / 3600, 1)
+
+        # Scheduled days this month vs attended
+        scheduled_days = set()
+        missed_days = []
+        cur = month_start
+        while cur <= month_end:
+            py_weekday = cur.weekday()
+            schedule_weekday = (py_weekday + 1) % 7  # convert to our Sun=0..Sat=6
+            day_schedules = [s for s in schedules if s.day_of_week == schedule_weekday]
+            if day_schedules:
+                scheduled_days.add(cur)
+                if cur not in attended_dates:
+                    missed_days.append({
+                        'date': cur,
+                        'start': day_schedules[0].start_time.strftime('%H:%M'),
+                        'end': day_schedules[0].end_time.strftime('%H:%M'),
+                    })
+            cur += timedelta(days=1)
+
+        scheduled_count = len(scheduled_days)
+        attendance_rate = round(len(attended_dates) / scheduled_count * 100, 1) if scheduled_count > 0 else 0
+
+        # Weekly calendar (current Sun-Sat)
+        week_days = []
+        for i in range(7):
+            day_date = week_start + timedelta(days=i)
+            py_weekday = day_date.weekday()
+            schedule_weekday = (py_weekday + 1) % 7
+            day_schedules = [s for s in schedules if s.day_of_week == schedule_weekday]
+            was_present = day_date in attended_dates
+            week_days.append({
+                'date': day_date,
+                'day_name': ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][schedule_weekday],
+                'scheduled': day_schedules[0] if day_schedules else None,
+                'was_present': was_present,
+            })
+
+        # Last 10 missed days
+        missed_recent = sorted(missed_days, key=lambda x: x['date'], reverse=True)[:10]
+
+        # Next payment info
+        if payment_info and payment_info.next_payment_due:
+            days_until = (payment_info.next_payment_due - today_date).days
+        else:
+            days_until = None
+
+        trainer_data.append({
+            'trainer': trainer,
+            'payment_info': payment_info,
+            'schedules': schedules,
+            'monthly_hours': monthly_hours,
+            'attended_count': len(attended_dates),
+            'scheduled_count': scheduled_count,
+            'missed_count': len(missed_days),
+            'attendance_rate': attendance_rate,
+            'week_days': week_days,
+            'missed_recent': missed_recent,
+            'days_until_payment': days_until,
+        })
+
+    return render(request, 'admin_trainer_dashboard.html', {
+        'trainer_data': trainer_data,
+        'week_start': week_start,
+        'week_end': week_end,
+        'month_start': month_start,
+        'month_end': month_end,
+        'today': today_date,
+    })
+
 def signup(request):
     is_admin = request.user.is_authenticated and request.user.is_superuser
     if request.method == "POST":

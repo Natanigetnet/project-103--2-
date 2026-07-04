@@ -305,3 +305,65 @@ class TrainingPlanDay(models.Model):
 
     def __str__(self):
         return f"{self.plan} - Day {self.day_index + 1}: {self.day_label or 'Rest'}"
+
+
+class TrainerPayment(models.Model):
+    FREQ_CHOICES = [
+        ('weekly', 'Weekly'),
+        ('biweekly', 'Bi-Weekly'),
+        ('monthly', 'Monthly'),
+    ]
+    trainer = models.OneToOneField('names', on_delete=models.CASCADE, related_name='payment_info')
+    salary = models.DecimalField(max_digits=10, decimal_places=2, help_text='Monthly salary amount')
+    last_payment_date = models.DateField(null=True, blank=True, help_text='Date of last payment')
+    payment_frequency = models.CharField(max_length=10, choices=FREQ_CHOICES, default='monthly')
+    notes = models.TextField(blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.trainer.name} - {self.salary}"
+
+    @property
+    def next_payment_due(self):
+        if not self.last_payment_date:
+            return None
+        from datetime import timedelta, date
+        import calendar
+        if self.payment_frequency == 'weekly':
+            return self.last_payment_date + timedelta(days=7)
+        elif self.payment_frequency == 'biweekly':
+            return self.last_payment_date + timedelta(days=14)
+        elif self.payment_frequency == 'monthly':
+            month = self.last_payment_date.month + 1
+            year = self.last_payment_date.year
+            if month > 12:
+                month = 1
+                year += 1
+            last_day = calendar.monthrange(year, month)[1]
+            day = min(self.last_payment_date.day, last_day)
+            return date(year, month, day)
+        return None
+
+
+class TrainerSchedule(models.Model):
+    DAY_CHOICES = [
+        (0, 'Sunday'),
+        (1, 'Monday'),
+        (2, 'Tuesday'),
+        (3, 'Wednesday'),
+        (4, 'Thursday'),
+        (5, 'Friday'),
+        (6, 'Saturday'),
+    ]
+    trainer = models.ForeignKey('names', on_delete=models.CASCADE, related_name='schedules')
+    day_of_week = models.IntegerField(choices=DAY_CHOICES)
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+
+    class Meta:
+        unique_together = ['trainer', 'day_of_week']
+        ordering = ['trainer', 'day_of_week']
+
+    def __str__(self):
+        day_label = self.get_day_of_week_display()
+        return f"{self.trainer.name} - {day_label} {self.start_time.strftime('%H:%M')}-{self.end_time.strftime('%H:%M')}"
