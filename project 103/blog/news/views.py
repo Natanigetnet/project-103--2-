@@ -2220,8 +2220,10 @@ def generate_all_missing_ids(request):
     count = 0
     for person in names.objects.all():
         mid, created = MemberID.objects.get_or_create(member=person)
-        if created or not mid.qr_code or not mid.unique_id:
+        needs_uuid = created or not mid.unique_id
+        if needs_uuid:
             mid.unique_id = str(uuid.uuid4())
+        if needs_uuid or not mid.qr_code:
             generate_qr_image(mid)
             count += 1
     messages.success(request, f"Generated {count} ID card(s). All members now have IDs.")
