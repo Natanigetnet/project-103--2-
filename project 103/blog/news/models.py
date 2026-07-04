@@ -202,6 +202,8 @@ class AttendanceLog(models.Model):
     session = models.ForeignKey('TrainingSession', on_delete=models.SET_NULL, null=True, blank=True, related_name='attendance_logs')
     checked_in_by = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True, blank=True, related_name='scanned_attendance')
     check_in = models.DateTimeField(auto_now_add=True)
+    check_out = models.DateTimeField(null=True, blank=True)
+    checked_out_by = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True, blank=True, related_name='checkout_attendance')
     notes = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
