@@ -5,7 +5,6 @@
   body { background: linear-gradient(135deg, #0f172a, #1e293b) !important; }
   .cal-cell { min-height: 75px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 0.5rem; text-align: center; }
   .cal-cell .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
-  .missed-item { border-left: 3px solid #dc3545; background: rgba(220,53,69,0.06); border-radius: 0 10px 10px 0; }
 </style>
 {% endblock %}
 {% block navbar %}
@@ -47,7 +46,6 @@
         {% if td.payment_info %}₪{{ td.payment_info.salary }}{% else %}<span class="text-muted small">No salary set</span>{% endif %}
       </span>
     </div>
-
     <div class="card-body p-4">
       <div class="row g-3 mb-4">
         <div class="col-6 col-lg-3">
@@ -106,20 +104,35 @@
 
       <div class="mb-4">
         <h6 class="fw-bold mb-3 small text-uppercase text-muted"><i class="bi bi-calendar-week me-2"></i>This Week's Schedule</h6>
-        <div class="row g-1">
-          {% for day in td.week_days %}
-          <div class="col cal-cell {% if day.scheduled %}{% if day.was_present %}border-success border-opacity-25{% else %}border-danger border-opacity-25{% endif %}{% else %}border-white border-opacity-25{% endif %}">
-            <div class="small text-uppercase text-muted fw-semibold">{{ day.day_name }}</div>
-            <div class="fw-bold mb-2 small">{{ day.date|date:"d/m" }}</div>
-            {% if day.scheduled %}
-              <div class="small px-2 py-1 rounded-3 d-inline-block fw-semibold {% if day.was_present %}bg-success bg-opacity-10 text-success{% else %}bg-danger bg-opacity-10 text-danger{% endif %}">{{ day.scheduled.start_time|time:"H:i" }}-{{ day.scheduled.end_time|time:"H:i" }}</div>
-              <div class="dot d-block mx-auto mt-2 {% if day.was_present %}bg-success{% else %}bg-danger{% endif %}"></div>
-            {% else %}
-              <div class="small px-2 py-1 rounded-3 d-inline-block fw-semibold text-muted bg-white bg-opacity-10">OFF</div>
-              <div class="dot d-block mx-auto mt-2 bg-white bg-opacity-25"></div>
-            {% endif %}
-          </div>
-          {% endfor %}
+        <div class="table-responsive">
+          <table class="table table-dark table-bordered border-white border-opacity-10 mb-0 text-center align-middle">
+            <thead>
+              <tr class="table-active">
+                {% for day in td.week_days %}
+                <th class="small text-uppercase text-muted fw-semibold py-2">{{ day.day_name }}<br><span class="fw-bold text-white">{{ day.date|date:"d/m" }}</span></th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                {% for day in td.week_days %}
+                <td class="py-3 {% if day.scheduled %}{% if day.was_present %}table-success{% else %}table-danger{% endif %}{% endif %}">
+                  {% if day.scheduled %}
+                    <span class="fw-semibold small">{{ day.scheduled.start_time|time:"H:i" }}-{{ day.scheduled.end_time|time:"H:i" }}</span>
+                    <br>
+                    {% if day.was_present %}
+                      <span class="badge bg-success bg-opacity-75 mt-1 small">Present</span>
+                    {% else %}
+                      <span class="badge bg-danger bg-opacity-75 mt-1 small">Absent</span>
+                    {% endif %}
+                  {% else %}
+                    <span class="text-muted small fw-semibold">OFF</span>
+                  {% endif %}
+                </td>
+                {% endfor %}
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -140,13 +153,20 @@
         <div class="col-md-6">
           <h6 class="fw-bold mb-3 small text-uppercase text-muted"><i class="bi bi-exclamation-triangle me-2"></i>Missed Days This Month</h6>
           {% if td.missed_recent %}
+          <ul class="list-group list-group-flush bg-transparent">
             {% for m in td.missed_recent %}
-            <div class="missed-item px-3 py-2 mb-2">
-              <i class="bi bi-x-circle-fill text-danger me-2 small"></i>
-              <strong class="small">{{ m.date|date:"D d/m" }}</strong>
-              <span class="text-muted small"> &middot; Scheduled {{ m.start }}-{{ m.end }} &middot; No check-in</span>
-            </div>
+            <li class="list-group-item bg-transparent text-white border-white border-opacity-10 px-0">
+              <div class="d-flex align-items-center">
+                <i class="bi bi-x-circle-fill text-danger me-3"></i>
+                <div>
+                  <strong class="small">{{ m.date|date:"D d/m" }}</strong>
+                  <span class="text-muted small"> &middot; Scheduled {{ m.start }}-{{ m.end }}</span>
+                  <br><span class="text-danger small">No check-in</span>
+                </div>
+              </div>
+            </li>
             {% endfor %}
+          </ul>
           {% else %}
             <div class="text-muted small"><i class="bi bi-check-circle-fill text-success me-2"></i>No missed days this month</div>
           {% endif %}
