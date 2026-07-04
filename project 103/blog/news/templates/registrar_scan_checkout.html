@@ -39,6 +39,7 @@ let scanning = true;
 function onScanSuccess(decodedText) {
   if (!scanning) return;
   scanning = false;
+  if (html5QrCode) html5QrCode.stop();
   document.getElementById('qr-reader').style.display = 'none';
   sendCheckout(decodedText);
 }
@@ -52,12 +53,7 @@ function sendCheckout(uniqueId) {
     headers: {'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}'},
     body: JSON.stringify({unique_id: uniqueId})
   })
-  .then(r => {
-    if (!r.ok) {
-      return r.text().then(text => { throw new Error('HTTP ' + r.status + ': ' + text.slice(0, 300)); });
-    }
-    return r.json();
-  })
+  .then(r => r.json())
   .then(data => {
     if (data.ok) {
       resultDiv.innerHTML = `
@@ -83,8 +79,8 @@ function sendCheckout(uniqueId) {
         </button>`;
     }
   })
-  .catch(err => {
-    resultDiv.innerHTML = `<div class="alert alert-danger text-center"><h5>${err.message}</h5></div>`;
+  .catch(() => {
+    resultDiv.innerHTML = `<div class="alert alert-danger text-center"><h5>Network error — check connection</h5></div>`;
     scanning = true;
   });
 }
@@ -93,7 +89,11 @@ function resetScanner() {
   scanning = true;
   document.getElementById('scan-result').innerHTML = '';
   document.getElementById('qr-reader').style.display = 'block';
-  html5QrCode.start({facingMode: 'environment'}, {fps: 10, qrbox: {width: 250, height: 250}}, onScanSuccess);
+  if (html5QrCode) {
+    html5QrCode.stop().then(() => html5QrCode.start(
+      {facingMode: 'environment'}, {fps: 10, qrbox: {width: 250, height: 250}}, onScanSuccess
+    ));
+  }
 }
 
 document.getElementById('manual-form').addEventListener('submit', function(e) {
