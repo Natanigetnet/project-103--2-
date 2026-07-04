@@ -40,14 +40,15 @@ import secrets
 import string
 
 import json
-from zoneinfo import ZoneInfo
-
-_GYM_TZ = ZoneInfo("Asia/Jerusalem")
 
 def _gym_today_start():
-    """Return midnight today in the gym's local timezone, converted to UTC."""
-    now_local = timezone.localtime(timezone.now(), _GYM_TZ)
-    return now_local.replace(hour=0, minute=0, second=0, microsecond=0).astimezone(timezone.utc)
+    """Return midnight today in Israel timezone, converted to UTC.
+    Israel is UTC+2 (winter) / UTC+3 (summer). Subtracting the max
+    offset avoids missing check-ins from the previous Israel evening
+    when UTC has already rolled to midnight.
+    """
+    from datetime import timedelta
+    return (timezone.now() - timedelta(hours=3)).replace(hour=0, minute=0, second=0, microsecond=0)
 
 @user_passes_test(lambda u: u.is_superuser, login_url='login_url')
 def admin_dash(request):
