@@ -86,6 +86,7 @@
           <div id="scan-error" class="mt-4" style="display:none;">
             <div class="alert alert-danger rounded-4">
               <i class="bi bi-exclamation-triangle me-2"></i> <span id="error-msg">Unknown QR code</span>
+              <pre id="error-debug" class="mt-2 small text-start" style="background:#000;padding:8px;border-radius:8px;overflow:auto;"></pre>
             </div>
           </div>
 
@@ -190,6 +191,8 @@
         const el = document.getElementById('scan-error');
         el.style.display = 'block';
         document.getElementById('error-msg').textContent = data.error || 'Unknown error';
+        const dbg = document.getElementById('error-debug');
+        if (dbg) { dbg.innerHTML = data.debug ? JSON.stringify(data.debug, null, 2) : ''; }
         scanning = true;
         return;
       }
@@ -243,6 +246,8 @@
         const el = document.getElementById('scan-error');
         el.style.display = 'block';
         document.getElementById('error-msg').textContent = data.error || 'Unknown error';
+        const dbg = document.getElementById('error-debug');
+        if (dbg) { dbg.innerHTML = data.debug ? JSON.stringify(data.debug, null, 2) : ''; }
         scanning = true;
         return;
       }

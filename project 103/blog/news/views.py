@@ -2275,7 +2275,7 @@ def record_attendance(request):
     try:
         mid = MemberID.objects.get(unique_id=unique_id)
     except MemberID.DoesNotExist:
-        return JsonResponse({'ok': False, 'error': 'Unknown ID card'}, status=404)
+        return JsonResponse({'ok': False, 'error': 'Unknown ID card', 'debug': {'received': unique_id, 'len': len(unique_id), 'chars': [ord(c) for c in unique_id[:50]]}}, status=404)
 
     # Find today's active check-in for this member
     now = timezone.now()
@@ -2329,7 +2329,7 @@ def scan_entry(request):
     try:
         mid = MemberID.objects.get(unique_id=unique_id)
     except MemberID.DoesNotExist:
-        return JsonResponse({'ok': False, 'error': 'Unknown ID card'}, status=404)
+        return JsonResponse({'ok': False, 'error': 'Unknown ID card', 'debug': {'received': unique_id, 'len': len(unique_id), 'chars': [ord(c) for c in unique_id[:50]]}}, status=404)
 
     now = timezone.now()
     today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -2389,7 +2389,7 @@ def check_out_entry(request):
     try:
         mid = MemberID.objects.get(unique_id=unique_id)
     except MemberID.DoesNotExist:
-        return JsonResponse({'ok': False, 'error': 'Unknown ID card'}, status=404)
+        return JsonResponse({'ok': False, 'error': 'Unknown ID card', 'debug': {'received': unique_id, 'len': len(unique_id), 'chars': [ord(c) for c in unique_id[:50]]}}, status=404)
 
     now = timezone.now()
     today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -2427,15 +2427,15 @@ def check_in_entry(request):
 
     if not unique_id:
         return JsonResponse({'ok': False, 'error': 'No ID provided'}, status=400)
-
     try:
         mid = MemberID.objects.get(unique_id=unique_id)
     except MemberID.DoesNotExist:
-        return JsonResponse({'ok': False, 'error': 'Unknown ID card'}, status=404)
+        return JsonResponse({'ok': False, 'error': 'Unknown ID card', 'debug': {'received': unique_id, 'len': len(unique_id), 'chars': [ord(c) for c in unique_id[:50]]}}, status=404)
 
     now = timezone.now()
     today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
     tomorrow_start = today_start + timezone.timedelta(days=1)
+
     active = AttendanceLog.objects.filter(
         member=mid.member,
         check_in__gte=today_start,
