@@ -2149,7 +2149,7 @@ def generate_qr_image(member_id_obj):
     from io import BytesIO
     from django.core.files.base import ContentFile
 
-    qr = qrcode.QRCode(box_size=10, border=4, error_correction=ERROR_CORRECT_H)
+    qr = qrcode.QRCode(box_size=14, border=4, error_correction=ERROR_CORRECT_H)
     qr.add_data(member_id_obj.unique_id)
     qr.make(fit=True)
     img = qr.make_image(fill_color="black", back_color="white")
@@ -2166,7 +2166,7 @@ def qr_data_uri(member_id_obj):
     from io import BytesIO
     import base64
 
-    qr = qrcode.QRCode(box_size=10, border=4, error_correction=ERROR_CORRECT_H)
+    qr = qrcode.QRCode(box_size=14, border=4, error_correction=ERROR_CORRECT_H)
     qr.add_data(member_id_obj.unique_id)
     qr.make(fit=True)
     img = qr.make_image(fill_color="black", back_color="white")
