@@ -45,12 +45,8 @@
             <div class="mb-4">
                 <label class="form-label fw-bold">Shift</label>
                 <select name="shift" class="form-select form-select-lg" required>
-                    <option value="0600-0900" {% if schedule.shift == '0600-0900' %}selected{% endif %}>06:00–09:00</option>
-                    <option value="0900-1200" {% if schedule.shift == '0900-1200' %}selected{% endif %}>09:00–12:00</option>
-                    <option value="1200-1500" {% if schedule.shift == '1200-1500' %}selected{% endif %}>12:00–15:00</option>
-                    <option value="1500-1800" {% if schedule.shift == '1500-1800' %}selected{% endif %}>15:00–18:00</option>
-                    <option value="1800-2100" {% if schedule.shift == '1800-2100' %}selected{% endif %}>18:00–21:00</option>
-                    <option value="2100-2300" {% if schedule.shift == '2100-2300' %}selected{% endif %}>21:00–23:00</option>
+                    <option value="day" {% if schedule.shift == 'day' %}selected{% endif %}>Day (06:00–16:00)</option>
+                    <option value="evening" {% if schedule.shift == 'evening' %}selected{% endif %}>Evening (16:00–23:00)</option>
                 </select>
             </div>
             <div class="d-flex gap-3">
