@@ -47,7 +47,11 @@
                 <label class="form-label fw-bold">Last Payment</label>
                 <input type="date" name="last_payment_date" class="form-control">
             </div>
-            <div class="col-md-3">
+            <div class="col-md-1">
+                <label class="form-label fw-bold">Pay Day</label>
+                <input type="number" name="payment_day" class="form-control" min="1" max="28" value="1">
+            </div>
+            <div class="col-md-2">
                 <label class="form-label fw-bold">Notes (optional)</label>
                 <input type="text" name="notes" class="form-control" placeholder="Any notes...">
             </div>
@@ -65,10 +69,10 @@
                     <tr>
                         <th>Trainer</th>
                         <th>Salary</th>
+                        <th>Pay Day</th>
                         <th>Frequency</th>
-                        <th>Last Payment</th>
                         <th>Next Due</th>
-                        <th>Notes</th>
+                        <th>Status</th>
                         <th class="text-end">Actions</th>
                     </tr>
                 </thead>
@@ -77,10 +81,24 @@
                     <tr>
                         <td class="fw-semibold">{{ p.trainer.name }}</td>
                         <td>₪{{ p.salary }}</td>
+                        <td><span class="badge-modern bg-dark">Day {{ p.payment_day }}</span></td>
                         <td><span class="badge-modern bg-info text-capitalize">{{ p.get_payment_frequency_display }}</span></td>
-                        <td>{{ p.last_payment_date|date:"d/m/Y"|default:"—" }}</td>
                         <td>{{ p.next_payment_due|date:"d/m/Y"|default:"—" }}</td>
-                        <td class="text-muted small">{{ p.notes|default:"—"|truncatewords:8 }}</td>
+                        <td>
+                            {% with days=p.days_until_payment %}
+                            {% if days is None %}
+                            <span class="badge-modern bg-secondary">N/A</span>
+                            {% elif days == 0 %}
+                            <span class="badge-modern bg-warning">Due Today!</span>
+                            {% elif days <= 3 %}
+                            <span class="badge-modern bg-warning">{{ days }} day{{ days|pluralize }} left</span>
+                            {% elif days <= 7 %}
+                            <span class="badge-modern bg-info">{{ days }} days left</span>
+                            {% else %}
+                            <span class="badge-modern bg-success">{{ days }} days</span>
+                            {% endif %}
+                            {% endwith %}
+                        </td>
                         <td class="text-end">
                             <a href="{% url 'trainer_payment_edit_url' p.id %}" class="btn btn-sm btn-outline-glow me-1"><i class="bi bi-pencil"></i></a>
                             <a href="{% url 'trainer_payment_delete_url' p.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this payment record for {{ p.trainer.name }}?')"><i class="bi bi-trash"></i></a>

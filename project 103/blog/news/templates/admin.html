@@ -18,6 +18,26 @@
 {% endblock %}
 {% block content %}
     <div class="container mt-5">
+        {% if upcoming_payments %}
+        <div class="fade-in mb-4">
+            <div class="glass-card p-3" style="border-left: 4px solid #f59e0b;">
+                <div class="d-flex align-items-center gap-3">
+                    <i class="bi bi-exclamation-triangle-fill text-warning fs-3"></i>
+                    <div>
+                        <strong class="text-warning">Upcoming Payments Due</strong>
+                        <p class="small text-muted mb-0">
+                            {% for p in upcoming_payments %}
+                            <span class="me-3">&bull; {{ p.trainer_name }} &mdash; ₪{{ p.salary }} due {{ p.next_due|date:"d/m" }} 
+                            {% if p.days_until == 0 %}<span class="text-warning fw-bold">(Today!)</span>
+                            {% elif p.days_until == 1 %}<span class="text-warning fw-bold">(Tomorrow!)</span>
+                            {% else %}(in {{ p.days_until }} days){% endif %}</span>
+                            {% endfor %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
         <div class="fade-in">
             <div class="row mb-4">
                 <div class="col">
@@ -35,7 +55,7 @@
                     <h5 class="fw-bold">User Control</h5>
                     <p class="small text-muted">Manage staff accounts and trainer permissions.</p>
                     <a href="{% url 'user_management_url' %}" class="btn btn-glow btn-sm w-100">Manage Users</a>
-                    <a href="{% url 'create_desk_url' %}" class="btn btn-outline-glow btn-sm w-100 mt-2">Register Desk</a>
+                    <a href="{% url 'create_desk_url' %}" class="btn btn-outline-glow btn-sm w-100 mt-2">New Employee</a>
                     <a href="{% url 'assign_trainer_url' %}" class="btn btn-outline-glow btn-sm w-100 mt-2">Assign Trainers</a>
                 </div>
             </div>

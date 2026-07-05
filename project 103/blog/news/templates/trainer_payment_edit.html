@@ -35,7 +35,7 @@
                 <input type="number" name="salary" class="form-control form-control-lg" step="0.01" value="{{ payment.salary }}" required>
             </div>
             <div class="row mb-4 g-3">
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <label class="form-label fw-bold">Payment Frequency</label>
                     <select name="payment_frequency" class="form-select form-select-lg">
                         <option value="monthly" {% if payment.payment_frequency == 'monthly' %}selected{% endif %}>Monthly</option>
@@ -43,7 +43,11 @@
                         <option value="weekly" {% if payment.payment_frequency == 'weekly' %}selected{% endif %}>Weekly</option>
                     </select>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Payment Day</label>
+                    <input type="number" name="payment_day" class="form-control form-control-lg" min="1" max="28" value="{{ payment.payment_day }}">
+                </div>
+                <div class="col-md-5">
                     <label class="form-label fw-bold">Last Payment Date</label>
                     <input type="date" name="last_payment_date" class="form-control form-control-lg" value="{{ payment.last_payment_date|date:'Y-m-d' }}">
                 </div>

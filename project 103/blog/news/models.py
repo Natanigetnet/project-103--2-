@@ -317,6 +317,7 @@ class TrainerPayment(models.Model):
     salary = models.DecimalField(max_digits=10, decimal_places=2, help_text='Monthly salary amount')
     last_payment_date = models.DateField(null=True, blank=True, help_text='Date of last payment')
     payment_frequency = models.CharField(max_length=10, choices=FREQ_CHOICES, default='monthly')
+    payment_day = models.IntegerField(default=1, help_text='Constant day of month for payment (1-28)')
     notes = models.TextField(blank=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -325,24 +326,32 @@ class TrainerPayment(models.Model):
 
     @property
     def next_payment_due(self):
-        if not self.last_payment_date:
-            return None
-        from datetime import timedelta, date
+        from datetime import date
         import calendar
-        if self.payment_frequency == 'weekly':
-            return self.last_payment_date + timedelta(days=7)
-        elif self.payment_frequency == 'biweekly':
-            return self.last_payment_date + timedelta(days=14)
-        elif self.payment_frequency == 'monthly':
-            month = self.last_payment_date.month + 1
-            year = self.last_payment_date.year
+        today = date.today()
+        day = min(max(self.payment_day, 1), 28)
+        # Try current month first
+        last_day = calendar.monthrange(today.year, today.month)[1]
+        pay_day = min(day, last_day)
+        due = date(today.year, today.month, pay_day)
+        if due <= today:
+            # Move to next month
+            month = today.month + 1
+            year = today.year
             if month > 12:
                 month = 1
                 year += 1
             last_day = calendar.monthrange(year, month)[1]
-            day = min(self.last_payment_date.day, last_day)
-            return date(year, month, day)
-        return None
+            pay_day = min(day, last_day)
+            due = date(year, month, pay_day)
+        return due
+
+    @property
+    def days_until_payment(self):
+        if not self.next_payment_due:
+            return None
+        from datetime import date
+        return (self.next_payment_due - date.today()).days
 
 
 class TrainerSchedule(models.Model):

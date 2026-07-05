@@ -43,7 +43,18 @@ import json
 
 @user_passes_test(lambda u: u.is_superuser, login_url='login_url')
 def admin_dash(request):
-    return render(request, 'admin.html')
+    from datetime import date
+    upcoming_payments = []
+    for tp in TrainerPayment.objects.select_related('trainer').all():
+        days = tp.days_until_payment
+        if days is not None and 0 <= days <= 3:
+            upcoming_payments.append({
+                'trainer_name': tp.trainer.name,
+                'salary': tp.salary,
+                'next_due': tp.next_payment_due,
+                'days_until': days,
+            })
+    return render(request, 'admin.html', {'upcoming_payments': upcoming_payments})
 
 @user_passes_test(lambda u: u.is_superuser, login_url='login_url')
 def trainer_schedules_list(request):
@@ -100,6 +111,7 @@ def trainer_payments_list(request):
         salary = request.POST.get('salary')
         payment_frequency = request.POST.get('payment_frequency', 'monthly')
         last_payment_date = request.POST.get('last_payment_date') or None
+        payment_day = request.POST.get('payment_day', 1)
         notes = request.POST.get('notes', '')
         if trainer_id and salary:
             trainer = get_object_or_404(names, id=trainer_id)
@@ -109,6 +121,7 @@ def trainer_payments_list(request):
                     'salary': salary,
                     'payment_frequency': payment_frequency,
                     'last_payment_date': last_payment_date,
+                    'payment_day': payment_day,
                     'notes': notes,
                 }
             )
@@ -126,12 +139,14 @@ def trainer_payment_edit(request, payment_id):
         salary = request.POST.get('salary')
         payment_frequency = request.POST.get('payment_frequency', 'monthly')
         last_payment_date = request.POST.get('last_payment_date') or None
+        payment_day = request.POST.get('payment_day', 1)
         notes = request.POST.get('notes', '')
         if trainer_id and salary:
             payment.trainer_id = trainer_id
             payment.salary = salary
             payment.payment_frequency = payment_frequency
             payment.last_payment_date = last_payment_date
+            payment.payment_day = payment_day
             payment.notes = notes
             payment.save()
             messages.success(request, 'Payment record updated.')
@@ -237,10 +252,7 @@ def admin_trainer_dashboard(request):
         missed_recent = sorted(missed_days, key=lambda x: x['date'], reverse=True)[:10]
 
         # Next payment info
-        if payment_info and payment_info.next_payment_due:
-            days_until = (payment_info.next_payment_due - today_date).days
-        else:
-            days_until = None
+        days_until = payment_info.days_until_payment if payment_info else None
 
         trainer_data.append({
             'trainer': trainer,
@@ -471,7 +483,7 @@ def manage_staff(request):
         'rows': rows,
         'title': 'Manage Staff',
         'subtitle': 'Registrar and Trainer accounts',
-        'action_label': 'New Desk',
+        'action_label': 'New Employee',
         'create_url': 'register_url',
         'delete_redirect': 'manage_staff_url',
     })
