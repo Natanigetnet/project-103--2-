@@ -109,8 +109,8 @@
                             {% endwith %}
                         </td>
                         <td class="text-end">
-                            <a href="{% url 'trainer_payment_edit_url' p.id %}" class="btn btn-sm btn-outline-glow me-1"><i class="bi bi-pencil"></i></a>
-                            <a href="{% url 'trainer_payment_delete_url' p.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete payment record for {{ p.trainer.name }}?')"><i class="bi bi-trash"></i></a>
+                            <a href="{% url 'employee_payment_edit_url' p.id %}" class="btn btn-sm btn-outline-glow me-1"><i class="bi bi-pencil"></i></a>
+                            <a href="{% url 'employee_payment_delete_url' p.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete payment record for {{ p.trainer.name }}?')"><i class="bi bi-trash"></i></a>
                         </td>
                     </tr>
                     {% empty %}

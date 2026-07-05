@@ -16,17 +16,17 @@
                 <h1 class="h3 fw-bold mb-1">Edit Payment Record</h1>
                 <p class="mb-0 opacity-75">{{ payment.trainer.name }}</p>
             </div>
-            <a href="{% url 'trainer_payments_url' %}" class="btn btn-outline-glow"><i class="bi bi-arrow-left me-2"></i>Back</a>
+            <a href="{% url 'employee_payments_url' %}" class="btn btn-outline-glow"><i class="bi bi-arrow-left me-2"></i>Back</a>
         </div>
     </div>
 
     <div class="glass-card p-5 fade-in">
         <form method="post">{% csrf_token %}
             <div class="mb-4">
-                <label class="form-label fw-bold">Trainer</label>
-                <select name="trainer" class="form-select form-select-lg" required>
-                    {% for t in trainers %}
-                    <option value="{{ t.id }}" {% if t.id == payment.trainer_id %}selected{% endif %}>{{ t.name }}</option>
+                <label class="form-label fw-bold">Employee</label>
+                <select name="employee" class="form-select form-select-lg" required>
+                    {% for emp in employees %}
+                    <option value="{{ emp.id }}" {% if emp.id == payment.trainer_id %}selected{% endif %}>{{ emp.name }}</option>
                     {% endfor %}
                 </select>
             </div>
@@ -54,7 +54,7 @@
             </div>
             <div class="d-flex gap-3">
                 <button type="submit" class="btn btn-glow btn-lg"><i class="bi bi-save me-2"></i>Save Changes</button>
-                <a href="{% url 'trainer_payments_url' %}" class="btn btn-outline-secondary btn-lg">Cancel</a>
+                <a href="{% url 'employee_payments_url' %}" class="btn btn-outline-secondary btn-lg">Cancel</a>
             </div>
         </form>
     </div>

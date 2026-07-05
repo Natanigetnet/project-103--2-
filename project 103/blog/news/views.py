@@ -126,36 +126,10 @@ def trainer_schedule_delete(request, schedule_id):
     return redirect('trainer_schedules_url')
 
 @user_passes_test(lambda u: u.is_superuser, login_url='login_url')
-def trainer_payments_list(request):
-    if request.method == 'POST':
-        trainer_id = request.POST.get('trainer')
-        salary = request.POST.get('salary')
-        payment_frequency = request.POST.get('payment_frequency', 'monthly')
-        last_payment_date = request.POST.get('last_payment_date') or None
-        notes = request.POST.get('notes', '')
-        if trainer_id and salary:
-            trainer = get_object_or_404(names, id=trainer_id)
-            TrainerPayment.objects.update_or_create(
-                trainer=trainer,
-                defaults={
-                    'salary': salary,
-                    'payment_frequency': payment_frequency,
-                    'last_payment_date': last_payment_date,
-                    'notes': notes,
-                }
-            )
-            messages.success(request, f'Payment record saved for {trainer.name}.')
-            return redirect('trainer_payments_url')
-    trainers = names.objects.filter(role='trainer').order_by('name')
-    config = GymConfig.objects.first()
-    payments = TrainerPayment.objects.select_related('trainer').all().order_by('trainer__name')
-    return render(request, 'trainer_payments.html', {'trainers': trainers, 'payments': payments, 'config': config})
-
-@user_passes_test(lambda u: u.is_superuser, login_url='login_url')
-def trainer_payment_edit(request, payment_id):
+def employee_payment_edit(request, payment_id):
     payment = get_object_or_404(TrainerPayment, id=payment_id)
     if request.method == 'POST':
-        trainer_id = request.POST.get('trainer')
+        trainer_id = request.POST.get('employee')
         salary = request.POST.get('salary')
         payment_frequency = request.POST.get('payment_frequency', 'monthly')
         last_payment_date = request.POST.get('last_payment_date') or None
@@ -168,17 +142,17 @@ def trainer_payment_edit(request, payment_id):
             payment.notes = notes
             payment.save()
             messages.success(request, 'Payment record updated.')
-            return redirect('trainer_payments_url')
-    trainers = names.objects.filter(role='trainer').order_by('name')
-    return render(request, 'trainer_payment_edit.html', {'payment': payment, 'trainers': trainers})
+            return redirect('employee_payments_url')
+    employees = names.objects.filter(role__in=['trainer', 'trainee']).order_by('name')
+    return render(request, 'employee_payment_edit.html', {'payment': payment, 'employees': employees})
 
 @user_passes_test(lambda u: u.is_superuser, login_url='login_url')
-def trainer_payment_delete(request, payment_id):
+def employee_payment_delete(request, payment_id):
     payment = get_object_or_404(TrainerPayment, id=payment_id)
     trainer_name = payment.trainer.name
     payment.delete()
     messages.success(request, f'Payment record deleted for {trainer_name}.')
-    return redirect('trainer_payments_url')
+    return redirect('employee_payments_url')
 
 @user_passes_test(lambda u: u.is_superuser, login_url='login_url')
 def employee_payments_list(request):

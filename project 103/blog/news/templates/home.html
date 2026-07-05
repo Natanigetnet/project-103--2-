@@ -168,7 +168,7 @@
                     <p class="lead text-white-50 mb-5">Let's Grow Together</p>
                     <div class="d-flex gap-3 align-items-center flex-wrap">
                         {% if user.is_superuser %}
-                        <a href="{% url 'manage_staff_url' %}" class="btn btn-glow"><i class="bi bi-person-badge me-1"></i>New Desk</a>
+                        <a href="{% url 'manage_staff_url' %}" class="btn btn-glow"><i class="bi bi-person-badge me-1"></i>New Employee</a>
                         {% endif %}
                         {% if user.is_superuser %}
                         <a href="{% url 'members_url' %}" class="btn btn-outline-glow">Activity</a>
