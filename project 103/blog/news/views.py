@@ -8,6 +8,7 @@ from django.contrib.auth.backends import ModelBackend
 from django.contrib import messages
 from functools import wraps
 from django.db.models import Avg, Count, Q
+from django.db import connection
 
 class CaseInsensitiveAuthBackend(ModelBackend):
     def authenticate(self, request, username=None, password=None, **kwargs):
@@ -57,7 +58,7 @@ def admin_dash(request):
                 'next_due': tp.next_payment_due,
                 'days_until': days,
             })
-    return render(request, 'admin.html', {'upcoming_payments': upcoming_payments, 'config': config})
+    return render(request, 'admin.html', {'upcoming_payments': upcoming_payments, 'config': config, 'db_vendor': connection.vendor})
 
 @user_passes_test(lambda u: u.is_superuser, login_url='login_url')
 def gym_config_view(request):

@@ -14,6 +14,7 @@ urlpatterns = [
     path('admin/generate-all-ids/', generate_all_missing_ids, name='generate_all_ids_url'),
     path('admin/regenerate-all-qr-codes/', regenerate_all_qr_codes, name='regenerate_all_qr_codes_url'),
     path('admin/gym-config/', gym_config_view, name='gym_config_url'),
+    path('admin/db-check/', admin_dash, name='db_check_url'),  # TODO: remove later
     path('admin/trainer-dashboard/', admin_trainer_dashboard, name='admin_trainer_dashboard_url'),
     path('admin/trainer-schedules/', trainer_schedules_list, name='trainer_schedules_url'),
     path('admin/trainer-schedule/edit/<int:schedule_id>/', trainer_schedule_edit, name='trainer_schedule_edit_url'),
