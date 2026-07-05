@@ -181,6 +181,90 @@ def trainer_payment_delete(request, payment_id):
     return redirect('trainer_payments_url')
 
 @user_passes_test(lambda u: u.is_superuser, login_url='login_url')
+def employee_payments_list(request):
+    config = GymConfig.objects.first()
+    if not config:
+        config = GymConfig.objects.create(payment_day=1)
+
+    if request.method == 'POST':
+        employee_id = request.POST.get('employee')
+        salary = request.POST.get('salary')
+        payment_frequency = request.POST.get('payment_frequency', 'monthly')
+        last_payment_date = request.POST.get('last_payment_date') or None
+        notes = request.POST.get('notes', '')
+        if employee_id and salary:
+            emp = get_object_or_404(names, id=employee_id)
+            TrainerPayment.objects.update_or_create(
+                trainer=emp,
+                defaults={
+                    'salary': salary,
+                    'payment_frequency': payment_frequency,
+                    'last_payment_date': last_payment_date,
+                    'notes': notes,
+                }
+            )
+            messages.success(request, f'Payment record saved for {emp.name}.')
+            return redirect('employee_payments_url')
+
+    # Gather all employees: trainers + registrars
+    employee_records = []
+    seen_names = set()
+
+    # Trainers: names with role='trainer'
+    for n in names.objects.filter(role='trainer').order_by('name'):
+        key = (n.name.lower(), n.email or '')
+        if key not in seen_names:
+            seen_names.add(key)
+            payment = getattr(n, 'payment_info', None)
+            employee_records.append({
+                'id': n.id,
+                'name': n.name,
+                'email': n.email,
+                'role': 'Trainer',
+                'names_record': n,
+                'payment': payment,
+            })
+
+    # Registrars: UserProfile with role='registrar', find linked names via email
+    for up in UserProfile.objects.filter(role='registrar').select_related('user'):
+        user = up.user
+        n = names.objects.filter(email__iexact=user.email).first()
+        if n:
+            key = (n.name.lower(), n.email or '')
+            if key not in seen_names:
+                seen_names.add(key)
+                payment = getattr(n, 'payment_info', None)
+                employee_records.append({
+                    'id': n.id,
+                    'name': n.name,
+                    'email': n.email,
+                    'role': 'Registrar',
+                    'names_record': n,
+                    'payment': payment,
+                })
+        else:
+            # No names record found — create one so payment can be assigned
+            n = names.objects.create(name=user.get_full_name() or user.username, email=user.email, role='trainee')
+            payment = getattr(n, 'payment_info', None)
+            employee_records.append({
+                'id': n.id,
+                'name': n.name,
+                'email': n.email,
+                'role': 'Registrar',
+                'names_record': n,
+                'payment': payment,
+            })
+
+    employee_records.sort(key=lambda r: r['name'].lower())
+
+    payments = TrainerPayment.objects.select_related('trainer').all().order_by('trainer__name')
+    return render(request, 'employee_payments.html', {
+        'employees': employee_records,
+        'payments': payments,
+        'config': config,
+    })
+
+@user_passes_test(lambda u: u.is_superuser, login_url='login_url')
 def admin_trainer_dashboard(request):
     from datetime import timedelta, date
     import calendar
