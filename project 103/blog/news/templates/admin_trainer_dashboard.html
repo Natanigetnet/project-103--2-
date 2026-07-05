@@ -132,7 +132,7 @@
             {% for day in td.week_days %}
             <td class="text-center py-3 {% if day.scheduled %}{% if day.was_present %}table-success{% else %}table-danger{% endif %}{% endif %}">
               {% if day.scheduled %}
-                <span class="fw-semibold small">{{ day.scheduled.start_time|time:"H:i" }}-{{ day.scheduled.end_time|time:"H:i" }}</span>
+                <span class="fw-semibold small">{{ day.scheduled.shift_start }}-{{ day.scheduled.shift_end }}</span>
                 <br>
                 {% if day.was_present %}
                   <span class="badge-modern bg-success mt-1">Present</span>
@@ -156,7 +156,7 @@
           {% for s in td.schedules %}
           <div class="member-card text-center" style="min-width:100px;">
             <div class="small text-uppercase text-muted fw-semibold">{{ s.get_day_of_week_display|slice:":3" }}</div>
-            <div class="fw-bold small">{{ s.start_time|time:"H:i" }}<br class="d-none d-sm-inline">{{ s.end_time|time:"H:i" }}</div>
+            <div class="fw-bold small">{{ s.get_shift_display }}<br class="d-none d-sm-inline"><span class="text-muted">{{ s.shift_start }}-{{ s.shift_end }}</span></div>
           </div>
           {% empty %}
           <div class="text-muted small">No schedule set</div>

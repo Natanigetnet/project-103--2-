@@ -81,23 +81,31 @@ def gym_config_view(request):
 def trainer_schedules_list(request):
     if request.method == 'POST':
         trainer_id = request.POST.get('trainer')
-        day_of_week = request.POST.get('day_of_week')
-        start_time = request.POST.get('start_time')
-        end_time = request.POST.get('end_time')
-        if trainer_id and day_of_week and start_time and end_time:
-            TrainerSchedule.objects.create(
-                trainer_id=trainer_id,
-                day_of_week=day_of_week,
-                start_time=start_time,
-                end_time=end_time,
-            )
-            messages.success(request, 'Schedule entry added.')
+        days = request.POST.getlist('days')
+        shifts = request.POST.getlist('shifts')
+        if trainer_id and days and shifts:
+            count = 0
+            for day in days:
+                for shift in shifts:
+                    TrainerSchedule.objects.get_or_create(
+                        trainer_id=trainer_id,
+                        day_of_week=day,
+                        shift=shift,
+                    )
+                    count += 1
+            messages.success(request, f'{count} schedule entries added.')
             return redirect('trainer_schedules_url')
     trainers = names.objects.filter(role='trainer').order_by('name')
     schedules = TrainerSchedule.objects.select_related('trainer').all().order_by('trainer__name', 'day_of_week')
     from itertools import groupby
     grouped = [(k, list(g)) for k, g in groupby(schedules, key=lambda s: s.trainer.name)]
-    return render(request, 'trainer_schedules.html', {'trainers': trainers, 'grouped_schedules': grouped, 'schedules': schedules})
+    return render(request, 'trainer_schedules.html', {
+        'trainers': trainers,
+        'grouped_schedules': grouped,
+        'schedules': schedules,
+        'day_choices': TrainerSchedule.DAY_CHOICES,
+        'shift_choices': TrainerSchedule.SHIFT_CHOICES,
+    })
 
 @user_passes_test(lambda u: u.is_superuser, login_url='login_url')
 def trainer_schedule_edit(request, schedule_id):
@@ -105,13 +113,11 @@ def trainer_schedule_edit(request, schedule_id):
     if request.method == 'POST':
         trainer_id = request.POST.get('trainer')
         day_of_week = request.POST.get('day_of_week')
-        start_time = request.POST.get('start_time')
-        end_time = request.POST.get('end_time')
-        if trainer_id and day_of_week and start_time and end_time:
+        shift = request.POST.get('shift')
+        if trainer_id and day_of_week and shift:
             schedule.trainer_id = trainer_id
             schedule.day_of_week = day_of_week
-            schedule.start_time = start_time
-            schedule.end_time = end_time
+            schedule.shift = shift
             schedule.save()
             messages.success(request, 'Schedule updated.')
             return redirect('trainer_schedules_url')
@@ -301,8 +307,8 @@ def admin_trainer_dashboard(request):
                 if cur not in attended_dates:
                     missed_days.append({
                         'date': cur,
-                        'start': day_schedules[0].start_time.strftime('%H:%M'),
-                        'end': day_schedules[0].end_time.strftime('%H:%M'),
+                        'start': day_schedules[0].shift_start(),
+                        'end': day_schedules[0].shift_end(),
                     })
             cur += timedelta(days=1)
 

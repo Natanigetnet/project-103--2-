@@ -357,6 +357,20 @@ class TrainerPayment(models.Model):
 
 
 class TrainerSchedule(models.Model):
+    SHIFT_MORNING = 'morning'
+    SHIFT_DAY = 'day'
+    SHIFT_EVENING = 'evening'
+    SHIFT_CHOICES = [
+        (SHIFT_MORNING, 'Morning'),
+        (SHIFT_DAY, 'Day'),
+        (SHIFT_EVENING, 'Evening'),
+    ]
+    SHIFT_TIMES = {
+        SHIFT_MORNING: ('06:00', '14:00'),
+        SHIFT_DAY: ('14:00', '22:00'),
+        SHIFT_EVENING: ('22:00', '06:00'),
+    }
+
     DAY_CHOICES = [
         (0, 'Sunday'),
         (1, 'Monday'),
@@ -368,16 +382,24 @@ class TrainerSchedule(models.Model):
     ]
     trainer = models.ForeignKey('names', on_delete=models.CASCADE, related_name='schedules')
     day_of_week = models.IntegerField(choices=DAY_CHOICES)
-    start_time = models.TimeField()
-    end_time = models.TimeField()
+    shift = models.CharField(max_length=10, choices=SHIFT_CHOICES, default=SHIFT_MORNING)
 
     class Meta:
-        unique_together = ['trainer', 'day_of_week']
+        unique_together = ['trainer', 'day_of_week', 'shift']
         ordering = ['trainer', 'day_of_week']
+
+    def shift_start(self):
+        return self.SHIFT_TIMES[self.shift][0]
+
+    def shift_end(self):
+        return self.SHIFT_TIMES[self.shift][1]
 
     def __str__(self):
         day_label = self.get_day_of_week_display()
-        return f"{self.trainer.name} - {day_label} {self.start_time.strftime('%H:%M')}-{self.end_time.strftime('%H:%M')}"
+        start = self.shift_start()
+        end = self.shift_end()
+        shift_label = self.get_shift_display()
+        return f"{self.trainer.name} - {day_label} {shift_label} ({start}-{end})"
 
 
 class GymConfig(models.Model):

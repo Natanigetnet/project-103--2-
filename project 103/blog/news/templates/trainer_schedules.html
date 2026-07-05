@@ -31,29 +31,30 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-md-2">
-                <label class="form-label fw-bold">Day</label>
-                <select name="day_of_week" class="form-select" required>
-                    <option value="">Select...</option>
-                    <option value="0">Sunday</option>
-                    <option value="1">Monday</option>
-                    <option value="2">Tuesday</option>
-                    <option value="3">Wednesday</option>
-                    <option value="4">Thursday</option>
-                    <option value="5">Friday</option>
-                    <option value="6">Saturday</option>
-                </select>
-            </div>
-            <div class="col-md-2">
-                <label class="form-label fw-bold">Start Time</label>
-                <input type="time" name="start_time" class="form-control" required>
-            </div>
-            <div class="col-md-2">
-                <label class="form-label fw-bold">End Time</label>
-                <input type="time" name="end_time" class="form-control" required>
+            <div class="col-md-4">
+                <label class="form-label fw-bold">Days</label>
+                <div class="d-flex flex-wrap gap-2">
+                    {% for val, label in day_choices %}
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="days" value="{{ val }}" id="day_{{ val }}">
+                        <label class="form-check-label small" for="day_{{ val }}">{{ label }}</label>
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
             <div class="col-md-3">
-                <button type="submit" class="btn btn-glow w-100"><i class="bi bi-plus-circle me-1"></i>Add Schedule</button>
+                <label class="form-label fw-bold">Shifts</label>
+                <div class="d-flex flex-wrap gap-2">
+                    {% for val, label in shift_choices %}
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="shifts" value="{{ val }}" id="shift_{{ val }}">
+                        <label class="form-check-label small" for="shift_{{ val }}">{{ label }}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-glow w-100"><i class="bi bi-plus-circle me-1"></i>Add</button>
             </div>
         </form>
     </div>
@@ -66,8 +67,8 @@
                     <tr>
                         <th>Trainer</th>
                         <th>Day</th>
-                        <th>Start</th>
-                        <th>End</th>
+                        <th>Shift</th>
+                        <th>Time</th>
                         <th class="text-end">Actions</th>
                     </tr>
                 </thead>
@@ -79,8 +80,8 @@
                         <td class="fw-semibold" rowspan="{{ scheds|length }}">{{ trainer_name }}</td>
                         {% endif %}
                         <td><span class="badge-modern bg-primary">{{ s.get_day_of_week_display }}</span></td>
-                        <td>{{ s.start_time|time:"H:i" }}</td>
-                        <td>{{ s.end_time|time:"H:i" }}</td>
+                        <td><span class="badge-modern bg-info">{{ s.get_shift_display }}</span></td>
+                        <td>{{ s.shift_start }} – {{ s.shift_end }}</td>
                         <td class="text-end">
                             <a href="{% url 'trainer_schedule_edit_url' s.id %}" class="btn btn-sm btn-outline-glow me-1"><i class="bi bi-pencil"></i></a>
                             <a href="{% url 'trainer_schedule_delete_url' s.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this schedule entry?')"><i class="bi bi-trash"></i></a>

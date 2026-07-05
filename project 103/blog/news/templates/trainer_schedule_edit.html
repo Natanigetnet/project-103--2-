@@ -42,15 +42,13 @@
                     <option value="6" {% if schedule.day_of_week == 6 %}selected{% endif %}>Saturday</option>
                 </select>
             </div>
-            <div class="row mb-4 g-3">
-                <div class="col-md-6">
-                    <label class="form-label fw-bold">Start Time</label>
-                    <input type="time" name="start_time" class="form-control form-control-lg" value="{{ schedule.start_time|time:'H:i' }}" required>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label fw-bold">End Time</label>
-                    <input type="time" name="end_time" class="form-control form-control-lg" value="{{ schedule.end_time|time:'H:i' }}" required>
-                </div>
+            <div class="mb-4">
+                <label class="form-label fw-bold">Shift</label>
+                <select name="shift" class="form-select form-select-lg" required>
+                    <option value="morning" {% if schedule.shift == 'morning' %}selected{% endif %}>Morning (06:00–14:00)</option>
+                    <option value="day" {% if schedule.shift == 'day' %}selected{% endif %}>Day (14:00–22:00)</option>
+                    <option value="evening" {% if schedule.shift == 'evening' %}selected{% endif %}>Evening (22:00–06:00)</option>
+                </select>
             </div>
             <div class="d-flex gap-3">
                 <button type="submit" class="btn btn-glow btn-lg"><i class="bi bi-save me-2"></i>Save Changes</button>
