@@ -357,18 +357,21 @@ class TrainerPayment(models.Model):
 
 
 class TrainerSchedule(models.Model):
-    SHIFT_MORNING = 'morning'
-    SHIFT_DAY = 'day'
-    SHIFT_EVENING = 'evening'
     SHIFT_CHOICES = [
-        (SHIFT_MORNING, 'Morning'),
-        (SHIFT_DAY, 'Day'),
-        (SHIFT_EVENING, 'Evening'),
+        ('0600-0900', '06:00–09:00'),
+        ('0900-1200', '09:00–12:00'),
+        ('1200-1500', '12:00–15:00'),
+        ('1500-1800', '15:00–18:00'),
+        ('1800-2100', '18:00–21:00'),
+        ('2100-2300', '21:00–23:00'),
     ]
     SHIFT_TIMES = {
-        SHIFT_MORNING: ('06:00', '14:00'),
-        SHIFT_DAY: ('14:00', '22:00'),
-        SHIFT_EVENING: ('22:00', '06:00'),
+        '0600-0900': ('06:00', '09:00'),
+        '0900-1200': ('09:00', '12:00'),
+        '1200-1500': ('12:00', '15:00'),
+        '1500-1800': ('15:00', '18:00'),
+        '1800-2100': ('18:00', '21:00'),
+        '2100-2300': ('21:00', '23:00'),
     }
 
     DAY_CHOICES = [
@@ -382,7 +385,7 @@ class TrainerSchedule(models.Model):
     ]
     trainer = models.ForeignKey('names', on_delete=models.CASCADE, related_name='schedules')
     day_of_week = models.IntegerField(choices=DAY_CHOICES)
-    shift = models.CharField(max_length=10, choices=SHIFT_CHOICES, default=SHIFT_MORNING)
+    shift = models.CharField(max_length=10, choices=SHIFT_CHOICES, default='0600-0900')
 
     class Meta:
         unique_together = ['trainer', 'day_of_week', 'shift']

@@ -87,12 +87,13 @@ def trainer_schedules_list(request):
             count = 0
             for day in days:
                 for shift in shifts:
-                    TrainerSchedule.objects.get_or_create(
+                    _, created = TrainerSchedule.objects.get_or_create(
                         trainer_id=trainer_id,
                         day_of_week=day,
                         shift=shift,
                     )
-                    count += 1
+                    if created:
+                        count += 1
             messages.success(request, f'{count} schedule entries added.')
             return redirect('trainer_schedules_url')
     trainers = names.objects.filter(role='trainer').order_by('name')

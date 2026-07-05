@@ -1,6 +1,11 @@
 {% extends 'base.html' %}
 {% block title %}Trainer Schedules | Future Gym{% endblock %}
 {% block content %}
+<style>
+.cursor-pointer { cursor: pointer; }
+.collapse-trigger[aria-expanded="true"] .bi-chevron-right { transform: rotate(90deg); }
+.transition-rotate { transition: transform .2s ease; }
+</style>
 {% if messages %}
 <div class="container mt-3">
     {% for message in messages %}
@@ -61,37 +66,42 @@
 
     {% if grouped_schedules %}
     <div class="glass-card p-4 fade-in mt-4">
-        <div class="table-responsive">
-            <table class="table table-dark table-hover align-middle mb-0">
-                <thead>
-                    <tr>
-                        <th>Trainer</th>
-                        <th>Day</th>
-                        <th>Shift</th>
-                        <th>Time</th>
-                        <th class="text-end">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for trainer_name, scheds in grouped_schedules %}
-                    {% for s in scheds %}
-                    <tr>
-                        {% if forloop.first %}
-                        <td class="fw-semibold" rowspan="{{ scheds|length }}">{{ trainer_name }}</td>
-                        {% endif %}
-                        <td><span class="badge-modern bg-primary">{{ s.get_day_of_week_display }}</span></td>
-                        <td><span class="badge-modern bg-info">{{ s.get_shift_display }}</span></td>
-                        <td>{{ s.shift_start }} – {{ s.shift_end }}</td>
-                        <td class="text-end">
-                            <a href="{% url 'trainer_schedule_edit_url' s.id %}" class="btn btn-sm btn-outline-glow me-1"><i class="bi bi-pencil"></i></a>
-                            <a href="{% url 'trainer_schedule_delete_url' s.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this schedule entry?')"><i class="bi bi-trash"></i></a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                    {% endfor %}
-                </tbody>
-            </table>
+        {% for trainer_name, scheds in grouped_schedules %}
+        <div class="mb-3">
+            <div class="d-flex align-items-center gap-2 p-3 bg-dark rounded-3 cursor-pointer collapse-trigger" data-bs-toggle="collapse" data-bs-target="#sched_{{ forloop.counter }}" role="button" aria-expanded="false">
+                <i class="bi bi-chevron-right transition-rotate"></i>
+                <span class="fw-bold">{{ trainer_name }}</span>
+                <span class="badge bg-secondary ms-auto">{{ scheds|length }} entries</span>
+            </div>
+            <div class="collapse" id="sched_{{ forloop.counter }}">
+                <div class="table-responsive mt-2">
+                    <table class="table table-dark table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Day</th>
+                                <th>Shift</th>
+                                <th>Time</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for s in scheds %}
+                            <tr>
+                                <td><span class="badge-modern bg-primary">{{ s.get_day_of_week_display }}</span></td>
+                                <td><span class="badge-modern bg-info">{{ s.get_shift_display }}</span></td>
+                                <td>{{ s.shift_start }} – {{ s.shift_end }}</td>
+                                <td class="text-end">
+                                    <a href="{% url 'trainer_schedule_edit_url' s.id %}" class="btn btn-sm btn-outline-glow me-1"><i class="bi bi-pencil"></i></a>
+                                    <a href="{% url 'trainer_schedule_delete_url' s.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this schedule entry?')"><i class="bi bi-trash"></i></a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
+        {% endfor %}
     </div>
     {% else %}
     <div class="empty-state glass-card mt-4">
