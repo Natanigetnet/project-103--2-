@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% block title %}Trainer Payments | Future Gym{% endblock %}
+{% block content %}
+{% if messages %}
+<div class="container mt-3">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show shadow-sm" role="alert">{{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<main class="container mt-5 pt-4">
+    <div class="gradient-header fade-in">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h3 fw-bold mb-1">Trainer Payments</h1>
+                <p class="mb-0 opacity-75">Manage salaries, payment schedules, and payment history for trainers.</p>
+            </div>
+            <a href="{% url 'admin_url' %}" class="btn btn-outline-glow"><i class="bi bi-arrow-left me-2"></i>Back</a>
+        </div>
+    </div>
+
+    <div class="glass-card p-5 fade-in">
+        <form method="post" class="row g-3 align-items-end">{% csrf_token %}
+            <div class="col-md-3">
+                <label class="form-label fw-bold">Trainer</label>
+                <select name="trainer" class="form-select" required>
+                    <option value="">Select trainer...</option>
+                    {% for t in trainers %}
+                    <option value="{{ t.id }}">{{ t.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label fw-bold">Salary (₪)</label>
+                <input type="number" name="salary" class="form-control" step="0.01" placeholder="0.00" required>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label fw-bold">Frequency</label>
+                <select name="payment_frequency" class="form-select">
+                    <option value="monthly">Monthly</option>
+                    <option value="biweekly">Bi-Weekly</option>
+                    <option value="weekly">Weekly</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label fw-bold">Last Payment</label>
+                <input type="date" name="last_payment_date" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-bold">Notes (optional)</label>
+                <input type="text" name="notes" class="form-control" placeholder="Any notes...">
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-glow"><i class="bi bi-plus-circle me-1"></i>Add/Update Payment</button>
+            </div>
+        </form>
+    </div>
+
+    {% if payments %}
+    <div class="glass-card p-4 fade-in mt-4">
+        <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Trainer</th>
+                        <th>Salary</th>
+                        <th>Frequency</th>
+                        <th>Last Payment</th>
+                        <th>Next Due</th>
+                        <th>Notes</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in payments %}
+                    <tr>
+                        <td class="fw-semibold">{{ p.trainer.name }}</td>
+                        <td>₪{{ p.salary }}</td>
+                        <td><span class="badge-modern bg-info text-capitalize">{{ p.get_payment_frequency_display }}</span></td>
+                        <td>{{ p.last_payment_date|date:"d/m/Y"|default:"—" }}</td>
+                        <td>{{ p.next_payment_due|date:"d/m/Y"|default:"—" }}</td>
+                        <td class="text-muted small">{{ p.notes|default:"—"|truncatewords:8 }}</td>
+                        <td class="text-end">
+                            <a href="{% url 'trainer_payment_edit_url' p.id %}" class="btn btn-sm btn-outline-glow me-1"><i class="bi bi-pencil"></i></a>
+                            <a href="{% url 'trainer_payment_delete_url' p.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this payment record for {{ p.trainer.name }}?')"><i class="bi bi-trash"></i></a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-state glass-card mt-4">
+        <div class="empty-state-icon"><i class="bi bi-cash-coin"></i></div>
+        <h5>No payment records yet</h5>
+        <p class="text-muted">Add payment information for trainers above.</p>
+    </div>
+    {% endif %}
+</main>
+{% endblock %}

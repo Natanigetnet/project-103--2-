@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}Edit Payment | Future Gym{% endblock %}
+{% block content %}
+{% if messages %}
+<div class="container mt-3">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show shadow-sm" role="alert">{{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<main class="container mt-5 pt-4">
+    <div class="gradient-header fade-in">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h3 fw-bold mb-1">Edit Payment Record</h1>
+                <p class="mb-0 opacity-75">{{ payment.trainer.name }}</p>
+            </div>
+            <a href="{% url 'trainer_payments_url' %}" class="btn btn-outline-glow"><i class="bi bi-arrow-left me-2"></i>Back</a>
+        </div>
+    </div>
+
+    <div class="glass-card p-5 fade-in">
+        <form method="post">{% csrf_token %}
+            <div class="mb-4">
+                <label class="form-label fw-bold">Trainer</label>
+                <select name="trainer" class="form-select form-select-lg" required>
+                    {% for t in trainers %}
+                    <option value="{{ t.id }}" {% if t.id == payment.trainer_id %}selected{% endif %}>{{ t.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-4">
+                <label class="form-label fw-bold">Salary (₪)</label>
+                <input type="number" name="salary" class="form-control form-control-lg" step="0.01" value="{{ payment.salary }}" required>
+            </div>
+            <div class="row mb-4 g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Payment Frequency</label>
+                    <select name="payment_frequency" class="form-select form-select-lg">
+                        <option value="monthly" {% if payment.payment_frequency == 'monthly' %}selected{% endif %}>Monthly</option>
+                        <option value="biweekly" {% if payment.payment_frequency == 'biweekly' %}selected{% endif %}>Bi-Weekly</option>
+                        <option value="weekly" {% if payment.payment_frequency == 'weekly' %}selected{% endif %}>Weekly</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Last Payment Date</label>
+                    <input type="date" name="last_payment_date" class="form-control form-control-lg" value="{{ payment.last_payment_date|date:'Y-m-d' }}">
+                </div>
+            </div>
+            <div class="mb-4">
+                <label class="form-label fw-bold">Notes</label>
+                <textarea name="notes" class="form-control" rows="3">{{ payment.notes }}</textarea>
+            </div>
+            <div class="d-flex gap-3">
+                <button type="submit" class="btn btn-glow btn-lg"><i class="bi bi-save me-2"></i>Save Changes</button>
+                <a href="{% url 'trainer_payments_url' %}" class="btn btn-outline-secondary btn-lg">Cancel</a>
+            </div>
+        </form>
+    </div>
+</main>
+{% endblock %}

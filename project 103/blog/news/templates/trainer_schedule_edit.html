@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}Edit Schedule | Future Gym{% endblock %}
+{% block content %}
+{% if messages %}
+<div class="container mt-3">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show shadow-sm" role="alert">{{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<main class="container mt-5 pt-4">
+    <div class="gradient-header fade-in">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h3 fw-bold mb-1">Edit Schedule</h1>
+                <p class="mb-0 opacity-75">{{ schedule.trainer.name }} &middot; {{ schedule.get_day_of_week_display }}</p>
+            </div>
+            <a href="{% url 'trainer_schedules_url' %}" class="btn btn-outline-glow"><i class="bi bi-arrow-left me-2"></i>Back</a>
+        </div>
+    </div>
+
+    <div class="glass-card p-5 fade-in">
+        <form method="post">{% csrf_token %}
+            <div class="mb-4">
+                <label class="form-label fw-bold">Trainer</label>
+                <select name="trainer" class="form-select form-select-lg" required>
+                    {% for t in trainers %}
+                    <option value="{{ t.id }}" {% if t.id == schedule.trainer_id %}selected{% endif %}>{{ t.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-4">
+                <label class="form-label fw-bold">Day of Week</label>
+                <select name="day_of_week" class="form-select form-select-lg" required>
+                    <option value="0" {% if schedule.day_of_week == 0 %}selected{% endif %}>Sunday</option>
+                    <option value="1" {% if schedule.day_of_week == 1 %}selected{% endif %}>Monday</option>
+                    <option value="2" {% if schedule.day_of_week == 2 %}selected{% endif %}>Tuesday</option>
+                    <option value="3" {% if schedule.day_of_week == 3 %}selected{% endif %}>Wednesday</option>
+                    <option value="4" {% if schedule.day_of_week == 4 %}selected{% endif %}>Thursday</option>
+                    <option value="5" {% if schedule.day_of_week == 5 %}selected{% endif %}>Friday</option>
+                    <option value="6" {% if schedule.day_of_week == 6 %}selected{% endif %}>Saturday</option>
+                </select>
+            </div>
+            <div class="row mb-4 g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Start Time</label>
+                    <input type="time" name="start_time" class="form-control form-control-lg" value="{{ schedule.start_time|time:'H:i' }}" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">End Time</label>
+                    <input type="time" name="end_time" class="form-control form-control-lg" value="{{ schedule.end_time|time:'H:i' }}" required>
+                </div>
+            </div>
+            <div class="d-flex gap-3">
+                <button type="submit" class="btn btn-glow btn-lg"><i class="bi bi-save me-2"></i>Save Changes</button>
+                <a href="{% url 'trainer_schedules_url' %}" class="btn btn-outline-secondary btn-lg">Cancel</a>
+            </div>
+        </form>
+    </div>
+</main>
+{% endblock %}

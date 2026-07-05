@@ -1,10 +1,5 @@
 {% extends 'base.html' %}
 {% block title %}Future Gym | Trainer Dashboard{% endblock %}
-{% block extra_head %}
-<style>
-  body { background: linear-gradient(135deg, #0f172a, #1e293b) !important; }
-</style>
-{% endblock %}
 {% block navbar %}
 <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
   <div class="container">
@@ -19,171 +14,166 @@
 </nav>
 {% endblock %}
 {% block content %}
-<div class="container mt-5">
-  <div class="fade-in">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+<main class="container mt-5 pt-4">
+  <div class="gradient-header fade-in">
+    <div class="d-flex justify-content-between align-items-center">
       <div>
-        <h2 class="fw-bold mb-1"><i class="bi bi-people-fill text-primary me-2"></i>Trainer Dashboard</h2>
-        <p class="text-muted small mb-0">{{ month_start|date:"F Y" }} &middot; {{ trainer_data|length }} trainer{{ trainer_data|length|pluralize }}</p>
+        <h1 class="h3 fw-bold mb-1"><i class="bi bi-people-fill me-2"></i>Trainer Dashboard</h1>
+        <p class="mb-0 opacity-75">{{ month_start|date:"F Y" }} &middot; {{ trainer_data|length }} trainer{{ trainer_data|length|pluralize }}</p>
       </div>
-      <a href="{% url 'admin_url' %}" class="btn btn-outline-glow btn-sm rounded-pill"><i class="bi bi-arrow-left me-1"></i>Back to Admin</a>
+      <a href="{% url 'admin_url' %}" class="btn btn-outline-glow"><i class="bi bi-arrow-left me-2"></i>Back</a>
     </div>
   </div>
 
   {% for td in trainer_data %}
-  <div class="card bg-dark bg-opacity-75 border border-white border-opacity-10 rounded-4 mb-4 overflow-hidden fade-in shadow-lg">
-    <div class="card-header bg-transparent border-bottom border-white border-opacity-10 d-flex justify-content-between align-items-center px-4 py-3" style="background: linear-gradient(135deg, rgba(13,110,253,0.12), rgba(13,110,253,0.03)) !important;">
+  <div class="glass-card p-4 mb-4 fade-in">
+    <div class="d-flex justify-content-between align-items-start mb-4">
       <div>
-        <h5 class="fw-bold mb-0"><i class="bi bi-person-badge text-primary me-2"></i>{{ td.trainer.name }}</h5>
+        <h5 class="fw-bold mb-1"><i class="bi bi-person-badge text-primary me-2"></i>{{ td.trainer.name }}</h5>
         <span class="small text-muted">
           {% if td.trainer.phone_number %}<i class="bi bi-telephone me-1"></i>{{ td.trainer.phone_number }}{% endif %}
           {% if td.trainer.email %} &middot; <i class="bi bi-envelope me-1"></i>{{ td.trainer.email }}{% endif %}
         </span>
       </div>
-      <span class="badge bg-primary bg-opacity-25 text-primary rounded-pill fs-6 fw-bold px-3 py-2">
+      <span class="badge-modern bg-primary fs-6 fw-bold px-3 py-2">
         {% if td.payment_info %}₪{{ td.payment_info.salary }}{% else %}<span class="text-muted small">No salary set</span>{% endif %}
       </span>
     </div>
-    <div class="card-body p-4">
-      <div class="row g-3 mb-4">
-        <div class="col-6 col-lg-3">
-          <div class="bg-dark bg-opacity-50 border border-white border-opacity-10 rounded-4 p-3 text-center h-100">
-            <div class="fs-4 fw-bold">{% if td.payment_info %}{{ td.payment_info.salary }}{% else %}<span class="text-muted">&mdash;</span>{% endif %}</div>
-            <div class="small text-uppercase text-muted fw-semibold">Salary</div>
-            {% if td.payment_info and td.payment_info.last_payment_date %}
-            <div class="small text-muted mt-1">Last: {{ td.payment_info.last_payment_date|date:"d/m" }}</div>
-            {% endif %}
-          </div>
-        </div>
-        <div class="col-6 col-lg-3">
-          <div class="bg-dark bg-opacity-50 border border-white border-opacity-10 rounded-4 p-3 text-center h-100">
-            <div class="fs-4 fw-bold">
-              {% if td.payment_info and td.days_until_payment is not None %}
-                {% if td.days_until_payment < 0 %}
-                  <span class="text-danger">{{ td.days_until_payment|cut:"-" }}d overdue</span>
-                {% elif td.days_until_payment == 0 %}
-                  <span class="text-warning">Today!</span>
-                {% else %}
-                  {{ td.days_until_payment }}d
-                {% endif %}
-              {% else %}<span class="text-muted">&mdash;</span>{% endif %}
-            </div>
-            <div class="small text-uppercase text-muted fw-semibold">Next Payment</div>
-            {% if td.payment_info and td.payment_info.next_payment_due %}
-            <div class="small text-muted mt-1">{{ td.payment_info.next_payment_due|date:"d/m/Y" }}</div>
-            {% endif %}
-          </div>
-        </div>
-        <div class="col-6 col-lg-3">
-          <div class="bg-dark bg-opacity-50 border border-white border-opacity-10 rounded-4 p-3 text-center h-100">
-            <div class="fs-4 fw-bold">{{ td.monthly_hours }}h</div>
-            <div class="small text-uppercase text-muted fw-semibold">Hours This Month</div>
-            <div class="small text-muted mt-1">{{ td.attended_count }} day{{ td.attended_count|pluralize }}</div>
-          </div>
-        </div>
-        <div class="col-6 col-lg-3">
-          <div class="bg-dark bg-opacity-50 border border-white border-opacity-10 rounded-4 p-3 text-center h-100">
-            <div class="fs-4 fw-bold">
-              {% if td.scheduled_count > 0 %}
-                <span class="{% if td.attendance_rate < 70 %}text-danger{% elif td.attendance_rate < 85 %}text-warning{% else %}text-success{% endif %}">
-                  {{ td.attendance_rate }}%
-                </span>
-              {% else %}<span class="text-muted">&mdash;</span>{% endif %}
-            </div>
-            <div class="small text-uppercase text-muted fw-semibold">Attendance</div>
-            {% if td.missed_count > 0 %}
-            <div class="small text-danger mt-1">{{ td.missed_count }} missed</div>
-            {% else %}
-            <div class="small text-success mt-1">Perfect attendance</div>
-            {% endif %}
-          </div>
-        </div>
-      </div>
 
-      <div class="mb-4">
-        <h6 class="fw-bold mb-3 small text-uppercase text-muted"><i class="bi bi-calendar-week me-2"></i>This Week's Schedule</h6>
-        <div class="table-responsive">
-          <table class="table table-dark table-bordered border-white border-opacity-10 mb-0 text-center align-middle">
-            <thead>
-              <tr class="table-active">
-                {% for day in td.week_days %}
-                <th class="small text-uppercase text-muted fw-semibold py-2">{{ day.day_name }}<br><span class="fw-bold text-white">{{ day.date|date:"d/m" }}</span></th>
-                {% endfor %}
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                {% for day in td.week_days %}
-                <td class="py-3 {% if day.scheduled %}{% if day.was_present %}table-success{% else %}table-danger{% endif %}{% endif %}">
-                  {% if day.scheduled %}
-                    <span class="fw-semibold small">{{ day.scheduled.start_time|time:"H:i" }}-{{ day.scheduled.end_time|time:"H:i" }}</span>
-                    <br>
-                    {% if day.was_present %}
-                      <span class="badge bg-success bg-opacity-75 mt-1 small">Present</span>
-                    {% else %}
-                      <span class="badge bg-danger bg-opacity-75 mt-1 small">Absent</span>
-                    {% endif %}
-                  {% else %}
-                    <span class="text-muted small fw-semibold">OFF</span>
-                  {% endif %}
-                </td>
-                {% endfor %}
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="row g-4">
-        <div class="col-md-6">
-          <h6 class="fw-bold mb-3 small text-uppercase text-muted"><i class="bi bi-clock me-2"></i>Weekly Schedule</h6>
-          <div class="d-flex flex-wrap gap-2">
-            {% for s in td.schedules %}
-            <div class="bg-dark bg-opacity-50 border border-white border-opacity-10 rounded-3 px-3 py-2 text-center" style="min-width:100px;">
-              <div class="small text-uppercase text-muted fw-semibold">{{ s.get_day_of_week_display|slice:":3" }}</div>
-              <div class="fw-bold small">{{ s.start_time|time:"H:i" }}<br class="d-none d-sm-inline">{{ s.end_time|time:"H:i" }}</div>
-            </div>
-            {% empty %}
-            <div class="text-muted small">No schedule set</div>
-            {% endfor %}
-          </div>
-        </div>
-        <div class="col-md-6">
-          <h6 class="fw-bold mb-3 small text-uppercase text-muted"><i class="bi bi-exclamation-triangle me-2"></i>Missed Days This Month</h6>
-          {% if td.missed_recent %}
-          <ul class="list-group list-group-flush bg-transparent">
-            {% for m in td.missed_recent %}
-            <li class="list-group-item bg-transparent text-white border-white border-opacity-10 px-0">
-              <div class="d-flex align-items-center">
-                <i class="bi bi-x-circle-fill text-danger me-3"></i>
-                <div>
-                  <strong class="small">{{ m.date|date:"D d/m" }}</strong>
-                  <span class="text-muted small"> &middot; Scheduled {{ m.start }}-{{ m.end }}</span>
-                  <br><span class="text-danger small">No check-in</span>
-                </div>
-              </div>
-            </li>
-            {% endfor %}
-          </ul>
-          {% else %}
-            <div class="text-muted small"><i class="bi bi-check-circle-fill text-success me-2"></i>No missed days this month</div>
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-lg-3">
+        <div class="member-card text-center h-100">
+          <div class="stat-value">{% if td.payment_info %}{{ td.payment_info.salary }}{% else %}<span class="text-muted">&mdash;</span>{% endif %}</div>
+          <div class="small text-uppercase text-muted fw-semibold">Salary</div>
+          {% if td.payment_info and td.payment_info.last_payment_date %}
+          <div class="small text-muted mt-1">Last: {{ td.payment_info.last_payment_date|date:"d/m" }}</div>
           {% endif %}
         </div>
       </div>
-
-      {% if td.payment_info and td.payment_info.notes %}
-      <div class="mt-4 pt-3 border-top border-white border-opacity-10">
-        <small class="text-muted"><i class="bi bi-journal-text me-1"></i>{{ td.payment_info.notes }}</small>
+      <div class="col-6 col-lg-3">
+        <div class="member-card text-center h-100">
+          <div class="stat-value">
+            {% if td.payment_info and td.days_until_payment is not None %}
+              {% if td.days_until_payment < 0 %}
+                <span class="text-danger">{{ td.days_until_payment|cut:"-" }}d overdue</span>
+              {% elif td.days_until_payment == 0 %}
+                <span class="text-warning">Today!</span>
+              {% else %}
+                {{ td.days_until_payment }}d
+              {% endif %}
+            {% else %}<span class="text-muted">&mdash;</span>{% endif %}
+          </div>
+          <div class="small text-uppercase text-muted fw-semibold">Next Payment</div>
+          {% if td.payment_info and td.payment_info.next_payment_due %}
+          <div class="small text-muted mt-1">{{ td.payment_info.next_payment_due|date:"d/m/Y" }}</div>
+          {% endif %}
+        </div>
       </div>
-      {% endif %}
+      <div class="col-6 col-lg-3">
+        <div class="member-card text-center h-100">
+          <div class="stat-value">{{ td.monthly_hours }}h</div>
+          <div class="small text-uppercase text-muted fw-semibold">Hours This Month</div>
+          <div class="small text-muted mt-1">{{ td.attended_count }} day{{ td.attended_count|pluralize }}</div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="member-card text-center h-100">
+          <div class="stat-value">
+            {% if td.scheduled_count > 0 %}
+              <span class="{% if td.attendance_rate < 70 %}text-danger{% elif td.attendance_rate < 85 %}text-warning{% else %}text-success{% endif %}">
+                {{ td.attendance_rate }}%
+              </span>
+            {% else %}<span class="text-muted">&mdash;</span>{% endif %}
+          </div>
+          <div class="small text-uppercase text-muted fw-semibold">Attendance</div>
+          {% if td.missed_count > 0 %}
+          <div class="small text-danger mt-1">{{ td.missed_count }} missed</div>
+          {% else %}
+          <div class="small text-success mt-1">Perfect attendance</div>
+          {% endif %}
+        </div>
+      </div>
     </div>
+
+    <div class="section-title"><i class="bi bi-calendar-week text-primary"></i>This Week's Schedule</div>
+    <div class="table-responsive mb-4">
+      <table class="table table-custom align-middle mb-0 text-center">
+        <thead>
+          <tr>
+            {% for day in td.week_days %}
+            <th class="text-center">{{ day.day_name }}<br><span class="fw-bold">{{ day.date|date:"d/m" }}</span></th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            {% for day in td.week_days %}
+            <td class="text-center py-3 {% if day.scheduled %}{% if day.was_present %}table-success{% else %}table-danger{% endif %}{% endif %}">
+              {% if day.scheduled %}
+                <span class="fw-semibold small">{{ day.scheduled.start_time|time:"H:i" }}-{{ day.scheduled.end_time|time:"H:i" }}</span>
+                <br>
+                {% if day.was_present %}
+                  <span class="badge-modern bg-success mt-1">Present</span>
+                {% else %}
+                  <span class="badge-modern bg-danger mt-1">Absent</span>
+                {% endif %}
+              {% else %}
+                <span class="text-muted small fw-semibold">OFF</span>
+              {% endif %}
+            </td>
+            {% endfor %}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-6">
+        <div class="section-title"><i class="bi bi-clock text-primary"></i>Weekly Schedule</div>
+        <div class="d-flex flex-wrap gap-2">
+          {% for s in td.schedules %}
+          <div class="member-card text-center" style="min-width:100px;">
+            <div class="small text-uppercase text-muted fw-semibold">{{ s.get_day_of_week_display|slice:":3" }}</div>
+            <div class="fw-bold small">{{ s.start_time|time:"H:i" }}<br class="d-none d-sm-inline">{{ s.end_time|time:"H:i" }}</div>
+          </div>
+          {% empty %}
+          <div class="text-muted small">No schedule set</div>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="section-title"><i class="bi bi-exclamation-triangle text-primary"></i>Missed Days This Month</div>
+        {% if td.missed_recent %}
+        <div class="d-flex flex-column gap-2">
+          {% for m in td.missed_recent %}
+          <div class="member-card d-flex align-items-center gap-3">
+            <i class="bi bi-x-circle-fill text-danger flex-shrink-0"></i>
+            <div>
+              <strong class="small">{{ m.date|date:"D d/m" }}</strong>
+              <span class="text-muted small"> &middot; Scheduled {{ m.start }}-{{ m.end }}</span>
+              <br><span class="text-danger small">No check-in</span>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-muted small"><i class="bi bi-check-circle-fill text-success me-2"></i>No missed days this month</div>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if td.payment_info and td.payment_info.notes %}
+    <div class="mt-4 pt-3 border-top border-secondary border-opacity-25">
+      <small class="text-muted"><i class="bi bi-journal-text me-1"></i>{{ td.payment_info.notes }}</small>
+    </div>
+    {% endif %}
   </div>
   {% empty %}
-  <div class="card bg-dark bg-opacity-75 border border-white border-opacity-10 rounded-4 p-5 text-center fade-in shadow-lg">
-    <i class="bi bi-people fs-1 text-muted d-block mb-3"></i>
-    <h5 class="text-muted">No trainers found</h5>
-    <p class="small text-muted mb-0">Create trainer profiles in the system to see them here.</p>
+  <div class="empty-state glass-card fade-in">
+    <div class="empty-state-icon"><i class="bi bi-people"></i></div>
+    <h5>No trainers found</h5>
+    <p class="text-muted">Create trainer profiles in the system to see them here.</p>
   </div>
   {% endfor %}
-</div>
+</main>
 {% endblock %}

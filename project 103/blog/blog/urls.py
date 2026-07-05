@@ -2,7 +2,7 @@
 from django.contrib import admin
 from django.urls import path, reverse_lazy
 from django.contrib.auth import views as auth_views
-from news.views import landing,admin_dash,admin_trainer_dashboard,home,members,Category_view,detail,about,contact,register,edit,delete_member,comm_edit,comm_delete,category_list,delete_cat,cat_edit,ques_list,ques_edit,signup,loginUser,logoutUser,user_list,manage_members,manage_staff,delete_user,delete_legacy_member,edit_legacy_member,ques_delete,response,response_list,response_edit,response_delete,record_payment,trainer_and_categories_list,trainer_category_selector,trainer_and_categories_api,trainer_tracker,assign_trainer,trainee_settings,trainee_update_account,trainee_medical_info,create_session,register_session,trainee_session_list,trainer_session_registrations,session_hub,user_profile,telegram_broadcast,trainee_bmi,trainer_bmi_tracker,trainer_settings,trainer_update_account,training_space_list,training_space_edit,training_space_delete,training_space_toggle_maintenance,api_available_spaces,category_catalog,my_id_card,regenerate_qr,regenerate_all_qr_codes,generate_all_missing_ids,id_card_pdf,admin_scan_qr,admin_scan_checkin,admin_scan_checkout,record_attendance,scan_entry,check_in_entry,check_out_entry,attendance_log_view,attendance_dashboard,chat_page,chat_api,registrar_dashboard,registrar_register,registrar_scan_qr,registrar_scan_checkout,registrar_attendance_log,registrar_currently_in,trainer_currently_in,create_desk,rate_trainer,trainer_ratings_dashboard,trainer_my_feedback,request_trainer_change,training_plan_view
+from news.views import landing,admin_dash,admin_trainer_dashboard,home,members,Category_view,detail,about,contact,register,edit,delete_member,comm_edit,comm_delete,category_list,delete_cat,cat_edit,ques_list,ques_edit,signup,loginUser,logoutUser,user_list,manage_members,manage_staff,delete_user,delete_legacy_member,edit_legacy_member,ques_delete,response,response_list,response_edit,response_delete,record_payment,trainer_and_categories_list,trainer_category_selector,trainer_and_categories_api,trainer_tracker,assign_trainer,trainee_settings,trainee_update_account,trainee_medical_info,create_session,register_session,trainee_session_list,trainer_session_registrations,session_hub,user_profile,telegram_broadcast,trainee_bmi,trainer_bmi_tracker,trainer_settings,trainer_update_account,training_space_list,training_space_edit,training_space_delete,training_space_toggle_maintenance,api_available_spaces,category_catalog,my_id_card,regenerate_qr,regenerate_all_qr_codes,generate_all_missing_ids,id_card_pdf,admin_scan_qr,admin_scan_checkin,admin_scan_checkout,record_attendance,scan_entry,check_in_entry,check_out_entry,attendance_log_view,attendance_dashboard,chat_page,chat_api,registrar_dashboard,registrar_register,registrar_scan_qr,registrar_scan_checkout,registrar_attendance_log,registrar_currently_in,trainer_currently_in,create_desk,rate_trainer,trainer_ratings_dashboard,trainer_my_feedback,request_trainer_change,training_plan_view,trainer_schedules_list,trainer_schedule_edit,trainer_schedule_delete,trainer_payments_list,trainer_payment_edit,trainer_payment_delete
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -14,6 +14,12 @@ urlpatterns = [
     path('admin/generate-all-ids/', generate_all_missing_ids, name='generate_all_ids_url'),
     path('admin/regenerate-all-qr-codes/', regenerate_all_qr_codes, name='regenerate_all_qr_codes_url'),
     path('admin/trainer-dashboard/', admin_trainer_dashboard, name='admin_trainer_dashboard_url'),
+    path('admin/trainer-schedules/', trainer_schedules_list, name='trainer_schedules_url'),
+    path('admin/trainer-schedule/edit/<int:schedule_id>/', trainer_schedule_edit, name='trainer_schedule_edit_url'),
+    path('admin/trainer-schedule/delete/<int:schedule_id>/', trainer_schedule_delete, name='trainer_schedule_delete_url'),
+    path('admin/trainer-payments/', trainer_payments_list, name='trainer_payments_url'),
+    path('admin/trainer-payment/edit/<int:payment_id>/', trainer_payment_edit, name='trainer_payment_edit_url'),
+    path('admin/trainer-payment/delete/<int:payment_id>/', trainer_payment_delete, name='trainer_payment_delete_url'),
     path('admin/', admin.site.urls),
     path('admin-portal/',admin_dash,name='admin_url'),
     path('home/',home,name='home_url'),

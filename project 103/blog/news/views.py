@@ -46,6 +46,108 @@ def admin_dash(request):
     return render(request, 'admin.html')
 
 @user_passes_test(lambda u: u.is_superuser, login_url='login_url')
+def trainer_schedules_list(request):
+    if request.method == 'POST':
+        trainer_id = request.POST.get('trainer')
+        day_of_week = request.POST.get('day_of_week')
+        start_time = request.POST.get('start_time')
+        end_time = request.POST.get('end_time')
+        if trainer_id and day_of_week and start_time and end_time:
+            TrainerSchedule.objects.create(
+                trainer_id=trainer_id,
+                day_of_week=day_of_week,
+                start_time=start_time,
+                end_time=end_time,
+            )
+            messages.success(request, 'Schedule entry added.')
+            return redirect('trainer_schedules_url')
+    trainers = names.objects.filter(role='trainer').order_by('name')
+    schedules = TrainerSchedule.objects.select_related('trainer').all().order_by('trainer__name', 'day_of_week')
+    from itertools import groupby
+    grouped = [(k, list(g)) for k, g in groupby(schedules, key=lambda s: s.trainer.name)]
+    return render(request, 'trainer_schedules.html', {'trainers': trainers, 'grouped_schedules': grouped, 'schedules': schedules})
+
+@user_passes_test(lambda u: u.is_superuser, login_url='login_url')
+def trainer_schedule_edit(request, schedule_id):
+    schedule = get_object_or_404(TrainerSchedule, id=schedule_id)
+    if request.method == 'POST':
+        trainer_id = request.POST.get('trainer')
+        day_of_week = request.POST.get('day_of_week')
+        start_time = request.POST.get('start_time')
+        end_time = request.POST.get('end_time')
+        if trainer_id and day_of_week and start_time and end_time:
+            schedule.trainer_id = trainer_id
+            schedule.day_of_week = day_of_week
+            schedule.start_time = start_time
+            schedule.end_time = end_time
+            schedule.save()
+            messages.success(request, 'Schedule updated.')
+            return redirect('trainer_schedules_url')
+    trainers = names.objects.filter(role='trainer').order_by('name')
+    return render(request, 'trainer_schedule_edit.html', {'schedule': schedule, 'trainers': trainers})
+
+@user_passes_test(lambda u: u.is_superuser, login_url='login_url')
+def trainer_schedule_delete(request, schedule_id):
+    schedule = get_object_or_404(TrainerSchedule, id=schedule_id)
+    schedule.delete()
+    messages.success(request, 'Schedule entry deleted.')
+    return redirect('trainer_schedules_url')
+
+@user_passes_test(lambda u: u.is_superuser, login_url='login_url')
+def trainer_payments_list(request):
+    if request.method == 'POST':
+        trainer_id = request.POST.get('trainer')
+        salary = request.POST.get('salary')
+        payment_frequency = request.POST.get('payment_frequency', 'monthly')
+        last_payment_date = request.POST.get('last_payment_date') or None
+        notes = request.POST.get('notes', '')
+        if trainer_id and salary:
+            trainer = get_object_or_404(names, id=trainer_id)
+            TrainerPayment.objects.update_or_create(
+                trainer=trainer,
+                defaults={
+                    'salary': salary,
+                    'payment_frequency': payment_frequency,
+                    'last_payment_date': last_payment_date,
+                    'notes': notes,
+                }
+            )
+            messages.success(request, f'Payment record saved for {trainer.name}.')
+            return redirect('trainer_payments_url')
+    trainers = names.objects.filter(role='trainer').order_by('name')
+    payments = TrainerPayment.objects.select_related('trainer').all().order_by('trainer__name')
+    return render(request, 'trainer_payments.html', {'trainers': trainers, 'payments': payments})
+
+@user_passes_test(lambda u: u.is_superuser, login_url='login_url')
+def trainer_payment_edit(request, payment_id):
+    payment = get_object_or_404(TrainerPayment, id=payment_id)
+    if request.method == 'POST':
+        trainer_id = request.POST.get('trainer')
+        salary = request.POST.get('salary')
+        payment_frequency = request.POST.get('payment_frequency', 'monthly')
+        last_payment_date = request.POST.get('last_payment_date') or None
+        notes = request.POST.get('notes', '')
+        if trainer_id and salary:
+            payment.trainer_id = trainer_id
+            payment.salary = salary
+            payment.payment_frequency = payment_frequency
+            payment.last_payment_date = last_payment_date
+            payment.notes = notes
+            payment.save()
+            messages.success(request, 'Payment record updated.')
+            return redirect('trainer_payments_url')
+    trainers = names.objects.filter(role='trainer').order_by('name')
+    return render(request, 'trainer_payment_edit.html', {'payment': payment, 'trainers': trainers})
+
+@user_passes_test(lambda u: u.is_superuser, login_url='login_url')
+def trainer_payment_delete(request, payment_id):
+    payment = get_object_or_404(TrainerPayment, id=payment_id)
+    trainer_name = payment.trainer.name
+    payment.delete()
+    messages.success(request, f'Payment record deleted for {trainer_name}.')
+    return redirect('trainer_payments_url')
+
+@user_passes_test(lambda u: u.is_superuser, login_url='login_url')
 def admin_trainer_dashboard(request):
     from datetime import timedelta, date
     import calendar
