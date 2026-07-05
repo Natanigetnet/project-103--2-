@@ -317,9 +317,13 @@ class TrainerPayment(models.Model):
     salary = models.DecimalField(max_digits=10, decimal_places=2, help_text='Monthly salary amount')
     last_payment_date = models.DateField(null=True, blank=True, help_text='Date of last payment')
     payment_frequency = models.CharField(max_length=10, choices=FREQ_CHOICES, default='monthly')
-    payment_day = models.IntegerField(default=1, help_text='Constant day of month for payment (1-28)')
     notes = models.TextField(blank=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    @classmethod
+    def get_payment_day(cls):
+        config = GymConfig.objects.first()
+        return config.payment_day if config else 1
 
     def __str__(self):
         return f"{self.trainer.name} - {self.salary}"
@@ -329,13 +333,11 @@ class TrainerPayment(models.Model):
         from datetime import date
         import calendar
         today = date.today()
-        day = min(max(self.payment_day, 1), 28)
-        # Try current month first
+        day = min(max(self.get_payment_day(), 1), 28)
         last_day = calendar.monthrange(today.year, today.month)[1]
         pay_day = min(day, last_day)
         due = date(today.year, today.month, pay_day)
         if due <= today:
-            # Move to next month
             month = today.month + 1
             year = today.year
             if month > 12:
@@ -376,3 +378,14 @@ class TrainerSchedule(models.Model):
     def __str__(self):
         day_label = self.get_day_of_week_display()
         return f"{self.trainer.name} - {day_label} {self.start_time.strftime('%H:%M')}-{self.end_time.strftime('%H:%M')}"
+
+
+class GymConfig(models.Model):
+    payment_day = models.IntegerField(default=1, help_text='Global constant pay day for all employees (1-28)')
+
+    def __str__(self):
+        return f"Global payment day: {self.payment_day}"
+
+    class Meta:
+        verbose_name = 'Gym Configuration'
+        verbose_name_plural = 'Gym Configuration'

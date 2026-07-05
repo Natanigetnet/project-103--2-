@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.http import HttpResponse
 from django.utils.html import format_html   
-from .models import names,comments,Category,questions,response_model,TrainingSession,BodyMetric,TrainingSpace,MemberID,AttendanceLog,TrainerRating,TrainerChangeRequest,TrainingPlan,TrainingPlanDay,TrainerPayment,TrainerSchedule
+from .models import names,comments,Category,questions,response_model,TrainingSession,BodyMetric,TrainingSpace,MemberID,AttendanceLog,TrainerRating,TrainerChangeRequest,TrainingPlan,TrainingPlanDay,TrainerPayment,TrainerSchedule,GymConfig
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.backends import ModelBackend
 from django.contrib import messages
@@ -44,6 +44,9 @@ import json
 @user_passes_test(lambda u: u.is_superuser, login_url='login_url')
 def admin_dash(request):
     from datetime import date
+    config = GymConfig.objects.first()
+    if not config:
+        config = GymConfig.objects.create(payment_day=1)
     upcoming_payments = []
     for tp in TrainerPayment.objects.select_related('trainer').all():
         days = tp.days_until_payment
@@ -54,7 +57,25 @@ def admin_dash(request):
                 'next_due': tp.next_payment_due,
                 'days_until': days,
             })
-    return render(request, 'admin.html', {'upcoming_payments': upcoming_payments})
+    return render(request, 'admin.html', {'upcoming_payments': upcoming_payments, 'config': config})
+
+@user_passes_test(lambda u: u.is_superuser, login_url='login_url')
+def gym_config_view(request):
+    config = GymConfig.objects.first()
+    if not config:
+        config = GymConfig.objects.create(payment_day=1)
+    if request.method == 'POST':
+        payment_day = request.POST.get('payment_day')
+        if payment_day:
+            payment_day = int(payment_day)
+            if 1 <= payment_day <= 28:
+                config.payment_day = payment_day
+                config.save()
+                messages.success(request, f'Global payment day updated to day {payment_day} of each month.')
+                return redirect('gym_config_url')
+            else:
+                messages.error(request, 'Payment day must be between 1 and 28.')
+    return render(request, 'gym_config.html', {'config': config})
 
 @user_passes_test(lambda u: u.is_superuser, login_url='login_url')
 def trainer_schedules_list(request):
@@ -111,7 +132,6 @@ def trainer_payments_list(request):
         salary = request.POST.get('salary')
         payment_frequency = request.POST.get('payment_frequency', 'monthly')
         last_payment_date = request.POST.get('last_payment_date') or None
-        payment_day = request.POST.get('payment_day', 1)
         notes = request.POST.get('notes', '')
         if trainer_id and salary:
             trainer = get_object_or_404(names, id=trainer_id)
@@ -121,15 +141,15 @@ def trainer_payments_list(request):
                     'salary': salary,
                     'payment_frequency': payment_frequency,
                     'last_payment_date': last_payment_date,
-                    'payment_day': payment_day,
                     'notes': notes,
                 }
             )
             messages.success(request, f'Payment record saved for {trainer.name}.')
             return redirect('trainer_payments_url')
     trainers = names.objects.filter(role='trainer').order_by('name')
+    config = GymConfig.objects.first()
     payments = TrainerPayment.objects.select_related('trainer').all().order_by('trainer__name')
-    return render(request, 'trainer_payments.html', {'trainers': trainers, 'payments': payments})
+    return render(request, 'trainer_payments.html', {'trainers': trainers, 'payments': payments, 'config': config})
 
 @user_passes_test(lambda u: u.is_superuser, login_url='login_url')
 def trainer_payment_edit(request, payment_id):
@@ -139,14 +159,12 @@ def trainer_payment_edit(request, payment_id):
         salary = request.POST.get('salary')
         payment_frequency = request.POST.get('payment_frequency', 'monthly')
         last_payment_date = request.POST.get('last_payment_date') or None
-        payment_day = request.POST.get('payment_day', 1)
         notes = request.POST.get('notes', '')
         if trainer_id and salary:
             payment.trainer_id = trainer_id
             payment.salary = salary
             payment.payment_frequency = payment_frequency
             payment.last_payment_date = last_payment_date
-            payment.payment_day = payment_day
             payment.notes = notes
             payment.save()
             messages.success(request, 'Payment record updated.')

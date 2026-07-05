@@ -14,11 +14,24 @@
         <div class="d-flex justify-content-between align-items-center">
             <div>
                 <h1 class="h3 fw-bold mb-1">Trainer Payments</h1>
-                <p class="mb-0 opacity-75">Manage salaries, payment schedules, and payment history for trainers.</p>
+                <p class="mb-0 opacity-75">Manage salaries and payment records for trainers.</p>
             </div>
             <a href="{% url 'admin_url' %}" class="btn btn-outline-glow"><i class="bi bi-arrow-left me-2"></i>Back</a>
         </div>
     </div>
+
+    {% if config %}
+    <div class="glass-card p-3 mb-4 fade-in" style="border-left: 4px solid #0d6efd;">
+        <div class="d-flex align-items-center gap-3">
+            <i class="bi bi-calendar-check text-primary fs-3"></i>
+            <div>
+                <strong>Global Payment Day</strong>
+                <p class="small text-muted mb-0">All employees are paid on day <strong>{{ config.payment_day }}</strong> of each month.
+                <a href="{% url 'gym_config_url' %}" class="ms-2">Change</a></p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 
     <div class="glass-card p-5 fade-in">
         <form method="post" class="row g-3 align-items-end">{% csrf_token %}
@@ -47,11 +60,7 @@
                 <label class="form-label fw-bold">Last Payment</label>
                 <input type="date" name="last_payment_date" class="form-control">
             </div>
-            <div class="col-md-1">
-                <label class="form-label fw-bold">Pay Day</label>
-                <input type="number" name="payment_day" class="form-control" min="1" max="28" value="1">
-            </div>
-            <div class="col-md-2">
+            <div class="col-md-3">
                 <label class="form-label fw-bold">Notes (optional)</label>
                 <input type="text" name="notes" class="form-control" placeholder="Any notes...">
             </div>
@@ -69,7 +78,6 @@
                     <tr>
                         <th>Trainer</th>
                         <th>Salary</th>
-                        <th>Pay Day</th>
                         <th>Frequency</th>
                         <th>Next Due</th>
                         <th>Status</th>
@@ -81,7 +89,6 @@
                     <tr>
                         <td class="fw-semibold">{{ p.trainer.name }}</td>
                         <td>₪{{ p.salary }}</td>
-                        <td><span class="badge-modern bg-dark">Day {{ p.payment_day }}</span></td>
                         <td><span class="badge-modern bg-info text-capitalize">{{ p.get_payment_frequency_display }}</span></td>
                         <td>{{ p.next_payment_due|date:"d/m/Y"|default:"—" }}</td>
                         <td>

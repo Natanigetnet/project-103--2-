@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}Gym Settings | Future Gym{% endblock %}
+{% block content %}
+{% if messages %}
+<div class="container mt-3">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show shadow-sm" role="alert">{{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<main class="container mt-5 pt-4">
+    <div class="gradient-header fade-in">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h3 fw-bold mb-1">Gym Configuration</h1>
+                <p class="mb-0 opacity-75">Manage global system settings.</p>
+            </div>
+            <a href="{% url 'admin_url' %}" class="btn btn-outline-glow"><i class="bi bi-arrow-left me-2"></i>Back</a>
+        </div>
+    </div>
+
+    <div class="glass-card p-5 fade-in">
+        <form method="post">{% csrf_token %}
+            <div class="mb-4">
+                <label class="form-label fw-bold">Employee Payment Day</label>
+                <p class="text-muted small mb-2">All employees are paid on this day of each month (1-28).</p>
+                <input type="number" name="payment_day" class="form-control form-control-lg" min="1" max="28" value="{{ config.payment_day }}" required style="max-width: 120px;">
+            </div>
+            <button type="submit" class="btn btn-glow btn-lg"><i class="bi bi-save me-2"></i>Save Setting</button>
+        </form>
+    </div>
+</main>
+{% endblock %}
