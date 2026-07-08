@@ -3341,3 +3341,51 @@ def training_plan_view(request, trainee_id):
         'split_choices': TrainingPlan.SPLIT_CHOICES,
     }
     return render(request, 'training_plan.html', context)
+
+
+@_require_trainer
+def trainer_my_schedule(request):
+    trainer_names = names.objects.filter(email=request.user.email, role=names.ROLE_TRAINER).first()
+    if not trainer_names:
+        messages.error(request, 'Trainer profile not found.')
+        return redirect('home_url')
+
+    schedules = TrainerSchedule.objects.filter(trainer=trainer_names).order_by('day_of_week', 'shift')
+
+    if request.method == 'POST':
+        schedule_id = request.POST.get('schedule_id')
+        comment_text = request.POST.get('comment', '').strip()
+        if schedule_id:
+            schedule = get_object_or_404(TrainerSchedule, id=schedule_id, trainer=trainer_names)
+            schedule.trainer_comment = comment_text
+            schedule.comment_updated_at = timezone.now()
+            schedule.save()
+
+            superusers = User.objects.filter(is_superuser=True)
+            for admin_user in superusers:
+                day_label = schedule.get_day_of_week_display()
+                shift_label = schedule.get_shift_display()
+                notification = questions.objects.create(
+                    name=trainer_names.name or request.user.username,
+                    email=request.user.email or '',
+                    quest=f'Schedule comment from {trainer_names.name}: {day_label} {shift_label}',
+                )
+                response_model.objects.create(
+                    name=request.user,
+                    quest=notification,
+                    text=(
+                        f'{trainer_names.name} commented on their schedule:\n\n'
+                        f'Day: {day_label}\n'
+                        f'Shift: {shift_label} ({schedule.shift_start()} - {schedule.shift_end()})\n\n'
+                        f'Comment: {comment_text}'
+                    ),
+                    is_read=False,
+                )
+
+            messages.success(request, 'Your comment has been sent to the admin.')
+            return redirect('trainer_my_schedule_url')
+
+    return render(request, 'trainer_my_schedule.html', {
+        'schedules': schedules,
+        'trainer': trainer_names,
+    })

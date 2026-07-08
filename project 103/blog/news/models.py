@@ -378,6 +378,8 @@ class TrainerSchedule(models.Model):
     trainer = models.ForeignKey('names', on_delete=models.CASCADE, related_name='schedules')
     day_of_week = models.IntegerField(choices=DAY_CHOICES)
     shift = models.CharField(max_length=10, choices=SHIFT_CHOICES, default='day')
+    trainer_comment = models.TextField(blank=True, null=True, help_text='Comment from the trainer about this schedule')
+    comment_updated_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         unique_together = ['trainer', 'day_of_week', 'shift']

@@ -104,6 +104,7 @@
                                 </a></li>
                                 {% if user.profile.is_trainer %}
                                 <li><a class="dropdown-item rounded-3" href="{% url 'trainer_tracker_url' %}"><i class="bi bi-speedometer2 me-2"></i>Tracker</a></li>
+                                <li><a class="dropdown-item rounded-3" href="{% url 'trainer_my_schedule_url' %}"><i class="bi bi-calendar-week me-2"></i>My Schedule</a></li>
                                 <li><a class="dropdown-item rounded-3" href="{% url 'trainer_currently_in_url' %}"><i class="bi bi-people-fill me-2"></i>My Trainees In Gym</a></li>
                                 <li><a class="dropdown-item rounded-3" href="{% url 'trainer_settings_url' %}"><i class="bi bi-gear me-2"></i>Profile</a></li>
                                 {% elif is_trainee %}
