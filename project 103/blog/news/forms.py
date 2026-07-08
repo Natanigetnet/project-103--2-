@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.core.validators import RegexValidator
-from .models import Category, UserProfile
+from .models import Category, UserProfile, names
 
 
 ethiopian_phone_validator = RegexValidator(
@@ -22,13 +22,42 @@ class TraineeAccountForm(forms.Form):
     )
     image = forms.ImageField(required=False, label='Profile picture')
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, exclude_user=None, **kwargs):
+        self.exclude_user = exclude_user
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
             if isinstance(field.widget, forms.Select):
                 field.widget.attrs.setdefault('class', 'form-select')
             else:
                 field.widget.attrs.setdefault('class', 'form-control')
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if email:
+            email = email.strip().lower()
+            user_qs = User.objects.filter(email__iexact=email)
+            if self.exclude_user:
+                user_qs = user_qs.exclude(id=self.exclude_user.id)
+            if user_qs.exists():
+                raise forms.ValidationError('A user with this email address already exists.')
+            names_qs = names.objects.filter(email__iexact=email)
+            if self.exclude_user:
+                own_names = names.objects.filter(trainer=self.exclude_user)
+                names_qs = names_qs.exclude(id__in=own_names.values_list('id', flat=True))
+            if names_qs.exists():
+                raise forms.ValidationError('A member with this email address already exists.')
+        return email
+
+    def clean_phone_number(self):
+        phone = self.cleaned_data.get('phone_number')
+        if phone:
+            phone = phone.strip()
+            names_qs = names.objects.filter(phone_number=phone)
+            if self.exclude_user:
+                names_qs = names_qs.exclude(trainer=self.exclude_user)
+            if names_qs.exists():
+                raise forms.ValidationError('A member with this phone number already exists.')
+        return phone
 
 
 class TraineeMedicalForm(forms.Form):

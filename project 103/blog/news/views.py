@@ -936,7 +936,7 @@ def trainer_update_account(request):
     initial = _trainer_account_initial(user, profile)
 
     if request.method == 'POST':
-        form = TraineeAccountForm(request.POST, request.FILES)
+        form = TraineeAccountForm(request.POST, request.FILES, exclude_user=user)
         if form.is_valid():
             full_name = form.cleaned_data['full_name'].strip()
             email = form.cleaned_data['email'].strip()
@@ -959,7 +959,7 @@ def trainer_update_account(request):
             messages.success(request, 'Your account details were updated.')
             return redirect('trainer_settings_url')
     else:
-        form = TraineeAccountForm(initial=initial)
+        form = TraineeAccountForm(initial=initial, exclude_user=user)
 
     return render(request, 'trainer_account.html', {
         'form': form,
@@ -984,7 +984,7 @@ def trainee_update_account(request):
     initial = _trainee_account_initial(user, profile)
 
     if request.method == 'POST':
-        form = TraineeAccountForm(request.POST, request.FILES)
+        form = TraineeAccountForm(request.POST, request.FILES, exclude_user=user)
         if form.is_valid():
             full_name = form.cleaned_data['full_name'].strip()
             email = form.cleaned_data['email'].strip()
@@ -1007,7 +1007,7 @@ def trainee_update_account(request):
             messages.success(request, 'Your account details were updated.')
             return redirect('trainee_settings_url')
     else:
-        form = TraineeAccountForm(initial=initial)
+        form = TraineeAccountForm(initial=initial, exclude_user=user)
 
     return render(request, 'trainee/account.html', {
         'form': form,
@@ -1402,6 +1402,19 @@ def create_desk(request):
         if User.objects.filter(email__iexact=email_lower).exists():
             messages.error(request, 'A user with this email already exists.')
             return render(request, 'create_desk.html')
+        if names.objects.filter(email__iexact=email_lower).exists():
+            messages.error(request, 'A member with this email already exists.')
+            return render(request, 'create_desk.html')
+
+        if phone:
+            try:
+                ethiopian_phone_validator(phone)
+            except Exception:
+                messages.error(request, 'Phone number must be a valid Ethiopian format (e.g. +251912345678 or 0912345678).')
+                return render(request, 'create_desk.html')
+            if names.objects.filter(phone_number=phone).exists():
+                messages.error(request, 'A member with this phone number already exists.')
+                return render(request, 'create_desk.html')
 
         username_base = name.lower().replace(' ', '').replace('-', '')[:15]
         username = username_base
