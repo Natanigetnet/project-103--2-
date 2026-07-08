@@ -751,18 +751,21 @@ def home(request):
     is_registrar = False
     spaces_for_modal = []
     upcoming_sessions = []
-    if request.user.is_authenticated and not request.user.is_superuser:
-        unread_count = response_model.objects.filter(
-            quest__email__iexact=request.user.email,
-            is_read=False,
-        ).count()
-        profile = UserProfile.objects.filter(user=request.user).first()
-        is_trainee = bool(profile and profile.role == UserProfile.ROLE_TRAINEE)
-        is_registrar = bool(profile and profile.role == UserProfile.ROLE_REGISTRAR)
-        if profile and profile.is_trainer and profile.category:
-            spaces_for_modal = TrainingSpace.objects.filter(category=profile.category).select_related('category')
-        elif profile and profile.is_trainer:
-            spaces_for_modal = TrainingSpace.objects.select_related('category').all()
+    if request.user.is_authenticated:
+        if request.user.is_superuser:
+            unread_count = response_model.objects.filter(is_read=False).count()
+        else:
+            unread_count = response_model.objects.filter(
+                quest__email__iexact=request.user.email,
+                is_read=False,
+            ).count()
+            profile = UserProfile.objects.filter(user=request.user).first()
+            is_trainee = bool(profile and profile.role == UserProfile.ROLE_TRAINEE)
+            is_registrar = bool(profile and profile.role == UserProfile.ROLE_REGISTRAR)
+            if profile and profile.is_trainer and profile.category:
+                spaces_for_modal = TrainingSpace.objects.filter(category=profile.category).select_related('category')
+            elif profile and profile.is_trainer:
+                spaces_for_modal = TrainingSpace.objects.select_related('category').all()
 
     # Upcoming sessions grouped by category for all authenticated users
     upcoming_sessions = {}
@@ -1721,6 +1724,7 @@ def response(request, q_id):
 @login_required
 def response_list(request):
     if request.user.is_superuser:
+        response_model.objects.filter(is_read=False).update(is_read=True)
         responses = response_model.objects.all().order_by('-id')
     else:
         response_model.objects.filter(
@@ -3361,26 +3365,24 @@ def trainer_my_schedule(request):
             schedule.comment_updated_at = timezone.now()
             schedule.save()
 
-            superusers = User.objects.filter(is_superuser=True)
-            for admin_user in superusers:
-                day_label = schedule.get_day_of_week_display()
-                shift_label = schedule.get_shift_display()
-                notification = questions.objects.create(
-                    name=trainer_names.name or request.user.username,
-                    email=request.user.email or '',
-                    quest=f'Schedule comment from {trainer_names.name}: {day_label} {shift_label}',
-                )
-                response_model.objects.create(
-                    name=request.user,
-                    quest=notification,
-                    text=(
-                        f'{trainer_names.name} commented on their schedule:\n\n'
-                        f'Day: {day_label}\n'
-                        f'Shift: {shift_label} ({schedule.shift_start()} - {schedule.shift_end()})\n\n'
-                        f'Comment: {comment_text}'
-                    ),
-                    is_read=False,
-                )
+            day_label = schedule.get_day_of_week_display()
+            shift_label = schedule.get_shift_display()
+            notification = questions.objects.create(
+                name=trainer_names.name or request.user.username,
+                email=request.user.email or '',
+                quest=f'Schedule comment from {trainer_names.name}: {day_label} {shift_label}',
+            )
+            response_model.objects.create(
+                name=request.user,
+                quest=notification,
+                text=(
+                    f'{trainer_names.name} commented on their schedule:\n\n'
+                    f'Day: {day_label}\n'
+                    f'Shift: {shift_label} ({schedule.shift_start()} - {schedule.shift_end()})\n\n'
+                    f'Comment: {comment_text}'
+                ),
+                is_read=False,
+            )
 
             messages.success(request, 'Your comment has been sent to the admin.')
             return redirect('trainer_my_schedule_url')
