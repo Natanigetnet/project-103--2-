@@ -53,7 +53,13 @@
                         {{ item.name }}
                     </td>
                     <td>{{ item.email }}</td>
-                    <td>{{ item.quest }}</td>
+                    <td>
+                        {% if "Schedule comment" in item.quest %}
+                        <a href="{% url 'trainer_schedules_url' %}" class="text-decoration-none text-primary">{{ item.quest|linebreaks }}</a>
+                        {% else %}
+                        {{ item.quest|linebreaks }}
+                        {% endif %}
+                    </td>
                     <td class="text-center">
                         {% if user.is_superuser %}
                         <a href="{% url 'response_url' item.id %}" class="btn btn-sm btn-success rounded-pill px-3">Respond</a>

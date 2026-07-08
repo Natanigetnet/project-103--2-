@@ -3370,7 +3370,7 @@ def trainer_my_schedule(request):
             notification = questions.objects.create(
                 name=trainer_names.name or request.user.username,
                 email=request.user.email or '',
-                quest=f'Schedule comment from {trainer_names.name}: {day_label} {shift_label}',
+                quest=f'Schedule comment from {trainer_names.name}: {day_label} {shift_label}\n\nComment: {comment_text}',
             )
             response_model.objects.create(
                 name=request.user,

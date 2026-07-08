@@ -59,7 +59,11 @@
                             <small class="text-muted">{{ resp.quest.email }}</small>
                         </td>
                         <td>
+                            {% if "Schedule comment" in resp.quest.quest %}
+                            <a href="{% url 'trainer_schedules_url' %}" class="fw-bold text-decoration-none text-primary">{{ resp.quest.quest }}</a>
+                            {% else %}
                             <div class="fw-bold">{{ resp.quest.quest }}</div>
+                            {% endif %}
                         </td>
                         <td>
                             <i class="bi bi-chat-left-dots text-success me-2"></i>
