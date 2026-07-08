@@ -2648,6 +2648,11 @@ def trainee_session_list(request):
     split_info = None
     progression, _ = SplitProgression.objects.get_or_create(trainee=trainee_profile)
     plan = TrainingPlan.objects.filter(trainee=trainee_profile, is_active=True).first()
+
+    # Fall back to most recent plan if no active plan
+    if not plan:
+        plan = TrainingPlan.objects.filter(trainee=trainee_profile).order_by('-created_at').first()
+
     if plan and plan.split_days:
         day_index = progression.current_day_index % len(plan.split_days)
         split_info = {
@@ -3649,11 +3654,24 @@ def training_plan_view(request, trainee_id):
     next_body_part = None
     current_day_number = None
     total_days = 0
+    split_type_display = None
+
+    # Try to get from active plan first
     if plan and plan.split_days:
         day_index = progression.current_day_index % len(plan.split_days)
         next_body_part = plan.split_days[day_index]
         current_day_number = day_index + 1
         total_days = len(plan.split_days)
+        split_type_display = plan.get_split_type_display()
+    else:
+        # Fall back to most recent plan
+        latest_plan = existing_plans.first()
+        if latest_plan and latest_plan.split_days:
+            day_index = progression.current_day_index % len(latest_plan.split_days)
+            next_body_part = latest_plan.split_days[day_index]
+            current_day_number = day_index + 1
+            total_days = len(latest_plan.split_days)
+            split_type_display = latest_plan.get_split_type_display()
 
     context = {
         'trainee': trainee,
@@ -3673,6 +3691,7 @@ def training_plan_view(request, trainee_id):
         'current_day_number': current_day_number,
         'total_days': total_days,
         'total_workouts': progression.total_workouts_completed,
+        'split_type_display': split_type_display,
     }
     return render(request, 'training_plan.html', context)
 

@@ -183,7 +183,6 @@
     </div>
     {% endif %}
 
-    {% if plan %}
     {% if next_body_part and not is_assigned_trainer %}
     <div class="glass-card mb-4 fade-in" style="background: linear-gradient(135deg, rgba(13,110,253,0.15), rgba(102,16,242,0.15)); border: 1px solid rgba(99,102,241,0.3);">
         <div class="d-flex align-items-center gap-3">
@@ -194,14 +193,23 @@
                 <small class="text-muted text-uppercase fw-bold" style="font-size:0.7rem; letter-spacing:0.5px;">Next Workout</small>
                 <h3 class="fw-bold mb-1 text-white">{{ next_body_part }}</h3>
                 <small class="text-muted">
-                    <i class="bi bi-diagram-3 me-1"></i>{{ plan.get_split_type_display }} · Day {{ current_day_number }} of {{ total_days }}
+                    {% if split_type_display %}<i class="bi bi-diagram-3 me-1"></i>{{ split_type_display }} · {% endif %}Day {{ current_day_number }} of {{ total_days }}
                     {% if total_workouts > 0 %} · {{ total_workouts }} workout{{ total_workouts|pluralize }} completed{% endif %}
                 </small>
             </div>
         </div>
     </div>
+    {% elif not plan and not is_assigned_trainer %}
+    <div class="glass-card mb-4 fade-in text-center">
+        <div class="empty-state">
+            <div class="empty-state-icon"><i class="bi bi-calendar-x"></i></div>
+            <h5>No training plan yet</h5>
+            <p class="text-muted">Your trainer hasn't created a training plan for you yet. Check back later.</p>
+        </div>
+    </div>
     {% endif %}
 
+    {% if plan %}
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
         <div class="d-flex align-items-center gap-3">
             <span class="split-badge"><i class="bi bi-diagram-3 me-1"></i>{{ plan.get_split_type_display }}</span>
