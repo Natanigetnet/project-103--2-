@@ -3644,6 +3644,17 @@ def training_plan_view(request, trainee_id):
 
     existing_plans = TrainingPlan.objects.filter(trainee=trainee, is_active=True).order_by('-start_date')
 
+    # Get split progression info
+    progression, _ = SplitProgression.objects.get_or_create(trainee=trainee)
+    next_body_part = None
+    current_day_number = None
+    total_days = 0
+    if plan and plan.split_days:
+        day_index = progression.current_day_index % len(plan.split_days)
+        next_body_part = plan.split_days[day_index]
+        current_day_number = day_index + 1
+        total_days = len(plan.split_days)
+
     context = {
         'trainee': trainee,
         'is_assigned_trainer': is_assigned_trainer,
@@ -3658,6 +3669,10 @@ def training_plan_view(request, trainee_id):
         'today': today,
         'existing_plans': existing_plans,
         'split_choices': TrainingPlan.SPLIT_CHOICES,
+        'next_body_part': next_body_part,
+        'current_day_number': current_day_number,
+        'total_days': total_days,
+        'total_workouts': progression.total_workouts_completed,
     }
     return render(request, 'training_plan.html', context)
 
