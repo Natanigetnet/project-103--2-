@@ -1,36 +1,82 @@
 {% extends 'base.html' %}
-{% block title %}My Trainees - Currently In Gym{% endblock %}
+{% block title %}My Trainees - Today's Attendance{% endblock %}
 {% block content %}
 <div class="container py-4">
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="fw-bold mb-0"><i class="bi bi-people-fill me-2"></i> My Trainees In Gym</h2>
-    <span class="badge bg-success fs-5 px-3 py-2">{{ total }} trainee{% if total != 1 %}s{% endif %}</span>
+    <h2 class="fw-bold mb-0"><i class="bi bi-people-fill me-2"></i> My Trainees - Today's Attendance</h2>
+    <div class="d-flex gap-2">
+      <span class="badge bg-success fs-5 px-3 py-2">{{ total_currently_in }} in gym</span>
+      <span class="badge bg-secondary fs-5 px-3 py-2">{{ total_today }} total today</span>
+    </div>
   </div>
 
   {% if currently_in %}
-    <div class="table-responsive">
-      <table class="table table-hover align-middle">
-        <thead class="table-dark">
-          <tr>
-            <th>#</th>
-            <th>Name</th>
-            <th>Category</th>
-            <th>Check-In Time</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for log in currently_in %}
-          <tr>
-            <td>{{ forloop.counter }}</td>
-            <td class="fw-semibold">{{ log.member.name }}</td>
-            <td>{{ log.member.category.name|default:"—" }}</td>
-            <td>{{ log.check_in|date:"H:i" }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+    <div class="card mb-4 border-success">
+      <div class="card-header bg-success bg-opacity-10 text-success">
+        <i class="bi bi-check-circle-fill me-2"></i>Currently In Gym ({{ total_currently_in }})
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-dark">
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Category</th>
+              <th>Check-In Time</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for log in currently_in %}
+            <tr>
+              <td>{{ forloop.counter }}</td>
+              <td class="fw-semibold">{{ log.member.name }}</td>
+              <td>{{ log.member.category.name|default:"—" }}</td>
+              <td>{{ log.check_in|date:"H:i" }}</td>
+              <td><span class="badge bg-success">In Gym</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
-  {% else %}
+  {% endif %}
+
+  {% if already_left %}
+    <div class="card mb-4 border-secondary">
+      <div class="card-header bg-secondary bg-opacity-10">
+        <i class="bi bi-box-arrow-right me-2"></i>Already Left ({{ already_left|length }})
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-dark">
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Category</th>
+              <th>Check-In</th>
+              <th>Check-Out</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for log in already_left %}
+            <tr>
+              <td>{{ forloop.counter }}</td>
+              <td class="fw-semibold">{{ log.member.name }}</td>
+              <td>{{ log.member.category.name|default:"—" }}</td>
+              <td>{{ log.check_in|date:"H:i" }}</td>
+              <td>{{ log.check_out|date:"H:i" }}</td>
+              <td><span class="badge bg-secondary">Left</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if not currently_in and not already_left %}
     <div class="text-center py-5">
       <i class="bi bi-emoji-neutral display-1 text-muted"></i>
       <p class="text-muted mt-3 fs-5">None of your trainees have checked in today.</p>

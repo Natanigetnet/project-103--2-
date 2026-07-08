@@ -3218,21 +3218,31 @@ def trainer_currently_in(request):
         return redirect('home_url')
     now = timezone.now()
     today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    # Get all trainees who checked in today (both currently in and already left)
     today_logs = AttendanceLog.objects.filter(
         check_in__gte=today_start,
-        check_out__isnull=True,
         member__trainer=request.user
     ).select_related('member', 'member__category').order_by('-check_in')
-    members_in = {}
+    
+    # Separate into currently in and already left
+    currently_in = []
+    already_left = []
+    seen_members = set()
+    
     for log in today_logs:
-        mid = log.member_id
-        if mid not in members_in:
-            members_in[mid] = log
-    currently_in = list(members_in.values())
-    total = len(currently_in)
+        if log.member_id in seen_members:
+            continue
+        seen_members.add(log.member_id)
+        if log.check_out is None:
+            currently_in.append(log)
+        else:
+            already_left.append(log)
+    
     return render(request, 'trainer_currently_in.html', {
         'currently_in': currently_in,
-        'total': total,
+        'already_left': already_left,
+        'total_currently_in': len(currently_in),
+        'total_today': len(currently_in) + len(already_left),
     })
 
 
