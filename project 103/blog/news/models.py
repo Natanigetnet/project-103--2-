@@ -307,6 +307,38 @@ class TrainingPlanDay(models.Model):
         return f"{self.plan} - Day {self.day_index + 1}: {self.day_label or 'Rest'}"
 
 
+class SplitProgression(models.Model):
+    trainee = models.OneToOneField('names', on_delete=models.CASCADE, related_name='split_progression')
+    current_day_index = models.IntegerField(default=0, help_text='Current day index in the split cycle')
+    total_workouts_completed = models.IntegerField(default=0, help_text='Total number of workouts completed')
+    last_workout_date = models.DateField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.trainee.name} - Day {self.current_day_index + 1}"
+
+    @property
+    def current_body_part(self):
+        plan = TrainingPlan.objects.filter(trainee=self.trainee, is_active=True).first()
+        if plan and plan.split_days:
+            day_index = self.current_day_index % len(plan.split_days)
+            return plan.split_days[day_index]
+        return None
+
+    def advance_to_next_day(self):
+        plan = TrainingPlan.objects.filter(trainee=self.trainee, is_active=True).first()
+        if plan and plan.split_days:
+            self.current_day_index = (self.current_day_index + 1) % len(plan.split_days)
+            self.total_workouts_completed += 1
+            from django.utils import timezone
+            self.last_workout_date = timezone.now().date()
+            self.save()
+
+    def reset(self):
+        self.current_day_index = 0
+        self.save()
+
+
 class TrainerPayment(models.Model):
     FREQ_CHOICES = [
         ('weekly', 'Weekly'),

@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.http import HttpResponse
 from django.utils.html import format_html   
-from .models import names,comments,Category,questions,response_model,TrainingSession,BodyMetric,TrainingSpace,MemberID,AttendanceLog,TrainerRating,TrainerChangeRequest,TrainingPlan,TrainingPlanDay,TrainerPayment,TrainerSchedule,GymConfig
+from .models import names,comments,Category,questions,response_model,TrainingSession,BodyMetric,TrainingSpace,MemberID,AttendanceLog,TrainerRating,TrainerChangeRequest,TrainingPlan,TrainingPlanDay,TrainerPayment,TrainerSchedule,GymConfig,SplitProgression
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.backends import ModelBackend
 from django.contrib import messages
@@ -863,6 +863,52 @@ def home(request):
             my_detail_name = my_record.name
             my_trainee_id = my_record.id
 
+    attendance_message = None
+    if is_trainee and my_trainee_id:
+        now = timezone.now()
+        thirty_days_ago = now - timedelta(days=30)
+        recent_checkins = AttendanceLog.objects.filter(
+            member_id=my_trainee_id,
+            check_in__gte=thirty_days_ago
+        ).count()
+
+        seven_days_ago = now - timedelta(days=7)
+        last_week_checkins = AttendanceLog.objects.filter(
+            member_id=my_trainee_id,
+            check_in__gte=seven_days_ago
+        ).count()
+
+        today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        checked_in_today = AttendanceLog.objects.filter(
+            member_id=my_trainee_id,
+            check_in__gte=today_start
+        ).exists()
+
+        if recent_checkins == 0:
+            attendance_message = {
+                'icon': 'bi-emoji-frown',
+                'color': 'danger',
+                'title': 'Where have you been?',
+                'text': 'We miss you at the gym! Your gains are waiting for you.',
+            }
+        elif last_week_checkins >= 5 or recent_checkins >= 20:
+            attendance_message = {
+                'icon': 'bi-fire',
+                'color': 'success',
+                'title': 'You ain\'t missing a day, are you?',
+                'text': f'{recent_checkins} workouts in the last 30 days! You\'re on another level.',
+            }
+        elif recent_checkins >= 8:
+            attendance_message = {
+                'icon': 'bi-trophy',
+                'color': 'warning',
+                'title': 'Consistency is key!',
+                'text': f'{recent_checkins} workouts this month. Keep that momentum going!',
+            }
+
+        if checked_in_today and attendance_message:
+            attendance_message['text'] += ' Great job showing up today!'
+
     context = {
         'unread_count': unread_count,
         'is_trainee': is_trainee,
@@ -872,6 +918,7 @@ def home(request):
         'assigned_trainer_name': assigned_trainer_name,
         'my_detail_name': my_detail_name,
         'my_trainee_id': my_trainee_id,
+        'attendance_message': attendance_message,
     }
     return render(request, 'home.html', context)
 
@@ -1288,6 +1335,62 @@ def trainer_tracker(request):
         'profile': user_profile,
         'stats': stats,
     })
+
+
+@login_required(login_url='login_url')
+def trainer_workout_tracking(request):
+    """Trainer view showing each trainee's next workout based on their split."""
+    user_profile = UserProfile.objects.filter(user=request.user).first()
+    
+    if not user_profile or not user_profile.is_trainer:
+        messages.error(request, "Access restricted to trainers only.")
+        return redirect('home_url')
+    
+    assigned_members = names.objects.filter(trainer=request.user, role=names.ROLE_TRAINEE).select_related('category').order_by('name')
+    
+    trainee_workouts = []
+    for trainee in assigned_members:
+        plan = TrainingPlan.objects.filter(trainee=trainee, is_active=True).first()
+        progression, _ = SplitProgression.objects.get_or_create(trainee=trainee)
+        
+        next_body_part = None
+        split_type_display = None
+        if plan and plan.split_days:
+            day_index = progression.current_day_index % len(plan.split_days)
+            next_body_part = plan.split_days[day_index]
+            split_type_display = plan.get_split_type_display()
+        
+        trainee_workouts.append({
+            'trainee': trainee,
+            'plan': plan,
+            'progression': progression,
+            'next_body_part': next_body_part,
+            'split_type_display': split_type_display,
+            'total_workouts': progression.total_workouts_completed,
+            'last_workout': progression.last_workout_date,
+        })
+    
+    return render(request, 'trainer_workout_tracking.html', {
+        'trainee_workouts': trainee_workouts,
+        'profile': user_profile,
+    })
+
+
+@login_required(login_url='login_url')
+def reset_trainee_split(request, trainee_id):
+    """Reset a trainee's split progression to day 0."""
+    user_profile = UserProfile.objects.filter(user=request.user).first()
+    
+    if not user_profile or not user_profile.is_trainer:
+        messages.error(request, "Access restricted to trainers only.")
+        return redirect('home_url')
+    
+    trainee = get_object_or_404(names, id=trainee_id, trainer=request.user, role=names.ROLE_TRAINEE)
+    progression, _ = SplitProgression.objects.get_or_create(trainee=trainee)
+    progression.reset()
+    
+    messages.success(request, f'{trainee.name}\'s split progression has been reset to Day 1.')
+    return redirect('trainer_workout_tracking_url')
 
 
 @login_required
@@ -2725,6 +2828,15 @@ def record_attendance(request):
         active.check_out = timezone.now()
         active.checked_out_by = request.user if request.user.is_authenticated else None
         active.save(update_fields=['check_out', 'checked_out_by'])
+
+        if mid.member.role == 'trainee':
+            from .models import SplitProgression, TrainingPlan
+            progression, created = SplitProgression.objects.get_or_create(trainee=mid.member)
+            plan = TrainingPlan.objects.filter(trainee=mid.member, is_active=True).first()
+            if plan and plan.split_days:
+                if progression.last_workout_date != today_start.date():
+                    progression.advance_to_next_day()
+
         return JsonResponse({
             'ok': True,
             'action': 'checkout',
@@ -2777,6 +2889,15 @@ def scan_entry(request):
         active.check_out = timezone.now()
         active.checked_out_by = request.user if request.user.is_authenticated else None
         active.save(update_fields=['check_out', 'checked_out_by'])
+
+        if mid.member.role == 'trainee':
+            from .models import SplitProgression, TrainingPlan
+            progression, created = SplitProgression.objects.get_or_create(trainee=mid.member)
+            plan = TrainingPlan.objects.filter(trainee=mid.member, is_active=True).first()
+            if plan and plan.split_days:
+                if progression.last_workout_date != today_start.date():
+                    progression.advance_to_next_day()
+
         return JsonResponse({
             'ok': True,
             'action': 'checkout',
@@ -2841,6 +2962,14 @@ def check_out_entry(request):
     attendance.check_out = timezone.now()
     attendance.checked_out_by = request.user if request.user.is_authenticated else None
     attendance.save(update_fields=['check_out', 'checked_out_by'])
+
+    if mid.member.role == 'trainee':
+        from .models import SplitProgression, TrainingPlan
+        progression, created = SplitProgression.objects.get_or_create(trainee=mid.member)
+        plan = TrainingPlan.objects.filter(trainee=mid.member, is_active=True).first()
+        if plan and plan.split_days:
+            if progression.last_workout_date != today_start.date():
+                progression.advance_to_next_day()
 
     return JsonResponse({
         'ok': True,
