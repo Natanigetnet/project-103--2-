@@ -18,6 +18,7 @@
               <th class="ps-4">Member</th>
               <th>Role</th>
               <th>Check-in Time</th>
+              <th>Check-out Time</th>
               <th>Scanned By</th>
               <th class="pe-4">Session</th>
             </tr>
@@ -32,12 +33,19 @@
                 </span>
               </td>
               <td class="small">{{ log.check_in|date:"M d, Y H:i" }}</td>
+              <td class="small">
+                {% if log.check_out %}
+                  {{ log.check_out|date:"M d, Y H:i" }}
+                {% else %}
+                  <span class="text-muted">Still in gym</span>
+                {% endif %}
+              </td>
               <td class="small">{{ log.checked_in_by.username|default:"—" }}</td>
               <td class="pe-4 small">{{ log.session.title|default:"—" }}</td>
             </tr>
             {% empty %}
             <tr>
-              <td colspan="5" class="text-center text-muted py-4">No attendance records found</td>
+              <td colspan="6" class="text-center text-muted py-4">No attendance records found</td>
             </tr>
             {% endfor %}
           </tbody>
