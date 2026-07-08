@@ -1,5 +1,55 @@
 {% extends 'base.html' %}
 {% block title %}My Schedule | Future Gym{% endblock %}
+{% block extra_head %}
+<style>
+    .calendar-day {
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 12px;
+        padding: 1rem;
+        min-height: 120px;
+        transition: all 0.2s ease;
+    }
+    .calendar-day:hover {
+        border-color: rgba(99,102,241,0.3);
+        background: rgba(255,255,255,0.05);
+    }
+    .calendar-day.today {
+        border-color: rgba(13,110,253,0.5);
+        background: rgba(13,110,253,0.08);
+    }
+    .calendar-day.has-shift {
+        border-color: rgba(16,185,129,0.4);
+        background: rgba(16,185,129,0.05);
+    }
+    .calendar-date {
+        font-size: 0.75rem;
+        color: #94a3b8;
+        font-weight: 600;
+    }
+    .calendar-day-name {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #f1f5f9;
+    }
+    .shift-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        margin-top: 8px;
+    }
+    .shift-day {
+        background: rgba(13,110,253,0.2);
+        color: #60a5fa;
+    }
+    .shift-evening {
+        background: rgba(168,85,247,0.2);
+        color: #c084fc;
+    }
+</style>
+{% endblock %}
 {% block navbar %}
     <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
         <div class="container">
@@ -25,11 +75,54 @@
 
     <div class="gradient-header fade-in">
         <i class="bi bi-calendar-week me-2"></i> My Schedule
-        <p class="mb-0 opacity-75">Your weekly schedule assigned by admin. Add comments below to communicate with management.</p>
+        <p class="mb-0 opacity-75">Your 4-week schedule assigned by admin. Add comments below to communicate with management.</p>
     </div>
 
     {% if schedules %}
+    <!-- 4-Week Calendar View -->
+    <div class="fade-in mt-4">
+        {% for week in calendar_weeks %}
+        <div class="mb-4">
+            <div class="d-flex align-items-center mb-3">
+                <span class="badge bg-primary bg-opacity-25 text-primary me-2">Week {{ week.week_number }}</span>
+                <small class="text-muted">{{ week.days.0.date|date:"M d" }} – {{ week.days.6.date|date:"M d, Y" }}</small>
+            </div>
+            <div class="row g-2">
+                {% for day in week.days %}
+                <div class="col">
+                    <div class="calendar-day {% if day.is_today %}today{% endif %} {% if day.schedules %}has-shift{% endif %}">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <div class="calendar-day-name">{{ day.day_name }}</div>
+                                <div class="calendar-date">{{ day.date|date:"M d" }}</div>
+                            </div>
+                            {% if day.is_today %}
+                            <span class="badge bg-primary rounded-pill" style="font-size:0.6rem;">Today</span>
+                            {% endif %}
+                        </div>
+                        {% if day.schedules %}
+                            {% for s in day.schedules %}
+                            <div class="shift-badge {% if s.shift == 'day' %}shift-day{% else %}shift-evening{% endif %}">
+                                <i class="bi bi-clock me-1"></i>{{ s.shift_start }}-{{ s.shift_end }}
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="text-muted" style="font-size:0.7rem; margin-top:8px;">Off</div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Comment Section -->
     <div class="glass-card p-0 overflow-hidden fade-in mt-4">
+        <div class="p-4 border-bottom border-secondary border-opacity-25">
+            <h6 class="fw-bold mb-0"><i class="bi bi-chat-dots text-primary me-2"></i>Comments for Admin</h6>
+            <small class="text-muted">Add comments to your scheduled shifts to communicate with management.</small>
+        </div>
         <table class="table table-custom table-hover align-middle mb-0">
             <thead>
                 <tr>

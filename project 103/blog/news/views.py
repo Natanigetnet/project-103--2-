@@ -3736,7 +3736,36 @@ def trainer_my_schedule(request):
             messages.success(request, 'Your comment has been sent to the admin.')
             return redirect('trainer_my_schedule_url')
 
+    # Generate 4-week calendar
+    today = timezone.now().date()
+    # Start from today
+    calendar_weeks = []
+    for week_offset in range(4):
+        week_start = today + timedelta(weeks=week_offset)
+        week_days = []
+        for day_offset in range(7):
+            current_date = week_start + timedelta(days=day_offset)
+            # Convert Python weekday (Mon=0) to our schedule weekday (Sun=0)
+            py_weekday = current_date.weekday()
+            schedule_weekday = (py_weekday + 1) % 7
+
+            # Find matching schedule entries
+            day_schedules = [s for s in schedules if s.day_of_week == schedule_weekday]
+
+            week_days.append({
+                'date': current_date,
+                'day_name': ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][schedule_weekday],
+                'schedules': day_schedules,
+                'is_today': current_date == today,
+            })
+        calendar_weeks.append({
+            'week_number': week_offset + 1,
+            'days': week_days,
+        })
+
     return render(request, 'trainer_my_schedule.html', {
         'schedules': schedules,
         'trainer': trainer_names,
+        'calendar_weeks': calendar_weeks,
+        'today': today,
     })
