@@ -2097,7 +2097,32 @@ def trainee_bmi(request):
         messages.error(request, 'Access restricted to trainees.')
         return redirect('home_url')
 
+    # Get trainee profile
+    trainee_profile = None
+    if request.user.email:
+        trainee_profile = names.objects.filter(
+            email__iexact=request.user.email,
+            role=names.ROLE_TRAINEE
+        ).first()
+
     if request.method == 'POST':
+        # Handle planned days update
+        if 'planned_days' in request.POST:
+            if trainee_profile:
+                progression, _ = SplitProgression.objects.get_or_create(trainee=trainee_profile)
+                try:
+                    planned_days = int(request.POST.get('planned_days'))
+                    if 1 <= planned_days <= 7:
+                        progression.planned_days_per_week = planned_days
+                        progression.save()
+                        messages.success(request, f'Training goal updated to {planned_days} days per week.')
+                    else:
+                        messages.error(request, 'Please enter a valid number between 1 and 7.')
+                except (TypeError, ValueError):
+                    messages.error(request, 'Please enter a valid number.')
+            return redirect('trainee_bmi_url')
+
+        # Handle BMI recording
         try:
             weight = float(request.POST.get('weight'))
             height = float(request.POST.get('height'))
@@ -2118,7 +2143,48 @@ def trainee_bmi(request):
             'weight_change': round(curr.weight - prev.weight, 1),
             'bmi_change': round(curr.bmi - prev.bmi, 1),
         }
-    return render(request, 'trainee_bmi.html', {'metrics': metrics, 'progress': progress})
+
+    # Calculate training stats
+    training_stats = None
+    if trainee_profile:
+        progression, _ = SplitProgression.objects.get_or_create(trainee=trainee_profile)
+        now = timezone.now()
+        week_start = now - timedelta(days=now.weekday())
+        week_start = week_start.replace(hour=0, minute=0, second=0, microsecond=0)
+
+        # Count workouts this week
+        workouts_this_week = AttendanceLog.objects.filter(
+            member=trainee_profile,
+            check_in__gte=week_start
+        ).count()
+
+        # Calculate completion percentage
+        planned = progression.planned_days_per_week
+        completion = round((workouts_this_week / planned) * 100) if planned > 0 else 0
+        if completion > 100:
+            completion = 100
+
+        # Get split info
+        plan = TrainingPlan.objects.filter(trainee=trainee_profile, is_active=True).first()
+        current_body_part = None
+        if plan and plan.split_days:
+            day_index = progression.current_day_index % len(plan.split_days)
+            current_body_part = plan.split_days[day_index]
+
+        training_stats = {
+            'planned_days': progression.planned_days_per_week,
+            'workouts_this_week': workouts_this_week,
+            'completion': completion,
+            'total_workouts': progression.total_workouts_completed,
+            'last_workout': progression.last_workout_date,
+            'current_body_part': current_body_part,
+        }
+
+    return render(request, 'trainee_bmi.html', {
+        'metrics': metrics,
+        'progress': progress,
+        'training_stats': training_stats,
+    })
 
 
 @login_required
@@ -2131,6 +2197,10 @@ def trainer_bmi_tracker(request):
     assigned_trainees = names.objects.filter(trainer=request.user, role=names.ROLE_TRAINEE).order_by('-date')
 
     trainees_data = []
+    now = timezone.now()
+    week_start = now - timedelta(days=now.weekday())
+    week_start = week_start.replace(hour=0, minute=0, second=0, microsecond=0)
+
     for trainee in assigned_trainees:
         user_obj = None
         if trainee.email:
@@ -2145,12 +2215,46 @@ def trainer_bmi_tracker(request):
             latest = None
             all_metrics = []
             weight_change = None
+
+        # Get training stats for this trainee
+        training_stats = None
+        progression, _ = SplitProgression.objects.get_or_create(trainee=trainee)
+
+        # Count workouts this week
+        workouts_this_week = AttendanceLog.objects.filter(
+            member=trainee,
+            check_in__gte=week_start
+        ).count()
+
+        # Calculate completion percentage
+        planned = progression.planned_days_per_week
+        completion = round((workouts_this_week / planned) * 100) if planned > 0 else 0
+        if completion > 100:
+            completion = 100
+
+        # Get split info
+        plan = TrainingPlan.objects.filter(trainee=trainee, is_active=True).first()
+        current_body_part = None
+        if plan and plan.split_days:
+            day_index = progression.current_day_index % len(plan.split_days)
+            current_body_part = plan.split_days[day_index]
+
+        training_stats = {
+            'planned_days': progression.planned_days_per_week,
+            'workouts_this_week': workouts_this_week,
+            'completion': completion,
+            'total_workouts': progression.total_workouts_completed,
+            'last_workout': progression.last_workout_date,
+            'current_body_part': current_body_part,
+        }
+
         trainees_data.append({
             'trainee': trainee,
             'user': user_obj,
             'latest': latest,
             'weight_change': weight_change,
             'metrics': all_metrics,
+            'training_stats': training_stats,
         })
 
     return render(request, 'trainer_bmi_tracker.html', {'trainees_data': trainees_data})
@@ -2540,10 +2644,26 @@ def trainee_session_list(request):
             'can_register': (not session.is_full) and (session.id not in registered_session_ids),
         })
 
+    # Get split progression info
+    split_info = None
+    progression, _ = SplitProgression.objects.get_or_create(trainee=trainee_profile)
+    plan = TrainingPlan.objects.filter(trainee=trainee_profile, is_active=True).first()
+    if plan and plan.split_days:
+        day_index = progression.current_day_index % len(plan.split_days)
+        split_info = {
+            'plan': plan,
+            'progression': progression,
+            'current_body_part': plan.split_days[day_index],
+            'split_type_display': plan.get_split_type_display(),
+            'total_days': len(plan.split_days),
+            'current_day_number': day_index + 1,
+        }
+
     return render(request, 'session_list.html', {
         'trainer': trainer_user,
         'sessions': session_rows,
         'trainee': trainee_profile,
+        'split_info': split_info,
     })
 
 

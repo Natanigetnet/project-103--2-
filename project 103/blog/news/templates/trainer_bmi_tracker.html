@@ -33,6 +33,50 @@
                 {% endif %}
             </div>
 
+            {% if item.training_stats %}
+            <div class="row g-3 mb-3">
+                <div class="col-md-3">
+                    <div class="bg-light rounded-4 p-3 text-center">
+                        <small class="text-muted text-uppercase fw-bold small">This Week</small>
+                        <h5 class="fw-bold mb-0 text-primary">{{ item.training_stats.workouts_this_week }} / {{ item.training_stats.planned_days }}</h5>
+                        <small class="text-muted">Workouts</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="bg-light rounded-4 p-3 text-center">
+                        <small class="text-muted text-uppercase fw-bold small">Completion</small>
+                        <h5 class="fw-bold mb-0 {% if item.training_stats.completion >= 100 %}text-success{% elif item.training_stats.completion >= 50 %}text-warning{% else %}text-danger{% endif %}">{{ item.training_stats.completion }}%</h5>
+                        <small class="text-muted">Weekly Goal</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="bg-light rounded-4 p-3 text-center">
+                        <small class="text-muted text-uppercase fw-bold small">Total</small>
+                        <h5 class="fw-bold mb-0 text-primary">{{ item.training_stats.total_workouts }}</h5>
+                        <small class="text-muted">All Time</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="bg-light rounded-4 p-3 text-center">
+                        <small class="text-muted text-uppercase fw-bold small">Next Workout</small>
+                        <h5 class="fw-bold mb-0 text-primary">{{ item.training_stats.current_body_part|default:"—" }}</h5>
+                        <small class="text-muted">{% if item.training_stats.last_workout %}Last: {{ item.training_stats.last_workout|date:"M d" }}{% else %}Never{% endif %}</small>
+                    </div>
+                </div>
+            </div>
+            <div class="mb-3">
+                <div class="progress" style="height: 12px; border-radius: 6px;">
+                    <div class="progress-bar {% if item.training_stats.completion >= 100 %}bg-success{% elif item.training_stats.completion >= 50 %}bg-warning{% else %}bg-danger{% endif %}"
+                         role="progressbar"
+                         style="width: {{ item.training_stats.completion }}%"
+                         aria-valuenow="{{ item.training_stats.completion }}"
+                         aria-valuemin="0"
+                         aria-valuemax="100">
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
             {% if item.user %}
                 {% if item.latest %}
                 <div class="row g-3 mb-3">

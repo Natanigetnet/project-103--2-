@@ -312,6 +312,7 @@ class SplitProgression(models.Model):
     current_day_index = models.IntegerField(default=0, help_text='Current day index in the split cycle')
     total_workouts_completed = models.IntegerField(default=0, help_text='Total number of workouts completed')
     last_workout_date = models.DateField(null=True, blank=True)
+    planned_days_per_week = models.IntegerField(default=3, help_text='Number of days planned to train per week')
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
