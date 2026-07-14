@@ -1340,84 +1340,84 @@ _FAQ = [
     (r'(?i)^\s*(hi|hello|hey|good\s*(morning|afternoon|evening)|sup|yo|hey.?\s*there)\s*[.!?]*\s*$', (
         'Hello! Welcome to Future Gym support. How can I help you today?'
     )),
-    (r'(?i)(how|where).*(find|see|view|access).*(trainee|member).*(list|page)', (
+    (r'(?i)(how|where).*(trainee|member|client).*(list|page|account|dashboard|view|see|find|access)', (
         'Trainers: Go to Home, then open the Menu dropdown and click "Tracker" to see all your assigned trainees. '
         'You can also click "Workout Tracking" to see each trainee\'s current workout plan and progress.'
     )),
-    (r'(?i)(how|where).*(create|make|add).*(session|class)', (
+    (r'(?i)(how|where).*(create|make|add|broadcast).*(session|class|slot)', (
         'Trainers: From the Home page, click the green "Create Session Slot" button to open the session creation form. '
         'Fill in the title, date/time, duration, max capacity, and optionally a training space. '
         'All your assigned trainees will be notified automatically.'
     )),
-    (r'(?i)(how|where).*(training|workout).*(plan|schedule|split|program)', (
+    (r'(?i)(how|where).*(training|workout).*(plan|schedule|split|program|calendar)', (
         'Trainers: Go to Menu > "Workout Tracking" to see each trainee\'s split. '
         'To create or edit a training plan, go to the trainee\'s Training Plan page (linked from Workout Tracking). '
         'There you can set the split type, add exercises for each day, and manage the weekly calendar. '
         'Trainees: Go to Menu > "Schedule" or click the "Schedule" button on the Home page to view your training plan.'
     )),
-    (r'(?i)(how|where).*(check.?in|check.?out|attendance|scan|qr)', (
-        'Use your digital ID card QR code at the gym entrance. Go to Menu > "ID Card" to view your QR code. '
-        'The registrar or admin will scan it when you arrive and leave. '
-        'You can also check your attendance history from the Attendance Log page.'
-    )),
-    (r'(?i)(how|where).*(my|see|view).*(schedule|shift|work)', (
+    (r'(?i)(how|where).*(my|see|view|check).*(schedule|shift|work).*(trainer|my|account)', (
         'Trainers: Go to Menu > "My Schedule" to see your weekly work schedule with day/evening shifts. '
         'You can add comments to each shift slot which will be sent to the admin.'
     )),
-    (r'(?i)(how|where).*(rate|review|feedback).*(trainer)', (
+    (r'(?i)(how|where).*(rate|review|feedback|rating).*(trainer)', (
         'Trainees: You can rate your trainer by going to your trainer\'s detail page (click "Trainer" in the navbar) '
         'and using the rate button, or by navigating to /rate-trainer/<trainer_name>/.'
     )),
-    (r'(?i)(how|where).*(change|switch|request).*(trainer)', (
+    (r'(?i)(how|where).*(change|switch|request|get new).*(trainer)', (
         'Trainees: Go to your trainer\'s detail page and click "Request Trainer Change", '
         'or navigate to /request-trainer-change/<trainer_name>/. You\'ll need to provide a reason for the change.'
     )),
-    (r'(?i)(how|where).*(bmi|progress|body|metric|weight)', (
+    (r'(?i)(how|where).*(bmi|progress|body|metric|weight|height).*(track|measure|calculate|view)', (
         'Trainees: Go to Menu > "Progress" to track your BMI and body metrics. '
         'Enter your weight and height to calculate your BMI. Trainers can also view your metrics.'
     )),
-    (r'(?i)(how|where).*(medical|health|allergy|condition)', (
+    (r'(?i)(how|where).*(medical|health|allergy|condition|note).*(info|add|update|view)', (
         'Trainees: Go to Menu > "Settings" > "Medical info" to add medical notes, conditions, or allergies. '
         'Your trainer will be able to see this information.'
     )),
-    (r'(?i)(how|where).*(id|card|badge)', (
+    (r'(?i)(how|where).*(id|card|badge|qr).*(view|see|get|download)', (
         'Go to Menu > "ID Card" to view your digital member ID with QR code. '
         'You can download it as a PDF or regenerate the QR code if needed.'
     )),
-    (r'(?i)(how|where).*(message|contact|question|ask)', (
+    (r'(?i)(how|where).*(message|contact|question|ask|reply|response).*(send|view|see|check)', (
         'You can send messages to admin/trainers via the Contact page (Menu > "Contact"). '
         'Check responses in Menu > "Messages". You can also ask me (the AI assistant) anything right here!'
     )),
-    (r'(?i)(how|where).*(register|sign.?up|join|new.*member)', (
+    (r'(?i)(how|where).*(register|sign.?up|join|new.*member|create account).*(trainee|member|user)', (
         'To join Future Gym, visit the gym and a registrar will create your account. '
         'Admins can also register new members from the Management menu. '
         'Once registered, you\'ll receive login credentials via email.'
     )),
-    (r'(?i)(how|where).*(password|login|sign.?in|account)', (
+    (r'(?i)(how|where).*(password|login|sign.?in|account).*(change|update|reset|access)', (
         'To change your password, go to Menu > "Settings" > "Change password" (or /password-change/). '
         'To log in, go to the landing page and click "Sign In".'
     )),
-    (r'(?i)(how|where).*(currently.?in|who.*gym|present)', (
+    (r'(?i)(how|where).*(currently.?in|who.*gym|present|checked.?in).*(trainee|member|person|people)', (
         'Trainers: Go to Menu > "My Trainees In Gym" to see which of your trainees are currently checked in. '
         'Registrars: Go to your Dashboard > "Currently In Gym" to see all members in the gym. '
         'Admins: Check the Attendance Dashboard for a full overview.'
     )),
-    (r'(?i)(how|where).*(payment|pay|salary|employee)', (
+    (r'(?i)(how|where).*(payment|pay|salary|employee|compensation).*(record|manage|view|track)', (
         'Admins: Go to Management > "Record Payment" to record member payments, '
         'or "Employee Payments" to manage trainer salaries. '
         'The global payment day can be set in Gym Config.'
     )),
-    (r'(?i)(how|where).*(category|categories|type)', (
+    (r'(?i)(how|where).*(category|categories|type|class).*(manage|view|browse|see)', (
         'Admins: Go to Management > "Categories" to manage training categories. '
         'All users can browse categories via Menu > "Explore" to see trainers and spaces by category.'
     )),
-    (r'(?i)(how|where).*(space|room|area|facility)', (
+    (r'(?i)(how|where).*(space|room|area|facility|venue).*(manage|create|view|book)', (
         'Admins: Go to Management > "Training Spaces" to create, edit, or toggle maintenance status for training spaces. '
         'Spaces are linked to categories and can be selected when creating sessions.'
     )),
-    (r'(?i)(how|where).*(telegram|group|chat|broadcast)', (
+    (r'(?i)(how|where).*(telegram|group|chat|broadcast).*(join|send|message)', (
         'Trainees: Find the Telegram group link in Menu > "Telegram". '
         'Admins: Use Management > "Telegram Broadcast" to send messages to the gym Telegram group.'
+    )),
+    (r'(?i)(how|where).*(check.?in|check.?out|attendance|scan|qr).*(record|track|view)', (
+        'Use your digital ID card QR code at the gym entrance. Go to Menu > "ID Card" to view your QR code. '
+        'The registrar or admin will scan it when you arrive and leave. '
+        'You can also check your attendance history from the Attendance Log page.'
     )),
     (r'(?i)\b(cancel|refund|cancellation|money.back)\b', (
         'Cancellation and refund policies vary by membership type. Please speak with an '
