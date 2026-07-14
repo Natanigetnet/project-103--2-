@@ -1164,6 +1164,78 @@ def _get_contact_name(request):
 
 
 import re
+from django.utils import timezone as tz_now
+
+def _build_gym_context():
+    parts = []
+
+    categories = Category.objects.all()
+    if categories.exists():
+        lines = []
+        for c in categories:
+            desc = f" - {c.description}" if c.description else ""
+            member_count = c.names_set.count()
+            lines.append(f"  - {c.name} ({member_count} members){desc}")
+        parts.append("TRAINING CATEGORIES:\n" + "\n".join(lines))
+
+    trainers = names.objects.filter(role=names.ROLE_TRAINER).select_related('category')
+    if trainers.exists():
+        lines = []
+        for t in trainers:
+            cat = t.category.name if t.category else "General"
+            trainee_count = names.objects.filter(trainer__username=t.name).count() if t.name else 0
+            try:
+                user_obj = User.objects.get(username=t.name)
+                trainee_count = names.objects.filter(trainer=user_obj).count()
+            except User.DoesNotExist:
+                pass
+            avg_rating = t.ratings_received.aggregate(avg=Avg('rating'))['avg']
+            rating_str = f"{avg_rating:.1f}/5" if avg_rating else "No ratings yet"
+            lines.append(f"  - {t.name} | Category: {cat} | Trainees: {trainee_count} | Rating: {rating_str}")
+        parts.append("TRAINERS:\n" + "\n".join(lines))
+
+    now = tz_now.now()
+    upcoming = TrainingSession.objects.filter(
+        session_date__gte=now
+    ).select_related('trainer', 'space').order_by('session_date')[:8]
+    if upcoming.exists():
+        lines = []
+        for s in upcoming:
+            date_str = s.session_date.strftime("%b %d, %Y %I:%M %p")
+            space_str = s.space.name if s.space else "TBD"
+            slots = s.slots_left
+            lines.append(f"  - \"{s.title}\" on {date_str} | Trainer: {s.trainer.name} | Space: {space_str} | Slots left: {slots}")
+        parts.append("UPCOMING SESSIONS:\n" + "\n".join(lines))
+
+    spaces = TrainingSpace.objects.all()
+    if spaces.exists():
+        lines = []
+        for sp in spaces:
+            status = "UNDER MAINTENANCE" if sp.is_under_maintenance else "Available"
+            lines.append(f"  - {sp.name} ({sp.category.name}) - {status}")
+        parts.append("TRAINING SPACES:\n" + "\n".join(lines))
+
+    parts.append("GYM HOURS: Monday-Friday 6:00 AM - 10:00 PM, Saturday 8:00 AM - 8:00 PM, Sunday 9:00 AM - 6:00 PM")
+    parts.append("GYM NAME: Future Gym")
+    parts.append("LOCATION: 123 Tech Avenue, Silicon Valley, CA. Free parking available.")
+    parts.append("CONTACT: +1 (555) 000-TECH | hello@futuregym.com")
+
+    total_trainers = names.objects.filter(role=names.ROLE_TRAINER).count()
+    total_trainees = names.objects.filter(role=names.ROLE_TRAINEE).count()
+    parts.append(f"STATS: {total_trainers} trainers, {total_trainees} trainees, {categories.count()} categories")
+
+    return "\n\n".join(parts)
+
+
+def _format_history_for_prompt(history):
+    if not history:
+        return ""
+    lines = []
+    for msg in history[-10:]:
+        role = "User" if msg['role'] == 'user' else "Assistant"
+        lines.append(f"{role}: {msg['content']}")
+    return "\n".join(lines)
+
 
 _FAQ = [
     (r'(?i)\b(cancel|refund|cancellation|money.back)\b', (
@@ -1192,8 +1264,8 @@ _FAQ = [
         'to see available classes and register for open slots.'
     )),
     (r'(?i)(?=.*\b(?:hours?|open|close|when|time|schedule)\b)(?=.*\b(?:gym|class|session)\b)', (
-        'Our gym is open Monday–Friday 6:00 AM – 10:00 PM, Saturday 8:00 AM – 8:00 PM, '
-        'and Sunday 9:00 AM – 6:00 PM. Category-specific training spaces may have separate schedules.'
+        'Our gym is open Monday-Friday 6:00 AM - 10:00 PM, Saturday 8:00 AM - 8:00 PM, '
+        'and Sunday 9:00 AM - 6:00 PM. Category-specific training spaces may have separate schedules.'
     )),
     (r'(?i)\b(membership|price|cost|fee|subscription|sign.?up|join)\b', (
         'Future Gym offers monthly and annual membership plans. Please contact our front desk '
@@ -1214,28 +1286,50 @@ _FAQ = [
 
 
 def _local_responder(question_text):
-    """Answer common gym questions without any external API."""
     for pattern, answer in _FAQ:
         if re.search(pattern, question_text):
             return answer, True
     return None, False
 
 
-def ask_ai(question_text):
-    """Try Gemini Flash first, fall back to local keyword matching."""
-    # Try Gemini if API key is configured
+def ask_ai(question_text, history=None, gym_context=""):
     api_key = settings.GEMINI_API_KEY
     if api_key:
         try:
             from google import genai
             client = genai.Client(api_key=api_key)
-            prompt = (
-                "You are a helpful assistant for Future Gym. Answer the following question "
-                "about gym memberships, training programs, class schedules, or general fitness. "
-                "If the question is not related to the gym, fitness, or health, "
-                "respond with exactly: UNABLE_TO_ANSWER\n\n"
-                f"Question: {question_text}"
+
+            system_instructions = (
+                "You are the AI assistant for Future Gym, a modern fitness center. "
+                "You are friendly, knowledgeable, and concise. "
+                "You help members with questions about gym operations, training programs, "
+                "class schedules, trainer information, membership, facilities, and general fitness advice.\n\n"
+                "IMPORTANT RULES:\n"
+                "- Use the gym context data below to give accurate, specific answers referencing real trainers, categories, sessions, and spaces.\n"
+                "- If the user refers to something from earlier in the conversation (like 'them', 'that trainer', 'the first one'), use the conversation history to understand what they mean.\n"
+                "- If a user asks about a specific trainer, category, or session by name, look it up in the context data.\n"
+                "- Keep responses concise (2-4 sentences) unless the user asks for detail.\n"
+                "- If you don't know something and it's not in the context, say so honestly and suggest they contact staff.\n"
+                "- If the question is completely unrelated to the gym, fitness, or health, respond with exactly: UNABLE_TO_ANSWER\n"
             )
+
+            context_block = ""
+            if gym_context:
+                context_block = f"\n\nCURRENT GYM DATA:\n{gym_context}\n"
+
+            history_block = ""
+            if history:
+                formatted = _format_history_for_prompt(history)
+                if formatted:
+                    history_block = f"\n\nCONVERSATION HISTORY (most recent at bottom):\n{formatted}\n"
+
+            prompt = (
+                f"{system_instructions}"
+                f"{context_block}"
+                f"{history_block}"
+                f"\n\nUSER'S CURRENT QUESTION: {question_text}"
+            )
+
             response = client.models.generate_content(
                 model='gemini-2.0-flash',
                 contents=prompt,
@@ -1246,26 +1340,50 @@ def ask_ai(question_text):
         except Exception:
             pass
 
-    # Fall back to local keyword responder
     return _local_responder(question_text)
 
 
 def chat_page(request):
-    return render(request, 'chat.html')
+    user_name = ""
+    if request.user.is_authenticated:
+        user_name = _get_contact_name(request)
+    return render(request, 'chat.html', {'user_name': user_name})
 
 @require_http_methods(["POST"])
 def chat_api(request):
     try:
         data = json.loads(request.body)
         message = data.get('message', '')
+        client_history = data.get('history', [])
     except (json.JSONDecodeError, KeyError):
         return JsonResponse({'error': 'Invalid request'}, status=400)
 
     if not message.strip():
         return JsonResponse({'error': 'Message is required'}, status=400)
 
-    answer, answered = ask_ai(message)
+    history = []
+    for msg in client_history[-10:]:
+        role = msg.get('role', '')
+        content = msg.get('content', '')
+        if role in ('user', 'bot') and content:
+            history.append({'role': role, 'content': content[:1000]})
+
+    gym_context = _build_gym_context()
+    answer, answered = ask_ai(message, history=history, gym_context=gym_context)
+
     if answered:
+        if request.user.is_authenticated:
+            try:
+                user_name = _get_contact_name(request)
+                user_email = request.user.email or ''
+                q = questions(name=user_name, email=user_email, quest=message, ai_answered=True)
+                q.save()
+                resp = response_model(quest=q, text=answer[:500])
+                resp.save()
+                resp.is_read = True
+                resp.save()
+            except Exception:
+                pass
         return JsonResponse({'answered': True, 'text': answer})
     else:
         return JsonResponse({'answered': False, 'text': ''})

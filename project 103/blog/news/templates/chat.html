@@ -3,6 +3,11 @@
 {% block extra_head %}
 <style>
   .chat-container { max-width: 700px; margin: 0 auto; }
+  .chat-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+  .chat-header .title-area { text-align: center; flex: 1; }
   .chat-box {
     height: 450px; overflow-y: auto;
     background: rgba(15, 17, 22, 0.6);
@@ -40,23 +45,34 @@
     align-self: flex-start;
   }
   .redirect-btn:hover { background: rgba(245, 158, 11, 0.25); }
+  .clear-btn {
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    border-radius: 10px; padding: 0.4rem 0.8rem;
+    color: #f87171; cursor: pointer; font-size: 0.8rem;
+    transition: background .2s;
+  }
+  .clear-btn:hover { background: rgba(239, 68, 68, 0.25); }
 </style>
 {% endblock %}
 {% block content %}
 <div class="container py-5">
   <div class="chat-container">
-    <div class="text-center mb-4">
-      <a href="{% url 'home_url' %}" class="btn btn-outline-light btn-sm rounded-pill mb-3"><i class="bi bi-house me-1"></i> Home</a>
-      <h2 class="fw-bold"><i class="bi bi-robot me-2 text-success"></i> AI Assistant</h2>
-      <p class="text-muted">Ask me anything about the gym — I'll try to help instantly!</p>
+    <div class="chat-header">
+      <a href="{% url 'home_url' %}" class="btn btn-outline-light btn-sm rounded-pill"><i class="bi bi-house me-1"></i> Home</a>
+      <div class="title-area">
+        <h2 class="fw-bold mb-1"><i class="bi bi-robot me-2 text-success"></i> AI Assistant</h2>
+        <p class="text-muted mb-0 small">Ask me anything about the gym — I'll try to help instantly!</p>
+      </div>
+      <button class="clear-btn" id="clearBtn" title="Clear conversation"><i class="bi bi-trash3 me-1"></i> Clear</button>
     </div>
 
     <div class="card border-0 shadow-lg rounded-4 bg-dark">
       <div class="card-body p-3">
         <div id="chatBox" class="chat-box mb-3">
-          <div class="msg bot">
+          <div class="msg bot" id="welcomeMsg">
             <span class="badge bg-success me-1"><i class="bi bi-robot"></i> AI</span>
-            Hi! I'm the Future Gym assistant. Ask me about hours, membership, trainers, classes, or anything gym-related.
+            {% if user_name %}Hi {{ user_name }}! {% endif %}I'm the Future Gym assistant. Ask me about hours, membership, trainers, classes, or anything gym-related.
           </div>
         </div>
 
@@ -76,7 +92,9 @@
   const chatBox = document.getElementById('chatBox');
   const chatForm = document.getElementById('chatForm');
   const msgInput = document.getElementById('msgInput');
+  const clearBtn = document.getElementById('clearBtn');
   let pendingQuestion = '';
+  let conversationHistory = [];
 
   chatForm.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -85,19 +103,21 @@
     msgInput.value = '';
 
     addMessage(text, 'user');
+    conversationHistory.push({ role: 'user', content: text });
     showTyping();
 
     try {
       const res = await fetch('{% url "chat_api_url" %}', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
-        body: JSON.stringify({ message: text })
+        body: JSON.stringify({ message: text, history: conversationHistory.slice(-10) })
       });
       const data = await res.json();
       removeTyping();
 
       if (data.answered) {
         addMessage(data.text, 'bot');
+        conversationHistory.push({ role: 'bot', content: data.text });
       } else {
         pendingQuestion = text;
         addMessage('Sorry, I couldn\'t answer that.', 'bot');
@@ -106,6 +126,20 @@
     } catch {
       removeTyping();
       addMessage('Something went wrong. Please try again.', 'bot');
+    }
+  });
+
+  clearBtn.addEventListener('click', () => {
+    conversationHistory = [];
+    chatBox.innerHTML = '';
+    const welcome = document.getElementById('welcomeMsg');
+    if (welcome) {
+      chatBox.appendChild(welcome);
+    } else {
+      const div = document.createElement('div');
+      div.className = 'msg bot';
+      div.innerHTML = '<span class="badge bg-success me-1"><i class="bi bi-robot"></i> AI</span> Chat cleared. How can I help you?';
+      chatBox.appendChild(div);
     }
   });
 
