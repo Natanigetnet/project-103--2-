@@ -6,3 +6,4 @@ qrcode==8.2
 gunicorn
 dj-database-url
 psycopg2-binary
+python-dotenv
