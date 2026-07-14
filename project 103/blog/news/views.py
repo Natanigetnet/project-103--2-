@@ -1227,6 +1227,106 @@ def _build_gym_context():
     return "\n\n".join(parts)
 
 
+def _build_site_guide(user_role=""):
+    guide = []
+
+    guide.append("""WEBSITE NAVIGATION GUIDE:
+The website has 4 user roles: Admin (superuser), Trainer, Trainee (Member), and Registrar.
+Each role has different pages and capabilities. Use the navigation bar at the top of every page to move around.
+The main hub page is /home/ (the Home page). The landing page is at /.""")
+
+    guide.append("""COMMON PAGES (all authenticated users):
+- Home (/home/): Main dashboard with quick actions and overview.
+- About (/about/): Information about Future Gym.
+- Contact (/contact/): Send questions/messages to the admin team.
+- AI Chat (/chat/): This page - ask the AI assistant anything about the gym or how to use the website.
+- ID Card (/my-id-card/): View your digital member ID with QR code for gym check-in. You can also download it as PDF.
+- Messages (/response_list/): View responses from trainers and admin to your questions.
+- Explore Trainers (/trainers-and-types/): Browse all trainers and training categories.
+- Trainer Selector (/trainer-selector/): For trainees to find and request a trainer.
+- Password Change (/password-change/): Change your account password.""")
+
+    guide.append("""TRAINEE (MEMBER) FEATURES:
+- Home (/home/): See your assigned trainer, upcoming sessions from your trainer, attendance stats, and quick links.
+- Settings (/settings/): Manage your trainee profile.
+  - Account Details (/settings/account/): Update your name, email, phone, gender, and profile picture.
+  - Medical Info (/settings/medical/): Add medical notes, conditions, or allergies for your trainer to see.
+- Progress/BMI (/bmi/): Track your BMI and body metrics over time. Enter weight and height to calculate.
+- Trainer Sessions (/trainer-sessions/): See all upcoming sessions created by your assigned trainer. Register or unregister for sessions here. Also shows your current training split info.
+- Training Plan/Schedule (/training-plan/<your_id>/): View your weekly training schedule created by your trainer. Shows the 4-week calendar with exercises for each day, split type, and progression.
+- Find Trainers (/trainer-selector/): Browse trainers by category and request assignment.
+- Rate Trainer (/rate-trainer/<trainer_name>/): Give a rating (0-5) and comment for your trainer.
+- Request Trainer Change (/request-trainer-change/<trainer_name>/): Submit a request to change your assigned trainer (requires a reason).
+- Telegram Group: Link available in the menu to join the gym's Telegram chat.
+- Check-in: Use your ID card QR code at the gym entrance to check in/out. The registrar or admin scans it.""")
+
+    guide.append("""TRAINER FEATURES:
+- Home (/home/): See your trainees, quick actions to create sessions, and links to your tools.
+- "Create Session Slot" button (on Home page): Opens a modal to broadcast a new training session. Fill in title, description, date/time, duration, max capacity, and optionally select a training space. All your assigned trainees will be notified.
+- Session Hub (/session/hub/): Overview page for managing your sessions.
+- Create Session (/session/create/): Dedicated page to create a new training session (same as the modal).
+- Session Registrations (/trainer-session-registrations/): See which trainees have registered for your upcoming sessions.
+- Tracker (/tracker/): Your trainer dashboard showing all assigned trainees with stats (total members, male/female count, recent joins).
+- Workout Tracking (/trainer/workout-tracking/): See each trainee's current workout based on their split progression. Shows next body part, split type, total workouts completed, and last workout date. You can reset a trainee's split progression from here.
+- My Schedule (/trainer/my-schedule/): View your weekly work schedule (day/evening shifts). You can add comments to each shift slot which will be sent to admin.
+- My Trainees In Gym (/trainer/currently-in/): See which of your assigned trainees are currently checked in at the gym today, and who has already left.
+- Training Plan (/training-plan/<trainee_id>/): Create and manage training plans for your trainees. You can:
+  - Create a new plan with a split type (Upper/Lower, Push/Pull/Legs, Full Body, Bro Split, etc.)
+  - Add exercises to each day (name, sets, reps, weight, notes)
+  - Mark days as rest days
+  - Change the split type
+  - Add general notes
+  - Navigate week by week to see the 4-week calendar view
+- Trainer Settings (/trainer-settings/): Manage your trainer profile.
+  - Account Details (/trainer-settings/account/): Update your name, email, phone, gender, and profile picture.
+  - My Schedule (/trainer/my-schedule/): View and comment on your weekly schedule.
+- My Feedback (/trainer-my-feedback/): See ratings and comments from your trainees.
+- Trainer Ratings Dashboard (/trainer-ratings/): View overall trainer ratings.""")
+
+    guide.append("""REGISTRAR FEATURES:
+- Home (/home/): Quick access buttons for registrar functions.
+- Registrar Dashboard (/registrar/dashboard/): Overview showing who's currently in the gym, crowdedness by category, active trainers today, and recent check-ins.
+- Register Trainee (/registrar/register/): Register a new trainee member. Creates their account automatically with a generated password and sends a welcome email.
+- Check In (/registrar/scan-qr/): Scan member QR codes to check them into the gym.
+- Check Out (/registrar/scan-checkout/): Scan member QR codes to check them out of the gym.
+- Currently In Gym (/registrar/currently-in/): See all members currently checked in at the gym.
+- Attendance Log (/registrar/attendance-log/): View the full attendance history.""")
+
+    guide.append("""ADMIN (SUPERUSER) FEATURES:
+- Home (/home/): Full management access with buttons for all admin functions.
+- Management Menu (in navbar): Dropdown with all admin tools.
+  - Members (/members/): View all trainers and trainees with their details.
+  - Staff Accounts (/manage-users/): Manage user accounts (create trainers, registrars, etc.).
+  - Categories (/category_list/): Manage training categories (create, edit, delete).
+  - Messages (/questions-log/): View all questions from members and respond to them.
+  - Record Payment (/record-payment/): Record membership payments for members.
+  - Telegram Broadcast (/telegram-broadcast/): Send broadcast messages to the gym Telegram group.
+  - QR Scanner (/admin/qr-scanner/): Scan member QR codes for attendance.
+  - Attendance Log (/attendance-log/): View full attendance history.
+  - Attendance Dashboard (/admin/attendance-dashboard/): Visual attendance analytics.
+  - Core Management (/admin-portal/): Main admin portal with gym configuration.
+- Admin Portal (/admin-portal/): Core management page.
+- Gym Config (/admin/gym-config/): Set the global payment day (1-28) for all employee payments.
+- Trainer Schedules (/admin/trainer-schedules/): Create and manage trainer weekly schedules (assign days and shifts).
+- Trainer Dashboard (/admin/trainer-dashboard/): Admin view of trainer information.
+- Employee Payments (/admin/employee-payments/): Manage trainer/employee salary and payment records.
+- Training Spaces (/training-spaces/): Create and manage training spaces. Assign spaces to categories, toggle maintenance status.
+- Generate All IDs (/admin/generate-all-ids/): Generate member ID cards for all members who don't have one.
+- Regenerate All QR Codes (/admin/regenerate-all-qr-codes/): Regenerate QR codes for all members.""")
+
+    guide.append("""NAVIGATION TIPS:
+- The navbar at the top of every page has a "Menu" dropdown (three dots icon) with role-specific links.
+- Admins see a "Management" dropdown in the navbar with admin tools.
+- Registrars see a "Registrar" dropdown with registrar-specific links.
+- Trainers see links to Tracker, Workout Tracking, My Schedule, My Trainees In Gym, and Profile in the Menu dropdown.
+- Trainees see links to Settings, Progress (BMI), Telegram, and ID Card in the Menu dropdown.
+- To find your trainer's detail page, click the "Trainer" link in the navbar (visible to trainees with an assigned trainer).
+- The "Explore" link in the Menu shows all trainers and categories.
+- The AI Chat is accessible from the Menu dropdown for all non-admin users.""")
+
+    return "\n\n".join(guide)
+
+
 def _format_history_for_prompt(history):
     if not history:
         return ""
@@ -1282,6 +1382,85 @@ _FAQ = [
     (r'(?i)^\s*(hi|hello|hey|good\s*(morning|afternoon|evening)|sup|yo|hey.?\s*there)\s*[.!?]*\s*$', (
         'Hello! Welcome to Future Gym support. How can I help you today?'
     )),
+    (r'(?i)(how|where).*(find|see|view|access).*(trainee|member).*(list|page)', (
+        'Trainers: Go to Home, then open the Menu dropdown and click "Tracker" to see all your assigned trainees. '
+        'You can also click "Workout Tracking" to see each trainee\'s current workout plan and progress.'
+    )),
+    (r'(?i)(how|where).*(create|make|add).*(session|class)', (
+        'Trainers: From the Home page, click the green "Create Session Slot" button to open the session creation form. '
+        'Fill in the title, date/time, duration, max capacity, and optionally a training space. '
+        'All your assigned trainees will be notified automatically.'
+    )),
+    (r'(?i)(how|where).*(training|workout).*(plan|schedule|split|program)', (
+        'Trainers: Go to Menu > "Workout Tracking" to see each trainee\'s split. '
+        'To create or edit a training plan, go to the trainee\'s Training Plan page (linked from Workout Tracking). '
+        'There you can set the split type, add exercises for each day, and manage the weekly calendar. '
+        'Trainees: Go to Menu > "Schedule" or click the "Schedule" button on the Home page to view your training plan.'
+    )),
+    (r'(?i)(how|where).*(check.?in|check.?out|attendance|scan|qr)', (
+        'Use your digital ID card QR code at the gym entrance. Go to Menu > "ID Card" to view your QR code. '
+        'The registrar or admin will scan it when you arrive and leave. '
+        'You can also check your attendance history from the Attendance Log page.'
+    )),
+    (r'(?i)(how|where).*(my|see|view).*(schedule|shift|work)', (
+        'Trainers: Go to Menu > "My Schedule" to see your weekly work schedule with day/evening shifts. '
+        'You can add comments to each shift slot which will be sent to the admin.'
+    )),
+    (r'(?i)(how|where).*(rate|review|feedback).*(trainer)', (
+        'Trainees: You can rate your trainer by going to your trainer\'s detail page (click "Trainer" in the navbar) '
+        'and using the rate button, or by navigating to /rate-trainer/<trainer_name>/.'
+    )),
+    (r'(?i)(how|where).*(change|switch|request).*(trainer)', (
+        'Trainees: Go to your trainer\'s detail page and click "Request Trainer Change", '
+        'or navigate to /request-trainer-change/<trainer_name>/. You\'ll need to provide a reason for the change.'
+    )),
+    (r'(?i)(how|where).*(bmi|progress|body|metric|weight)', (
+        'Trainees: Go to Menu > "Progress" to track your BMI and body metrics. '
+        'Enter your weight and height to calculate your BMI. Trainers can also view your metrics.'
+    )),
+    (r'(?i)(how|where).*(medical|health|allergy|condition)', (
+        'Trainees: Go to Menu > "Settings" > "Medical info" to add medical notes, conditions, or allergies. '
+        'Your trainer will be able to see this information.'
+    )),
+    (r'(?i)(how|where).*(id|card|badge)', (
+        'Go to Menu > "ID Card" to view your digital member ID with QR code. '
+        'You can download it as a PDF or regenerate the QR code if needed.'
+    )),
+    (r'(?i)(how|where).*(message|contact|question|ask)', (
+        'You can send messages to admin/trainers via the Contact page (Menu > "Contact"). '
+        'Check responses in Menu > "Messages". You can also ask me (the AI assistant) anything right here!'
+    )),
+    (r'(?i)(how|where).*(register|sign.?up|join|new.*member)', (
+        'To join Future Gym, visit the gym and a registrar will create your account. '
+        'Admins can also register new members from the Management menu. '
+        'Once registered, you\'ll receive login credentials via email.'
+    )),
+    (r'(?i)(how|where).*(password|login|sign.?in|account)', (
+        'To change your password, go to Menu > "Settings" > "Change password" (or /password-change/). '
+        'To log in, go to the landing page and click "Sign In".'
+    )),
+    (r'(?i)(how|where).*(currently.?in|who.*gym|present)', (
+        'Trainers: Go to Menu > "My Trainees In Gym" to see which of your trainees are currently checked in. '
+        'Registrars: Go to your Dashboard > "Currently In Gym" to see all members in the gym. '
+        'Admins: Check the Attendance Dashboard for a full overview.'
+    )),
+    (r'(?i)(how|where).*(payment|pay|salary|employee)', (
+        'Admins: Go to Management > "Record Payment" to record member payments, '
+        'or "Employee Payments" to manage trainer salaries. '
+        'The global payment day can be set in Gym Config.'
+    )),
+    (r'(?i)(how|where).*(category|categories|type)', (
+        'Admins: Go to Management > "Categories" to manage training categories. '
+        'All users can browse categories via Menu > "Explore" to see trainers and spaces by category.'
+    )),
+    (r'(?i)(how|where).*(space|room|area|facility)', (
+        'Admins: Go to Management > "Training Spaces" to create, edit, or toggle maintenance status for training spaces. '
+        'Spaces are linked to categories and can be selected when creating sessions.'
+    )),
+    (r'(?i)(how|where).*(telegram|group|chat|broadcast)', (
+        'Trainees: Find the Telegram group link in Menu > "Telegram". '
+        'Admins: Use Management > "Telegram Broadcast" to send messages to the gym Telegram group.'
+    )),
 ]
 
 
@@ -1292,30 +1471,44 @@ def _local_responder(question_text):
     return None, False
 
 
-def ask_ai(question_text, history=None, gym_context=""):
+def ask_ai(question_text, history=None, gym_context="", site_guide="", user_role=""):
     api_key = settings.GEMINI_API_KEY
     if api_key:
         try:
             from google import genai
             client = genai.Client(api_key=api_key)
 
+            role_context = ""
+            if user_role:
+                role_context = f"\nThe current user's role is: {user_role.upper()}. Tailor your navigation guidance specifically for this role."
+
             system_instructions = (
                 "You are the AI assistant for Future Gym, a modern fitness center. "
                 "You are friendly, knowledgeable, and concise. "
                 "You help members with questions about gym operations, training programs, "
                 "class schedules, trainer information, membership, facilities, and general fitness advice.\n\n"
+                "CRITICAL: You also help users navigate the website and find features. When users ask 'where do I find...', 'how do I...', "
+                "'how can I...', 'where is...', or any question about using the website, use the WEBSITE NAVIGATION GUIDE below "
+                "to give specific, step-by-step instructions telling them exactly which page to go to and what to click.\n\n"
                 "IMPORTANT RULES:\n"
                 "- Use the gym context data below to give accurate, specific answers referencing real trainers, categories, sessions, and spaces.\n"
+                "- Use the WEBSITE NAVIGATION GUIDE to answer 'how-to' and 'where-to-find' questions about the website.\n"
+                "- When explaining how to do something on the website, be specific: mention the exact page name, where to find it in the navigation bar, and what buttons to click.\n"
                 "- If the user refers to something from earlier in the conversation (like 'them', 'that trainer', 'the first one'), use the conversation history to understand what they mean.\n"
                 "- If a user asks about a specific trainer, category, or session by name, look it up in the context data.\n"
-                "- Keep responses concise (2-4 sentences) unless the user asks for detail.\n"
+                "- Keep responses concise (2-4 sentences) unless the user asks for detail or step-by-step instructions.\n"
                 "- If you don't know something and it's not in the context, say so honestly and suggest they contact staff.\n"
                 "- If the question is completely unrelated to the gym, fitness, or health, respond with exactly: UNABLE_TO_ANSWER\n"
+                f"{role_context}\n"
             )
 
             context_block = ""
             if gym_context:
                 context_block = f"\n\nCURRENT GYM DATA:\n{gym_context}\n"
+
+            guide_block = ""
+            if site_guide:
+                guide_block = f"\n\nWEBSITE NAVIGATION GUIDE:\n{site_guide}\n"
 
             history_block = ""
             if history:
@@ -1326,6 +1519,7 @@ def ask_ai(question_text, history=None, gym_context=""):
             prompt = (
                 f"{system_instructions}"
                 f"{context_block}"
+                f"{guide_block}"
                 f"{history_block}"
                 f"\n\nUSER'S CURRENT QUESTION: {question_text}"
             )
@@ -1369,7 +1563,18 @@ def chat_api(request):
             history.append({'role': role, 'content': content[:1000]})
 
     gym_context = _build_gym_context()
-    answer, answered = ask_ai(message, history=history, gym_context=gym_context)
+    site_guide = _build_site_guide()
+
+    user_role = ""
+    if request.user.is_authenticated:
+        if request.user.is_superuser:
+            user_role = "admin"
+        else:
+            profile = UserProfile.objects.filter(user=request.user).first()
+            if profile:
+                user_role = profile.role
+
+    answer, answered = ask_ai(message, history=history, gym_context=gym_context, site_guide=site_guide, user_role=user_role)
 
     if answered:
         if request.user.is_authenticated:
