@@ -1337,47 +1337,6 @@ def _format_history_for_prompt(history):
 
 
 _FAQ = [
-    (r'(?i)\b(cancel|refund|cancellation|money.back)\b', (
-        'Cancellation and refund policies vary by membership type. Please speak with an '
-        'admin or check your membership agreement for full details.'
-    )),
-    (r'(?i)\b(payment|pay|billing|invoice|receipt)\b', (
-        'Payments are recorded by gym administration. If you have a billing question, '
-        'please contact the front desk or submit a detailed inquiry here.'
-    )),
-    (r'(?i)\b(qr|id.card|scan|check.in|attendance)\b', (
-        'Each member receives a digital ID card with a unique QR code. Present it at the '
-        'gym entrance scanner to record your check-in. You can view and print your card '
-        'from the "ID" section in your account.'
-    )),
-    (r'(?i)\b(bmi|body.metric|weight|height|progress|measure)\b', (
-        'Track your BMI and body metrics from your account dashboard under "Progress". '
-        'Trainers can also view your metrics to tailor your program.'
-    )),
-    (r'(?i)\b(personal.trainer|coach|trainers?|instructor)\b', (
-        'We have certified trainers in Aerobics, Calisthenics, and Yoga. After registering, '
-        'you can browse trainers by category and request assignment from your account dashboard.'
-    )),
-    (r'(?i)\b(class|session|program|workout)\b', (
-        'Trainers create category-specific sessions. Check "Trainer Sessions" in your account '
-        'to see available classes and register for open slots.'
-    )),
-    (r'(?i)(?=.*\b(?:hours?|open|close|when|time|schedule)\b)(?=.*\b(?:gym|class|session)\b)', (
-        'Our gym is open Monday-Friday 6:00 AM - 10:00 PM, Saturday 8:00 AM - 8:00 PM, '
-        'and Sunday 9:00 AM - 6:00 PM. Category-specific training spaces may have separate schedules.'
-    )),
-    (r'(?i)\b(membership|price|cost|fee|subscription|sign.?up|join)\b', (
-        'Future Gym offers monthly and annual membership plans. Please contact our front desk '
-        'or visit the gym for current pricing and any promotional offers.'
-    )),
-    (r'(?i)\b(park|parking|car|location|address|find|directions)\b', (
-        'Future Gym is located at 123 Tech Avenue, Silicon Valley, CA. Free parking is '
-        'available for members in the adjacent lot.'
-    )),
-    (r'(?i)\b(phone|contact|call|reach|email|support|help)\b', (
-        'You can reach us at +1 (555) 000-TECH or email hello@futuregym.com. '
-        'You can also submit questions here and a trainer will respond.'
-    )),
     (r'(?i)^\s*(hi|hello|hey|good\s*(morning|afternoon|evening)|sup|yo|hey.?\s*there)\s*[.!?]*\s*$', (
         'Hello! Welcome to Future Gym support. How can I help you today?'
     )),
@@ -1459,6 +1418,47 @@ _FAQ = [
     (r'(?i)(how|where).*(telegram|group|chat|broadcast)', (
         'Trainees: Find the Telegram group link in Menu > "Telegram". '
         'Admins: Use Management > "Telegram Broadcast" to send messages to the gym Telegram group.'
+    )),
+    (r'(?i)\b(cancel|refund|cancellation|money.back)\b', (
+        'Cancellation and refund policies vary by membership type. Please speak with an '
+        'admin or check your membership agreement for full details.'
+    )),
+    (r'(?i)\b(payment|pay|billing|invoice|receipt)\b', (
+        'Payments are recorded by gym administration. If you have a billing question, '
+        'please contact the front desk or submit a detailed inquiry here.'
+    )),
+    (r'(?i)\b(qr|id.card|scan|check.in|attendance)\b', (
+        'Each member receives a digital ID card with a unique QR code. Present it at the '
+        'gym entrance scanner to record your check-in. You can view and print your card '
+        'from the "ID" section in your account.'
+    )),
+    (r'(?i)\b(bmi|body.metric|weight|height|progress|measure)\b', (
+        'Track your BMI and body metrics from your account dashboard under "Progress". '
+        'Trainers can also view your metrics to tailor your program.'
+    )),
+    (r'(?i)\b(personal.trainer|coach|trainers?|instructor)\b', (
+        'We have certified trainers in Aerobics, Calisthenics, and Yoga. After registering, '
+        'you can browse trainers by category and request assignment from your account dashboard.'
+    )),
+    (r'(?i)\b(class|session|program|workout)\b', (
+        'Trainers create category-specific sessions. Check "Trainer Sessions" in your account '
+        'to see available classes and register for open slots.'
+    )),
+    (r'(?i)(?=.*\b(?:hours?|open|close|when|time|schedule)\b)(?=.*\b(?:gym|class|session)\b)', (
+        'Our gym is open Monday-Friday 6:00 AM - 10:00 PM, Saturday 8:00 AM - 8:00 PM, '
+        'and Sunday 9:00 AM - 6:00 PM. Category-specific training spaces may have separate schedules.'
+    )),
+    (r'(?i)\b(membership|price|cost|fee|subscription|sign.?up|join)\b', (
+        'Future Gym offers monthly and annual membership plans. Please contact our front desk '
+        'or visit the gym for current pricing and any promotional offers.'
+    )),
+    (r'(?i)(?=.*\b(?:park|parking|car|location|address|directions)\b)(?!.*\b(?:find|see|view|access|trainee|member|session|schedule|plan)\b)', (
+        'Future Gym is located at 123 Tech Avenue, Silicon Valley, CA. Free parking is '
+        'available for members in the adjacent lot.'
+    )),
+    (r'(?i)\b(phone|contact|call|reach|email|support|help)\b', (
+        'You can reach us at +1 (555) 000-TECH or email hello@futuregym.com. '
+        'You can also submit questions here and a trainer will respond.'
     )),
     (r'(?i)\b(how|where|what page|how do i|where do i|where can i|how can i)\b.*\b(find|see|view|access|create|make|add|change|edit|update|manage|check|get|use|navigate|go)\b', (
         'Please describe what you\'re looking for in more detail. For example: '
