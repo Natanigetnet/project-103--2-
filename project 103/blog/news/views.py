@@ -1230,8 +1230,7 @@ def _build_gym_context():
 def _build_site_guide(user_role=""):
     guide = []
 
-    guide.append("""WEBSITE NAVIGATION GUIDE:
-The website has 4 user roles: Admin (superuser), Trainer, Trainee (Member), and Registrar.
+    guide.append("""The website has 4 user roles: Admin (superuser), Trainer, Trainee (Member), and Registrar.
 Each role has different pages and capabilities. Use the navigation bar at the top of every page to move around.
 The main hub page is /home/ (the Home page). The landing page is at /.""")
 
@@ -1461,6 +1460,11 @@ _FAQ = [
         'Trainees: Find the Telegram group link in Menu > "Telegram". '
         'Admins: Use Management > "Telegram Broadcast" to send messages to the gym Telegram group.'
     )),
+    (r'(?i)\b(how|where|what page|how do i|where do i|where can i|how can i)\b.*\b(find|see|view|access|create|make|add|change|edit|update|manage|check|get|use|navigate|go)\b', (
+        'Please describe what you\'re looking for in more detail. For example: '
+        '"Where do I find my trainee list?" or "How do I create a session?" or "Where is my schedule?" '
+        'I can help you navigate the website step by step!'
+    )),
 ]
 
 
@@ -1487,9 +1491,22 @@ def ask_ai(question_text, history=None, gym_context="", site_guide="", user_role
                 "You are friendly, knowledgeable, and concise. "
                 "You help members with questions about gym operations, training programs, "
                 "class schedules, trainer information, membership, facilities, and general fitness advice.\n\n"
-                "CRITICAL: You also help users navigate the website and find features. When users ask 'where do I find...', 'how do I...', "
-                "'how can I...', 'where is...', or any question about using the website, use the WEBSITE NAVIGATION GUIDE below "
-                "to give specific, step-by-step instructions telling them exactly which page to go to and what to click.\n\n"
+                "CRITICAL INSTRUCTION: You MUST help users navigate the website. When users ask ANY of these types of questions:\n"
+                "- 'Where do I find...'\n"
+                "- 'How do I...'\n"
+                "- 'How can I...'\n"
+                "- 'Where is...'\n"
+                "- 'Show me how to...'\n"
+                "- 'What page do I go to for...'\n"
+                "- 'How do I access...'\n"
+                "You MUST use the WEBSITE NAVIGATION GUIDE below to give specific step-by-step instructions.\n\n"
+                "EXAMPLES of good navigation answers:\n"
+                "Q: 'Where is my trainee list?' (Trainer asking)\n"
+                "A: 'Go to Home, then open the Menu dropdown (three dots icon) and click \"Tracker\". This shows all your assigned trainees with stats.'\n\n"
+                "Q: 'How do I create a session?' (Trainer asking)\n"
+                "A: 'From the Home page, click the green \"Create Session Slot\" button. Fill in the title, date/time, duration, and max capacity. All your trainees will be notified.'\n\n"
+                "Q: 'Where can I see my schedule?' (Trainee asking)\n"
+                "A: 'Go to Menu > \"Schedule\" or click the \"Schedule\" button on the Home page to view your training plan with the 4-week calendar.'\n\n"
                 "IMPORTANT RULES:\n"
                 "- Use the gym context data below to give accurate, specific answers referencing real trainers, categories, sessions, and spaces.\n"
                 "- Use the WEBSITE NAVIGATION GUIDE to answer 'how-to' and 'where-to-find' questions about the website.\n"
