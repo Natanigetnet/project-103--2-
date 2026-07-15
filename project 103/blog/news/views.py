@@ -4089,9 +4089,23 @@ def trainer_my_schedule(request):
 
 def debug_email(request):
     from pathlib import Path
+    from django.conf import settings
+    
     error_file = Path(__file__).parent.parent / 'email_errors.log'
     if error_file.exists():
-        content = error_file.read_text()
+        error_content = error_file.read_text()
     else:
-        content = 'No email errors logged yet.'
-    return HttpResponse(f'<pre>{content}</pre>')
+        error_content = 'No email errors logged yet.'
+    
+    debug_info = f"""EMAIL BACKEND: {settings.EMAIL_BACKEND}
+EMAIL HOST: {getattr(settings, 'EMAIL_HOST', 'Not set')}
+EMAIL PORT: {getattr(settings, 'EMAIL_PORT', 'Not set')}
+EMAIL HOST USER: {getattr(settings, 'EMAIL_HOST_USER', 'Not set')}
+EMAIL USE TLS: {getattr(settings, 'EMAIL_USE_TLS', 'Not set')}
+EMAIL TIMEOUT: {getattr(settings, 'EMAIL_TIMEOUT', 'Not set')}
+DEFAULT FROM EMAIL: {getattr(settings, 'DEFAULT_FROM_EMAIL', 'Not set')}
+
+ERRORS:
+{error_content}
+"""
+    return HttpResponse(f'<pre>{debug_info}</pre>')
