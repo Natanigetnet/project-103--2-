@@ -4090,6 +4090,21 @@ def trainer_my_schedule(request):
 def debug_email(request):
     from pathlib import Path
     from django.conf import settings
+    from django.core.mail import send_mail
+    
+    test_result = None
+    if request.GET.get('test'):
+        try:
+            send_mail(
+                'Test Email',
+                'This is a test email from Future Gym.',
+                settings.DEFAULT_FROM_EMAIL,
+                [settings.EMAIL_HOST_USER],
+                fail_silently=False,
+            )
+            test_result = 'SUCCESS: Email sent!'
+        except Exception as e:
+            test_result = f'ERROR: {type(e).__name__}: {str(e)}'
     
     error_file = Path(__file__).parent.parent / 'email_errors.log'
     if error_file.exists():
@@ -4105,7 +4120,12 @@ EMAIL USE TLS: {getattr(settings, 'EMAIL_USE_TLS', 'Not set')}
 EMAIL TIMEOUT: {getattr(settings, 'EMAIL_TIMEOUT', 'Not set')}
 DEFAULT FROM EMAIL: {getattr(settings, 'DEFAULT_FROM_EMAIL', 'Not set')}
 
+TEST RESULT:
+{test_result or 'Not tested yet. Click the button below to test.'}
+
 ERRORS:
 {error_content}
 """
-    return HttpResponse(f'<pre>{debug_info}</pre>')
+    html = f'<pre>{debug_info}</pre>'
+    html += '<form method="get"><button type="submit" name="test" value="1" style="padding: 10px 20px; font-size: 16px;">Send Test Email</button></form>'
+    return HttpResponse(html)
