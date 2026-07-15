@@ -154,3 +154,5 @@ else:
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER or 'noreply@futuregym.com')
 
 GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
+
+SENDGRID_API_KEY = os.environ.get('SENDGRID_API_KEY', '')
