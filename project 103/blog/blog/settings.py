@@ -147,6 +147,7 @@ if EMAIL_HOST_USER and EMAIL_HOST_PASSWORD:
     EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
     EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
     EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'true').lower() in ('1', 'true', 'yes')
+    EMAIL_TIMEOUT = int(os.environ.get('EMAIL_TIMEOUT', '5'))
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 

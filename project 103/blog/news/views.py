@@ -34,7 +34,7 @@ from django.conf import settings
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from .models import UserProfile
-from django.core.mail import send_mail
+from .email_utils import send_email_async
 import uuid
 from django.core.validators import RegexValidator
 import secrets
@@ -402,9 +402,8 @@ def signup(request):
             email_sent = False
             display_name = full_name or username
             if email and not is_admin:
-                try:
-                    subject = "Welcome to Future Gym - Registration Successful"
-                    message = f"""Dear {display_name},
+                subject = "Welcome to Future Gym - Registration Successful"
+                message = f"""Dear {display_name},
 
 Thank you for joining Future Gym! Your registration was successful.
 
@@ -418,19 +417,8 @@ If you did not create this account, please contact the gym administration.
 Best regards,
 Future Gym Management
 """
-                    send_mail(
-                        subject,
-                        message,
-                        settings.DEFAULT_FROM_EMAIL,
-                        [email],
-                        fail_silently=False,
-                    )
-                    email_sent = True
-                except Exception as e:
-                    messages.warning(
-                        request,
-                        f"Account created, but we could not send a confirmation email: {str(e)}",
-                    )
+                send_email_async(subject, message, [email])
+                email_sent = True
 
             # Attempt to log the new user in immediately
             raw_password = form.cleaned_data.get('password1')
@@ -595,16 +583,7 @@ Best regards,
 Future Gym Management
 """
     if trainer_user.email:
-        try:
-            send_mail(
-                'Future Gym – New trainee assigned to you',
-                email_body,
-                settings.DEFAULT_FROM_EMAIL,
-                [trainer_user.email],
-                fail_silently=False,
-            )
-        except Exception:
-            pass
+        send_email_async('Future Gym – New trainee assigned to you', email_body, [trainer_user.email])
 
     notice_email = member.email or trainer_user.email or 'noreply@futuregym.com'
     notice = questions.objects.create(
@@ -1850,11 +1829,9 @@ def register(request):
             image=image,
         )
 
-        # Send email with credentials
-        try:
-            subject = f"Welcome to Future Gym - Your Account Details"
-            role_label = "Trainer" if role == names.ROLE_TRAINER else "Trainee"
-            message = f"""
+        subject = f"Welcome to Future Gym - Your Account Details"
+        role_label = "Trainer" if role == names.ROLE_TRAINER else "Trainee"
+        message = f"""
 Dear {name},
 
 Welcome to Future Gym! Your account has been successfully created.
@@ -1874,16 +1851,8 @@ Best regards,
 Future Gym Management
             """
 
-            send_mail(
-                subject,
-                message,
-                settings.DEFAULT_FROM_EMAIL,
-                [email],
-                fail_silently=False,
-            )
-            messages.success(request, f"Account created successfully! Credentials sent to {email}")
-        except Exception as e:
-            messages.warning(request, f"Account created but email could not be sent: {str(e)}")
+        send_email_async(subject, message, [email])
+        messages.success(request, f"Account created successfully! Credentials sent to {email}")
 
         return redirect('members_url')
 
@@ -3710,9 +3679,8 @@ def registrar_register(request):
             image=image,
         )
 
-        try:
-            subject = "Welcome to Future Gym - Your Account Details"
-            message = f"""Dear {name},
+        subject = "Welcome to Future Gym - Your Account Details"
+        message = f"""Dear {name},
 
 Welcome to Future Gym! Your account has been created.
 
@@ -3724,9 +3692,7 @@ Please log in and change your password immediately.
 
 Best regards,
 Future Gym Management"""
-            send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email], fail_silently=True)
-        except Exception:
-            pass
+        send_email_async(subject, message, [email])
 
         messages.success(request, f'Trainee "{name}" registered successfully! Username: {username}, Password: {password}')
         return redirect('registrar_dashboard_url')
