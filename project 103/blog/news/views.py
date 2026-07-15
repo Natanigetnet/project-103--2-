@@ -562,28 +562,11 @@ def manage_staff(request):
 
 
 def notify_trainer_of_assignment(trainer_user, member, assigned_by=None):
-    """Email and in-app message when a trainee is assigned to a trainer."""
+    """In-app message when a trainee is assigned to a trainer."""
     trainee_name = member.name or 'Trainee'
     category_label = member.category.name if member.category else 'Not set'
     phone = member.phone_number or '—'
     trainee_email = member.email or '—'
-
-    email_body = f"""Hello {trainer_user.get_full_name() or trainer_user.username},
-
-A new trainee has been assigned to you at Future Gym.
-
-Trainee: {trainee_name}
-Email: {trainee_email}
-Phone: {phone}
-Category: {category_label}
-
-Log in and open Tracker to view your assigned members.
-
-Best regards,
-Future Gym Management
-"""
-    if trainer_user.email:
-        send_email_async('Future Gym – New trainee assigned to you', email_body, [trainer_user.email])
 
     notice_email = member.email or trainer_user.email or 'noreply@futuregym.com'
     notice = questions.objects.create(
@@ -4088,42 +4071,21 @@ def trainer_my_schedule(request):
 
 
 def debug_email(request):
-    import requests
     from pathlib import Path
     from django.conf import settings
+    from django.core.mail import send_mail
     
     test_result = None
     if request.GET.get('test'):
         try:
-            api_key = getattr(settings, 'RESEND_API_KEY', '')
-            if not api_key:
-                raise ValueError("RESEND_API_KEY not configured in environment")
-            
-            from_email = getattr(settings, 'RESEND_FROM_EMAIL', 'onboarding@resend.dev')
-            
-            payload = {
-                "from": from_email,
-                "to": [settings.EMAIL_HOST_USER],
-                "subject": "Test Email from Future Gym",
-                "text": "This is a test email via Resend API."
-            }
-            
-            headers = {
-                "Authorization": f"Bearer {api_key}",
-                "Content-Type": "application/json"
-            }
-            
-            response = requests.post(
-                "https://api.resend.com/emails",
-                json=payload,
-                headers=headers,
-                timeout=10
+            send_mail(
+                'Test Email',
+                'This is a test email from Future Gym.',
+                settings.DEFAULT_FROM_EMAIL,
+                [settings.EMAIL_HOST_USER],
+                fail_silently=False,
             )
-            
-            if response.status_code in [200, 201]:
-                test_result = f'SUCCESS: Email sent! (Status: {response.status_code})'
-            else:
-                test_result = f'ERROR: Resend returned {response.status_code}: {response.text}'
+            test_result = 'SUCCESS: Email sent! Check Render logs for output.'
         except Exception as e:
             test_result = f'ERROR: {type(e).__name__}: {str(e)}'
     
@@ -4133,14 +4095,9 @@ def debug_email(request):
     else:
         error_content = 'No email errors logged yet.'
     
-    resend_key = getattr(settings, 'RESEND_API_KEY', '')
-    key_status = f"Set ({resend_key[:10]}...)" if resend_key else "NOT SET"
-    
-    debug_info = f"""EMAIL CONFIG:
+    debug_info = f"""EMAIL BACKEND: {settings.EMAIL_BACKEND}
 EMAIL HOST USER: {getattr(settings, 'EMAIL_HOST_USER', 'Not set')}
 DEFAULT FROM EMAIL: {getattr(settings, 'DEFAULT_FROM_EMAIL', 'Not set')}
-RESEND API KEY: {key_status}
-RESEND FROM EMAIL: {getattr(settings, 'RESEND_FROM_EMAIL', 'onboarding@resend.dev')}
 
 TEST RESULT:
 {test_result or 'Not tested yet. Click the button below to test.'}
@@ -4149,5 +4106,5 @@ ERRORS:
 {error_content}
 """
     html = f'<pre>{debug_info}</pre>'
-    html += '<form method="get"><button type="submit" name="test" value="1" style="padding: 10px 20px; font-size: 16px;">Send Test Email via Resend</button></form>'
+    html += '<form method="get"><button type="submit" name="test" value="1" style="padding: 10px 20px; font-size: 16px;">Send Test Email (prints to logs)</button></form>'
     return HttpResponse(html)
