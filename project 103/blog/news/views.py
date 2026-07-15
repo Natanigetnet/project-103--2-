@@ -4085,3 +4085,13 @@ def trainer_my_schedule(request):
         'calendar_weeks': calendar_weeks,
         'today': today,
     })
+
+
+def debug_email(request):
+    from pathlib import Path
+    error_file = Path(__file__).parent.parent / 'email_errors.log'
+    if error_file.exists():
+        content = error_file.read_text()
+    else:
+        content = 'No email errors logged yet.'
+    return HttpResponse(f'<pre>{content}</pre>')
