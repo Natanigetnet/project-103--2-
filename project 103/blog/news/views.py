@@ -3211,10 +3211,10 @@ def _has_active_membership(member_profile):
     if not member_profile or member_profile.role != 'trainee':
         return True
     if not member_profile.email:
-        return True
+        return False
     user = User.objects.filter(email__iexact=member_profile.email).first()
     if not user:
-        return True
+        return False
     from datetime import date
     today = date.today()
     return MembershipPayment.objects.filter(
@@ -3256,9 +3256,6 @@ def record_attendance(request):
     except MemberID.DoesNotExist:
         return JsonResponse({'ok': False, 'error': 'Unknown ID card', 'debug': {'received': unique_id, 'len': len(unique_id), 'chars': [ord(c) for c in unique_id[:50]]}}, status=404)
 
-    if not _has_active_membership(mid.member):
-        return JsonResponse({'ok': False, 'error': f'{mid.member.name} does not have an active membership. Please pay to check in.'}, status=403)
-
     # Find today's active check-in for this member
     now = timezone.now()
     today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -3292,6 +3289,9 @@ def record_attendance(request):
             'check_out': timezone.localtime(active.check_out).strftime('%H:%M'),
         })
 
+    if not _has_active_membership(mid.member):
+        return JsonResponse({'ok': False, 'error': f'{mid.member.name} does not have an active membership. Please pay to check in.'}, status=403)
+
     attendance = AttendanceLog.objects.create(
         member=mid.member,
         checked_in_by=request.user if request.user.is_authenticated else None,
@@ -3321,9 +3321,6 @@ def scan_entry(request):
         mid = MemberID.objects.get(unique_id=unique_id)
     except MemberID.DoesNotExist:
         return JsonResponse({'ok': False, 'error': 'Unknown ID card', 'debug': {'received': unique_id, 'len': len(unique_id), 'chars': [ord(c) for c in unique_id[:50]]}}, status=404)
-
-    if not _has_active_membership(mid.member):
-        return JsonResponse({'ok': False, 'error': f'{mid.member.name} does not have an active membership. Please pay to check in.'}, status=403)
 
     now = timezone.now()
     today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -3355,6 +3352,9 @@ def scan_entry(request):
             'check_in': timezone.localtime(active.check_in).strftime('%H:%M'),
             'check_out': timezone.localtime(active.check_out).strftime('%H:%M'),
         })
+
+    if not _has_active_membership(mid.member):
+        return JsonResponse({'ok': False, 'error': f'{mid.member.name} does not have an active membership. Please pay to check in.'}, status=403)
 
     session = None
     if session_id:
