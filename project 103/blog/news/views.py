@@ -3207,6 +3207,23 @@ def id_card_pdf(request):
     return render(request, 'id_card_pdf.html', {'mid': mid, 'person': person, 'qr_uri': qr_uri})
 
 
+def _has_active_membership(member_profile):
+    if not member_profile or member_profile.role != 'trainee':
+        return True
+    if not member_profile.email:
+        return True
+    user = User.objects.filter(email__iexact=member_profile.email).first()
+    if not user:
+        return True
+    from datetime import date
+    today = date.today()
+    return MembershipPayment.objects.filter(
+        user=user,
+        is_verified=True,
+        subscription_end__gte=today
+    ).exists()
+
+
 # ─── QR Scanner (Admin) ────────────────────────────────────────────────────────
 
 @user_passes_test(lambda u: u.is_superuser)
@@ -3238,6 +3255,9 @@ def record_attendance(request):
         mid = MemberID.objects.get(unique_id=unique_id)
     except MemberID.DoesNotExist:
         return JsonResponse({'ok': False, 'error': 'Unknown ID card', 'debug': {'received': unique_id, 'len': len(unique_id), 'chars': [ord(c) for c in unique_id[:50]]}}, status=404)
+
+    if not _has_active_membership(mid.member):
+        return JsonResponse({'ok': False, 'error': f'{mid.member.name} does not have an active membership. Please pay to check in.'}, status=403)
 
     # Find today's active check-in for this member
     now = timezone.now()
@@ -3301,6 +3321,9 @@ def scan_entry(request):
         mid = MemberID.objects.get(unique_id=unique_id)
     except MemberID.DoesNotExist:
         return JsonResponse({'ok': False, 'error': 'Unknown ID card', 'debug': {'received': unique_id, 'len': len(unique_id), 'chars': [ord(c) for c in unique_id[:50]]}}, status=404)
+
+    if not _has_active_membership(mid.member):
+        return JsonResponse({'ok': False, 'error': f'{mid.member.name} does not have an active membership. Please pay to check in.'}, status=403)
 
     now = timezone.now()
     today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -3419,6 +3442,9 @@ def check_in_entry(request):
         mid = MemberID.objects.get(unique_id=unique_id)
     except MemberID.DoesNotExist:
         return JsonResponse({'ok': False, 'error': 'Unknown ID card', 'debug': {'received': unique_id, 'len': len(unique_id), 'chars': [ord(c) for c in unique_id[:50]]}}, status=404)
+
+    if not _has_active_membership(mid.member):
+        return JsonResponse({'ok': False, 'error': f'{mid.member.name} does not have an active membership. Please pay to check in.'}, status=403)
 
     now = timezone.now()
     today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
