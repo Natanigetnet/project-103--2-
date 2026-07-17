@@ -187,6 +187,9 @@
                         </a>
                         {% endif %}
                         {% if is_trainee %}
+                        <a href="{% url 'membership_payment_url' %}" class="btn btn-glow"><i class="bi bi-credit-card-2-front-fill me-1"></i> Pay Membership</a>
+                        {% endif %}
+                        {% if is_trainee %}
                         <a href="{% url 'trainer_selector_url' %}" class="btn btn-outline-glow">Find Trainers</a>
                         {% endif %}
                         {% if is_trainee %}
@@ -315,6 +318,9 @@
                     <p class="small text-muted mb-3">Update your profile or add medical notes for your trainer.</p>
                     
                     <div class="d-grid gap-2">
+                        <a href="{% url 'membership_payment_url' %}" class="btn btn-success btn-sm rounded-3 text-white">
+                            <i class="bi bi-credit-card-2-front-fill me-1"></i> Pay Membership
+                        </a>
                         <a href="{% url 'my_id_card_url' %}" class="btn btn-outline-info btn-sm rounded-3 text-white border-secondary">
                             <i class="bi bi-card-text me-1"></i> My ID Card
                         </a>
