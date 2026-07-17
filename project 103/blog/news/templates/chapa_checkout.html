@@ -1,0 +1,266 @@
+{% extends 'base.html' %}
+{% block title %}Future Gym | Chapa Checkout{% endblock %}
+{% block extra_head %}
+<style>
+    .chapa-container {
+        max-width: 480px;
+        margin: 0 auto;
+    }
+    .chapa-card {
+        background: rgba(15, 17, 22, 0.92);
+        backdrop-filter: blur(20px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        overflow: hidden;
+    }
+    .chapa-header {
+        background: linear-gradient(135deg, #1a56db 0%, #7c3aed 100%);
+        padding: 1.5rem 2rem;
+        text-align: center;
+    }
+    .chapa-logo {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: white;
+        letter-spacing: -1px;
+    }
+    .chapa-logo span {
+        background: linear-gradient(135deg, #60a5fa, #a78bfa);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .chapa-body {
+        padding: 2rem;
+    }
+    .chapa-amount-box {
+        text-align: center;
+        padding: 1.5rem;
+        background: rgba(13, 110, 253, 0.06);
+        border: 1px solid rgba(13, 110, 253, 0.15);
+        border-radius: 16px;
+        margin-bottom: 1.5rem;
+    }
+    .chapa-amount {
+        font-size: 2.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .chapa-field {
+        margin-bottom: 1rem;
+    }
+    .chapa-field label {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #94a3b8;
+        margin-bottom: 0.4rem;
+        letter-spacing: 0.5px;
+    }
+    .chapa-field input, .chapa-field select {
+        width: 100%;
+        background: rgba(15, 17, 22, 0.6);
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        color: #f1f5f9;
+        font-size: 0.92rem;
+        font-weight: 450;
+        transition: all 0.25s;
+    }
+    .chapa-field input:focus, .chapa-field select:focus {
+        outline: none;
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+    }
+    .chapa-field input::placeholder { color: #64748b; }
+    .chapa-field select option { background: #1e293b; color: #f1f5f9; }
+    .chapa-pay-btn {
+        width: 100%;
+        padding: 14px;
+        background: linear-gradient(135deg, #1a56db 0%, #7c3aed 100%);
+        color: white;
+        border: none;
+        border-radius: 14px;
+        font-size: 1.05rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 24px rgba(26, 86, 219, 0.3);
+        margin-top: 0.5rem;
+    }
+    .chapa-pay-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 32px rgba(26, 86, 219, 0.45);
+    }
+    .chapa-secure {
+        text-align: center;
+        margin-top: 1rem;
+        color: #64748b;
+        font-size: 0.78rem;
+    }
+    .chapa-summary-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        font-size: 0.88rem;
+    }
+    .chapa-summary-row .label { color: #94a3b8; }
+    .chapa-summary-row .value { color: #f1f5f9; font-weight: 600; }
+    .chapa-divider {
+        border: none;
+        border-top: 1px solid rgba(255,255,255,0.06);
+        margin: 0.75rem 0;
+    }
+    .processing-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(15, 17, 22, 0.95);
+        z-index: 9999;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    .processing-overlay.active { display: flex; }
+    .spinner-chapa {
+        width: 56px; height: 56px;
+        border: 4px solid rgba(255,255,255,0.1);
+        border-top-color: #0d6efd;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+{% endblock %}
+{% block navbar %}
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold fs-4" href="{% url 'home_url' %}">
+            <i class="bi bi-lightning-charge-fill text-primary"></i> FUTURE<span class="text-primary">GYM</span>
+        </a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <i class="bi bi-list fs-2 text-white"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a class="nav-link" href="{% url 'membership_payment_url' %}"><i class="bi bi-arrow-left me-1"></i>Back to Membership</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+{% endblock %}
+{% block content %}
+<div class="processing-overlay" id="processingOverlay">
+    <div class="spinner-chapa"></div>
+    <div class="text-center">
+        <h5 class="fw-bold text-white mb-1">Processing Payment...</h5>
+        <p class="text-muted small">Please wait while we verify your transaction</p>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="chapa-container fade-in">
+        <div class="chapa-card">
+            <div class="chapa-header">
+                <div class="chapa-logo"><span>CHAPA</span></div>
+                <p class="text-white-50 small mb-0 mt-1">Secure Payment Gateway</p>
+            </div>
+            <div class="chapa-body">
+                <div class="chapa-amount-box">
+                    <div class="text-muted small text-uppercase fw-bold mb-1">Amount to Pay</div>
+                    <div class="chapa-amount">{{ membership_fee|floatformat:0 }} ETB</div>
+                    <div class="text-muted small mt-1">{{ subscription_months }}-Month Gym Membership</div>
+                </div>
+
+                <div class="chapa-summary-row">
+                    <span class="label">Merchant</span>
+                    <span class="value">Future Gym</span>
+                </div>
+                <div class="chapa-summary-row">
+                    <span class="label">Customer</span>
+                    <span class="value">{{ request.user.username }}</span>
+                </div>
+                <div class="chapa-summary-row">
+                    <span class="label">Email</span>
+                    <span class="value">{{ request.user.email|default:"--" }}</span>
+                </div>
+                <div class="chapa-summary-row">
+                    <span class="label">Period</span>
+                    <span class="value">{{ subscription_months }} Months</span>
+                </div>
+                <hr class="chapa-divider">
+                <div class="chapa-summary-row">
+                    <span class="label fw-bold">Total</span>
+                    <span class="value" style="color: #60a5fa;">{{ membership_fee|floatformat:0 }} ETB</span>
+                </div>
+
+                <form method="POST" id="chapaForm">
+                    {% csrf_token %}
+                    <div class="chapa-field">
+                        <label>Card Number</label>
+                        <input type="text" placeholder="4242 4242 4242 4242" maxlength="19" id="cardNumber" required>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <div class="chapa-field">
+                                <label>Expiry</label>
+                                <input type="text" placeholder="MM/YY" maxlength="5" id="cardExpiry" required>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="chapa-field">
+                                <label>CVV</label>
+                                <input type="text" placeholder="123" maxlength="4" id="cardCvv" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chapa-field">
+                        <label>Payment Method</label>
+                        <select id="payMethod">
+                            <option value="card">Card Payment</option>
+                            <option value="mobile">Mobile Banking</option>
+                            <option value="telebirr">TeleBirr</option>
+                            <option value="cbe">CBE Birr</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="chapa-pay-btn">
+                        <i class="bi bi-lock-fill me-2"></i>Pay {{ membership_fee|floatformat:0 }} ETB
+                    </button>
+                </form>
+                <div class="chapa-secure">
+                    <i class="bi bi-shield-lock-fill me-1"></i>
+                    Secured by Chapa &middot; 256-bit SSL Encryption
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_scripts %}
+<script>
+    document.getElementById('cardNumber').addEventListener('input', function(e) {
+        let v = e.target.value.replace(/\s/g, '').replace(/\D/g, '');
+        let formatted = v.match(/.{1,4}/g);
+        e.target.value = formatted ? formatted.join(' ') : '';
+    });
+    document.getElementById('cardExpiry').addEventListener('input', function(e) {
+        let v = e.target.value.replace(/\D/g, '');
+        if (v.length >= 2) v = v.slice(0,2) + '/' + v.slice(2);
+        e.target.value = v;
+    });
+    document.getElementById('cardCvv').addEventListener('input', function(e) {
+        e.target.value = e.target.value.replace(/\D/g, '');
+    });
+    document.getElementById('chapaForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        document.getElementById('processingOverlay').classList.add('active');
+        setTimeout(function() {
+            document.getElementById('chapaForm').submit();
+        }, 2500);
+    });
+</script>
+{% endblock %}

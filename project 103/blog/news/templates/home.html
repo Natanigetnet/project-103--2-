@@ -109,6 +109,7 @@
                                 <li><a class="dropdown-item rounded-3" href="{% url 'trainer_currently_in_url' %}"><i class="bi bi-people-fill me-2"></i>My Trainees In Gym</a></li>
                                 <li><a class="dropdown-item rounded-3" href="{% url 'trainer_settings_url' %}"><i class="bi bi-gear me-2"></i>Profile</a></li>
                                 {% elif is_trainee %}
+                                <li><a class="dropdown-item rounded-3" href="{% url 'membership_payment_url' %}"><i class="bi bi-credit-card-2-front-fill text-primary me-2"></i>Membership</a></li>
                                 <li><a class="dropdown-item rounded-3" href="{% url 'trainee_settings_url' %}"><i class="bi bi-gear me-2"></i>Settings</a></li>
                                 <li><a class="dropdown-item rounded-3" href="{% url 'trainee_bmi_url' %}"><i class="bi bi-heart-pulse text-primary me-2"></i>Progress</a></li>
                                 <li><a class="dropdown-item rounded-3" href="https://t.me/+n_DwILDm1kQ2YWI8" target="_blank"><i class="bi bi-telegram text-primary me-2"></i>Telegram</a></li>

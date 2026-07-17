@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+{% block title %}Future Gym | Payment Receipt{% endblock %}
+{% block extra_head %}
+<style>
+    .receipt-container { max-width: 560px; margin: 0 auto; }
+    .receipt-card {
+        background: rgba(15, 17, 22, 0.92);
+        backdrop-filter: blur(20px);
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        overflow: hidden;
+    }
+    .receipt-header {
+        background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        padding: 2rem;
+        text-align: center;
+    }
+    .receipt-check {
+        width: 72px; height: 72px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 2rem;
+        color: white;
+        animation: scaleIn 0.5s ease;
+    }
+    @keyframes scaleIn {
+        from { transform: scale(0); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+    .receipt-body { padding: 2rem; }
+    .receipt-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .receipt-row:last-child { border-bottom: none; }
+    .receipt-label { color: #94a3b8; font-size: 0.85rem; font-weight: 500; }
+    .receipt-value { color: #f1f5f9; font-weight: 600; font-size: 0.92rem; text-align: right; }
+    .receipt-amount {
+        text-align: center;
+        padding: 1.5rem;
+        margin: 1rem 0;
+        background: rgba(16, 185, 129, 0.06);
+        border: 1px solid rgba(16, 185, 129, 0.15);
+        border-radius: 16px;
+    }
+    .receipt-amount-value {
+        font-size: 2.2rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #10b981, #059669);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .receipt-divider {
+        border: none;
+        border-top: 1px dashed rgba(255,255,255,0.1);
+        margin: 1rem 0;
+    }
+    @media print {
+        .no-print { display: none !important; }
+        body { background: white !important; }
+        .receipt-card { border: 2px solid #333; }
+    }
+</style>
+{% endblock %}
+{% block navbar %}
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold fs-4" href="{% url 'home_url' %}">
+            <i class="bi bi-lightning-charge-fill text-primary"></i> FUTURE<span class="text-primary">GYM</span>
+        </a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <i class="bi bi-list fs-2 text-white"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a class="nav-link" href="{% url 'membership_payment_url' %}">My Membership</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'home_url' %}">Home</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <div class="receipt-container fade-in">
+        <div class="receipt-card">
+            <div class="receipt-header">
+                <div class="receipt-check">
+                    <i class="bi bi-check-lg"></i>
+                </div>
+                <h3 class="fw-bold text-white mb-1">Payment Successful</h3>
+                <p class="text-white-50 small mb-0">Your transaction has been completed</p>
+            </div>
+            <div class="receipt-body">
+                <div class="receipt-amount">
+                    <div class="text-muted small text-uppercase fw-bold mb-1">Amount Paid</div>
+                    <div class="receipt-amount-value">{{ payment.amount|floatformat:0 }} ETB</div>
+                    <div class="text-muted small mt-1">{{ payment.subscription_months|default:"3" }}-Month Membership</div>
+                </div>
+
+                <div class="receipt-row">
+                    <span class="receipt-label">Receipt Number</span>
+                    <span class="receipt-value" style="color: #60a5fa;">{{ payment.receipt_number|default:"--" }}</span>
+                </div>
+                <div class="receipt-row">
+                    <span class="receipt-label">Transaction Ref</span>
+                    <span class="receipt-value">{{ payment.chapa_tx_ref|default:"--" }}</span>
+                </div>
+                <div class="receipt-row">
+                    <span class="receipt-label">Customer</span>
+                    <span class="receipt-value">{{ payment.user.username }}</span>
+                </div>
+                <div class="receipt-row">
+                    <span class="receipt-label">Email</span>
+                    <span class="receipt-value">{{ payment.user.email|default:"--" }}</span>
+                </div>
+                <div class="receipt-row">
+                    <span class="receipt-label">Payment Method</span>
+                    <span class="receipt-value">
+                        <span class="badge badge-modern" style="background: rgba(13,110,253,0.15); color: #60a5fa;">
+                            <i class="bi bi-lightning-charge-fill me-1"></i>Chapa
+                        </span>
+                    </span>
+                </div>
+                <hr class="receipt-divider">
+                <div class="receipt-row">
+                    <span class="receipt-label">Payment Date</span>
+                    <span class="receipt-value">{{ payment.payment_date|date:"M d, Y" }}</span>
+                </div>
+                <div class="receipt-row">
+                    <span class="receipt-label">Subscription Start</span>
+                    <span class="receipt-value">{{ payment.subscription_start|date:"M d, Y"|default:"--" }}</span>
+                </div>
+                <div class="receipt-row">
+                    <span class="receipt-label">Subscription End</span>
+                    <span class="receipt-value" style="color: #34d399;">{{ payment.subscription_end|date:"M d, Y"|default:"--" }}</span>
+                </div>
+                <div class="receipt-row">
+                    <span class="receipt-label">Status</span>
+                    <span class="receipt-value">
+                        {% if payment.is_verified %}
+                        <span class="badge badge-modern" style="background: rgba(16,185,129,0.15); color: #34d399;">
+                            <i class="bi bi-check-circle-fill me-1"></i>Verified
+                        </span>
+                        {% else %}
+                        <span class="badge badge-modern" style="background: rgba(245,158,11,0.15); color: #fbbf24;">Pending</span>
+                        {% endif %}
+                    </span>
+                </div>
+
+                <hr class="receipt-divider">
+                <div class="text-center">
+                    <p class="text-muted small mb-3">Thank you for your payment! Your membership is now active.</p>
+                    <div class="d-flex gap-2 no-print">
+                        <a href="{% url 'membership_payment_url' %}" class="btn btn-glow flex-fill">
+                            <i class="bi bi-shield-check me-1"></i>My Membership
+                        </a>
+                        <button onclick="window.print()" class="btn btn-outline-glow flex-fill">
+                            <i class="bi bi-printer me-1"></i>Print
+                        </button>
+                    </div>
+                    <a href="{% url 'home_url' %}" class="text-muted text-decoration-none small d-block mt-3 no-print">
+                        <i class="bi bi-house me-1"></i>Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

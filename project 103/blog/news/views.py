@@ -317,20 +317,35 @@ def admin_trainer_dashboard(request):
         scheduled_count = len(scheduled_days)
         attendance_rate = round(len(attended_dates) / scheduled_count * 100, 1) if scheduled_count > 0 else 0
 
-        # Weekly calendar (current Sun-Sat)
-        week_days = []
-        for i in range(7):
-            day_date = week_start + timedelta(days=i)
-            py_weekday = day_date.weekday()
-            schedule_weekday = (py_weekday + 1) % 7
-            day_schedules = [s for s in schedules if s.day_of_week == schedule_weekday]
-            was_present = day_date in attended_dates
-            week_days.append({
-                'date': day_date,
-                'day_name': ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][schedule_weekday],
-                'scheduled': day_schedules[0] if day_schedules else None,
-                'was_present': was_present,
+        # Monthly calendar (all weeks in the month)
+        month_weeks = []
+        # Find the Sunday on or before month_start
+        month_py_weekday = month_start.weekday()
+        month_schedule_weekday = (month_py_weekday + 1) % 7
+        calendar_start = month_start - timedelta(days=month_schedule_weekday)
+        
+        cur_week_start = calendar_start
+        while cur_week_start <= month_end:
+            week_days = []
+            for i in range(7):
+                day_date = cur_week_start + timedelta(days=i)
+                py_weekday = day_date.weekday()
+                schedule_weekday = (py_weekday + 1) % 7
+                day_schedules = [s for s in schedules if s.day_of_week == schedule_weekday]
+                was_present = day_date in attended_dates
+                in_month = month_start <= day_date <= month_end
+                week_days.append({
+                    'date': day_date,
+                    'day_name': ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][schedule_weekday],
+                    'scheduled': day_schedules[0] if day_schedules else None,
+                    'was_present': was_present,
+                    'in_month': in_month,
+                })
+            month_weeks.append({
+                'week_number': len(month_weeks) + 1,
+                'days': week_days,
             })
+            cur_week_start += timedelta(weeks=1)
 
         # Last 10 missed days
         missed_recent = sorted(missed_days, key=lambda x: x['date'], reverse=True)[:10]
@@ -347,7 +362,7 @@ def admin_trainer_dashboard(request):
             'scheduled_count': scheduled_count,
             'missed_count': len(missed_days),
             'attendance_rate': attendance_rate,
-            'week_days': week_days,
+            'month_weeks': month_weeks,
             'missed_recent': missed_recent,
             'days_until_payment': days_until,
         })
@@ -727,12 +742,6 @@ def check_missed_trainer_shifts():
             continue
 
         trainer_names = schedule.trainer
-        trainer_user = None
-        if trainer_names.email:
-            trainer_user = User.objects.filter(email__iexact=trainer_names.email).first()
-
-        if not trainer_user:
-            continue
 
         has_checked_in = AttendanceLog.objects.filter(
             member=trainer_names,
@@ -4108,3 +4117,87 @@ ERRORS:
     html = f'<pre>{debug_info}</pre>'
     html += '<form method="get"><button type="submit" name="test" value="1" style="padding: 10px 20px; font-size: 16px;">Send Test Email (prints to logs)</button></form>'
     return HttpResponse(html)
+
+
+import uuid
+import hashlib
+
+MEMBERSHIP_FEE = 5000
+SUBSCRIPTION_MONTHS = 3
+
+@login_required
+def membership_payment_page(request):
+    user = request.user
+    latest_payment = MembershipPayment.objects.filter(user=user).order_by('-entry_date').first()
+    all_payments = MembershipPayment.objects.filter(user=user).order_by('-entry_date')
+
+    is_active = False
+    subscription_end = None
+    if latest_payment and latest_payment.subscription_end:
+        from datetime import date
+        subscription_end = latest_payment.subscription_end
+        is_active = subscription_end >= date.today()
+
+    context = {
+        'latest_payment': latest_payment,
+        'all_payments': all_payments,
+        'is_active': is_active,
+        'subscription_end': subscription_end,
+        'membership_fee': MEMBERSHIP_FEE,
+        'subscription_months': SUBSCRIPTION_MONTHS,
+    }
+    return render(request, 'membership_payment.html', context)
+
+
+@login_required
+def chapa_checkout(request):
+    if request.method == 'POST':
+        tx_ref = f"TX-{uuid.uuid4().hex[:12].upper()}"
+        user = request.user
+
+        from datetime import date
+        today = date.today()
+        sub_start = today
+        sub_end = today + timedelta(days=SUBSCRIPTION_MONTHS * 30)
+
+        receipt_num = f"FG-{uuid.uuid4().hex[:8].upper()}"
+
+        payment = MembershipPayment.objects.create(
+            user=user,
+            amount=MEMBERSHIP_FEE,
+            payment_date=today,
+            payment_method='CHAPA',
+            receipt_number=receipt_num,
+            is_verified=True,
+            subscription_start=sub_start,
+            subscription_end=sub_end,
+            chapa_tx_ref=tx_ref,
+        )
+
+        receipt_notice = questions.objects.create(
+            name=user.username,
+            email=user.email,
+            quest=f"Payment Logged: {MEMBERSHIP_FEE} via CHAPA on {today}."
+        )
+        response_model.objects.create(
+            name=user,
+            quest=receipt_notice,
+            text=f"Official Confirmation: Your payment of {MEMBERSHIP_FEE} ETB has been verified via Chapa. Your membership is active until {sub_end}."
+        )
+
+        return redirect('payment_receipt_url', payment_id=payment.id)
+
+    context = {
+        'membership_fee': MEMBERSHIP_FEE,
+        'subscription_months': SUBSCRIPTION_MONTHS,
+    }
+    return render(request, 'chapa_checkout.html', context)
+
+
+@login_required
+def payment_receipt(request, payment_id):
+    payment = get_object_or_404(MembershipPayment, id=payment_id, user=request.user)
+    context = {
+        'payment': payment,
+    }
+    return render(request, 'payment_receipt.html', context)
