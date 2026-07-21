@@ -725,62 +725,6 @@ def edit_legacy_member(request, member_id):
     return edit(request, member_obj.name)
 
 
-def check_missed_trainer_shifts():
-    now = timezone.now()
-    today = now.date()
-
-    py_weekday = today.weekday()
-    schedule_weekday = (py_weekday + 1) % 7
-
-    schedules = TrainerSchedule.objects.filter(day_of_week=schedule_weekday).select_related('trainer')
-
-    for schedule in schedules:
-        shift_end_time = schedule.shift_end()
-        shift_end_hour, shift_end_minute = map(int, shift_end_time.split(':'))
-        shift_end_datetime = now.replace(hour=shift_end_hour, minute=shift_end_minute, second=0, microsecond=0)
-
-        if now < shift_end_datetime:
-            continue
-
-        trainer_names = schedule.trainer
-
-        has_checked_in = AttendanceLog.objects.filter(
-            member=trainer_names,
-            check_in__date=today
-        ).exists()
-
-        if has_checked_in:
-            continue
-
-        already_notified = questions.objects.filter(
-            quest__icontains=f'did not check in for their {schedule.get_shift_display()} shift',
-        ).filter(
-            quest__icontains=trainer_names.name,
-        ).filter(
-            quest__icontains=today.strftime('%Y-%m-%d')
-        ).exists()
-
-        if already_notified:
-            continue
-
-        notification = questions.objects.create(
-            name='System Alert',
-            email='system@futuregym.com',
-            quest=f'Trainer {trainer_names.name} did not check in for their {schedule.get_shift_display()} shift on {today.strftime("%Y-%m-%d")}',
-        )
-        response_model.objects.create(
-            name=None,
-            quest=notification,
-            text=(
-                f'Trainer {trainer_names.name} was scheduled for a {schedule.get_shift_display()} shift today '
-                f'({schedule.shift_start()} - {schedule.shift_end()}) but did not check in.\n\n'
-                f'Date: {today.strftime("%Y-%m-%d")}\n'
-                f'Shift: {schedule.get_shift_display()} ({schedule.shift_start()} - {schedule.shift_end()})'
-            ),
-            is_read=False,
-        )
-
-
 def home(request):
     unread_count = 0
     is_trainee = False
@@ -789,7 +733,6 @@ def home(request):
     upcoming_sessions = []
     if request.user.is_authenticated:
         if request.user.is_superuser:
-            check_missed_trainer_shifts()
             unread_count = response_model.objects.filter(is_read=False).count()
         else:
             unread_count = response_model.objects.filter(
