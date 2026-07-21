@@ -7,7 +7,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.backends import ModelBackend
 from django.contrib import messages
 from functools import wraps
-from django.db.models import Avg, Count, Q
+from django.db.models import Avg, Count, Q, Sum, DecimalField
+from django.db.models.functions import TruncMonth, Coalesce
 from datetime import datetime, timedelta
 
 class CaseInsensitiveAuthBackend(ModelBackend):
@@ -4227,3 +4228,94 @@ def payment_receipt(request, payment_id):
         'payment': payment,
     }
     return render(request, 'payment_receipt.html', context)
+
+
+@user_passes_test(lambda u: u.is_superuser, login_url='login_url')
+def income_report(request):
+    from datetime import date
+    from decimal import Decimal
+
+    TAX_RATE = Decimal('0.30')
+
+    today = date.today()
+    current_month = today.month
+    current_year = today.year
+
+    all_payments = MembershipPayment.objects.filter(is_verified=True)
+
+    gross_income = all_payments.aggregate(
+        total=Coalesce(Sum('amount'), Decimal('0.00'))
+    )['total']
+
+    monthly_income = all_payments.filter(
+        payment_date__year=current_year,
+        payment_date__month=current_month,
+    ).aggregate(
+        total=Coalesce(Sum('amount'), Decimal('0.00'))
+    )['total']
+
+    income_by_method = all_payments.values('payment_method').annotate(
+        total=Coalesce(Sum('amount'), Decimal('0.00')),
+        count=Count('id')
+    ).order_by('-total')
+
+    monthly_breakdown = all_payments.annotate(
+        month=TruncMonth('payment_date')
+    ).values('month').annotate(
+        total=Coalesce(Sum('amount'), Decimal('0.00')),
+        count=Count('id')
+    ).order_by('month')[:12]
+
+    total_payments_count = all_payments.count()
+    unique_payers = all_payments.values('user').distinct().count()
+
+    employee_payments = TrainerPayment.objects.select_related('trainer').all().order_by('trainer__name')
+    total_workers = employee_payments.count()
+    total_expenses = employee_payments.aggregate(
+        total=Coalesce(Sum('salary'), Decimal('0.00'))
+    )['total']
+
+    monthly_expense = total_expenses
+
+    net_before_tax = gross_income - total_expenses
+    tax_amount = max(net_before_tax * TAX_RATE, Decimal('0.00'))
+    net_income = net_before_tax - tax_amount
+
+    net_monthly_before_tax = monthly_income - monthly_expense
+    monthly_tax = max(net_monthly_before_tax * TAX_RATE, Decimal('0.00'))
+    net_monthly = net_monthly_before_tax - monthly_tax
+
+    recent_payments = all_payments.select_related('user').order_by('-payment_date')[:20]
+
+    worker_details = []
+    for tp in employee_payments:
+        worker_details.append({
+            'name': tp.trainer.name,
+            'role': tp.trainer.role,
+            'salary': tp.salary,
+            'frequency': tp.get_payment_frequency_display(),
+            'next_due': tp.next_payment_due,
+            'days_until': tp.days_until_payment,
+        })
+
+    context = {
+        'gross_income': gross_income,
+        'monthly_income': monthly_income,
+        'net_income': net_income,
+        'net_monthly': net_monthly,
+        'total_expenses': total_expenses,
+        'monthly_expense': monthly_expense,
+        'tax_amount': tax_amount,
+        'monthly_tax': monthly_tax,
+        'tax_rate': TAX_RATE * 100,
+        'net_before_tax': net_before_tax,
+        'total_payments_count': total_payments_count,
+        'unique_payers': unique_payers,
+        'total_workers': total_workers,
+        'income_by_method': income_by_method,
+        'monthly_breakdown': monthly_breakdown,
+        'recent_payments': recent_payments,
+        'worker_details': worker_details,
+        'current_month': today.strftime('%B %Y'),
+    }
+    return render(request, 'income_report.html', context)
