@@ -1515,9 +1515,7 @@ def chat_api(request):
                 user_email = request.user.email or ''
                 q = questions(name=user_name, email=user_email, quest=message, ai_answered=True)
                 q.save()
-                resp = response_model(quest=q, text=answer[:500])
-                resp.save()
-                resp.is_read = True
+                resp = response_model(quest=q, text=answer[:500], is_read=True)
                 resp.save()
             except Exception:
                 pass
