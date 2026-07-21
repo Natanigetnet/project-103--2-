@@ -4232,8 +4232,9 @@ def payment_receipt(request, payment_id):
 
 @user_passes_test(lambda u: u.is_superuser, login_url='login_url')
 def income_report(request):
-    from datetime import date
+    from datetime import date, timedelta
     from decimal import Decimal
+    import calendar
 
     TAX_RATE = Decimal('0.30')
 
@@ -4241,7 +4242,37 @@ def income_report(request):
     current_month = today.month
     current_year = today.year
 
-    all_payments = MembershipPayment.objects.filter(is_verified=True)
+    period = request.GET.get('period', 'all')
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+
+    if period == 'month':
+        period_start = date(current_year, current_month, 1)
+        period_end = date(current_year, current_month, calendar.monthrange(current_year, current_month)[1])
+        period_label = today.strftime('%B %Y')
+    elif period == 'year':
+        period_start = date(current_year, 1, 1)
+        period_end = date(current_year, 12, 31)
+        period_label = str(current_year)
+    elif period == 'custom' and start_date and end_date:
+        period_start = datetime.strptime(start_date, '%Y-%m-%d').date()
+        period_end = datetime.strptime(end_date, '%Y-%m-%d').date()
+        period_label = f"{period_start.strftime('%d %b %Y')} - {period_end.strftime('%d %b %Y')}"
+    else:
+        period_start = None
+        period_end = None
+        period_label = 'All Time'
+
+    all_payments = MembershipPayment.objects.filter(
+        is_verified=True,
+        user__profile__role='trainee'
+    )
+
+    if period_start and period_end:
+        all_payments = all_payments.filter(
+            payment_date__gte=period_start,
+            payment_date__lte=period_end
+        )
 
     gross_income = all_payments.aggregate(
         total=Coalesce(Sum('amount'), Decimal('0.00'))
@@ -4271,17 +4302,21 @@ def income_report(request):
 
     employee_payments = TrainerPayment.objects.select_related('trainer').all().order_by('trainer__name')
     total_workers = employee_payments.count()
-    total_expenses = employee_payments.aggregate(
+    monthly_expenses = employee_payments.aggregate(
         total=Coalesce(Sum('salary'), Decimal('0.00'))
     )['total']
 
-    monthly_expense = total_expenses
+    if period_start and period_end:
+        months_in_range = (period_end.year - period_start.year) * 12 + (period_end.month - period_start.month) + 1
+        total_expenses = monthly_expenses * months_in_range
+    else:
+        total_expenses = monthly_expenses
 
     net_before_tax = gross_income - total_expenses
     tax_amount = max(net_before_tax * TAX_RATE, Decimal('0.00'))
     net_income = net_before_tax - tax_amount
 
-    net_monthly_before_tax = monthly_income - monthly_expense
+    net_monthly_before_tax = monthly_income - monthly_expenses
     monthly_tax = max(net_monthly_before_tax * TAX_RATE, Decimal('0.00'))
     net_monthly = net_monthly_before_tax - monthly_tax
 
@@ -4304,7 +4339,7 @@ def income_report(request):
         'net_income': net_income,
         'net_monthly': net_monthly,
         'total_expenses': total_expenses,
-        'monthly_expense': monthly_expense,
+        'monthly_expenses': monthly_expenses,
         'tax_amount': tax_amount,
         'monthly_tax': monthly_tax,
         'tax_rate': TAX_RATE * 100,
@@ -4316,6 +4351,9 @@ def income_report(request):
         'monthly_breakdown': monthly_breakdown,
         'recent_payments': recent_payments,
         'worker_details': worker_details,
-        'current_month': today.strftime('%B %Y'),
+        'period_label': period_label,
+        'current_period': period,
+        'start_date': start_date or '',
+        'end_date': end_date or '',
     }
     return render(request, 'income_report.html', context)

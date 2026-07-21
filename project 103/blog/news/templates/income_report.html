@@ -37,11 +37,36 @@
     <div class="d-flex justify-content-between align-items-center mb-4 fade-in">
         <div>
             <h2 class="fw-bold mb-1"><i class="bi bi-graph-up-arrow me-2"></i>Income Report</h2>
-            <p class="text-muted mb-0 small">Financial overview for <strong>{{ current_month }}</strong></p>
+            <p class="text-muted mb-0 small">Financial overview for <strong>{{ period_label }}</strong></p>
         </div>
         <a href="{% url 'admin_url' %}" class="btn btn-outline-glow btn-sm">
             <i class="bi bi-arrow-left me-1"></i> Back
         </a>
+    </div>
+
+    <div class="stat-card mb-4 fade-in">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label small text-muted mb-1">Time Period</label>
+                <select name="period" class="form-select bg-dark text-light border-secondary" onchange="this.form.submit()">
+                    <option value="all" {% if current_period == 'all' %}selected{% endif %}>All Time</option>
+                    <option value="month" {% if current_period == 'month' %}selected{% endif %}>This Month</option>
+                    <option value="year" {% if current_period == 'year' %}selected{% endif %}>This Year</option>
+                    <option value="custom" {% if current_period == 'custom' %}selected{% endif %}>Custom Range</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small text-muted mb-1">Start Date</label>
+                <input type="date" name="start_date" class="form-control bg-dark text-light border-secondary" value="{{ start_date }}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small text-muted mb-1">End Date</label>
+                <input type="date" name="end_date" class="form-control bg-dark text-light border-secondary" value="{{ end_date }}">
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary w-100"><i class="bi bi-funnel me-1"></i> Apply Filter</button>
+            </div>
+        </form>
     </div>
 
     <div class="row g-3 mb-4">
@@ -57,8 +82,8 @@
                     </div>
                 </div>
                 <div class="d-flex justify-content-between small text-muted mb-1">
-                    <span>This month</span>
-                    <span>{{ monthly_income|floatformat:2 }} ETB</span>
+                    <span>Period total</span>
+                    <span>{{ monthly_income|floatformat:2 }} ETB this month</span>
                 </div>
                 <div class="bar-track">
                     {% if gross_income > 0 %}
@@ -80,8 +105,8 @@
                     </div>
                 </div>
                 <div class="d-flex justify-content-between small text-muted mb-1">
-                    <span>Monthly salaries</span>
-                    <span>{{ total_workers }} worker{{ total_workers|pluralize }}</span>
+                    <span>Period expenses</span>
+                    <span>{{ monthly_expenses|floatformat:2 }} ETB/month</span>
                 </div>
                 <div class="bar-track">
                     {% if gross_income > 0 %}
@@ -317,7 +342,7 @@
                     <table class="table table-dark table-borderless mb-0">
                         <tbody>
                             <tr>
-                                <td class="text-muted">All-time Gross Income</td>
+                                <td class="text-muted">Gross Income ({{ period_label }})</td>
                                 <td class="fw-bold text-end text-primary">{{ gross_income|floatformat:2 }} ETB</td>
                             </tr>
                             <tr>
@@ -325,7 +350,7 @@
                                 <td class="fw-bold text-end">{{ monthly_income|floatformat:2 }} ETB</td>
                             </tr>
                             <tr>
-                                <td class="text-muted">Total Expenses (Monthly)</td>
+                                <td class="text-muted">Expenses ({{ period_label }})</td>
                                 <td class="fw-bold text-end text-danger">- {{ total_expenses|floatformat:2 }} ETB</td>
                             </tr>
                             <tr>
@@ -343,7 +368,7 @@
                                 <td class="fw-bold text-end text-warning">- {{ tax_amount|floatformat:2 }} ETB</td>
                             </tr>
                             <tr>
-                                <td class="text-muted">Net Income (All-time)</td>
+                                <td class="text-muted">Net Income ({{ period_label }})</td>
                                 <td class="fw-bold text-end {% if net_income >= 0 %}text-success{% else %}text-danger{% endif %}">{{ net_income|floatformat:2 }} ETB</td>
                             </tr>
                             <tr>
