@@ -284,6 +284,20 @@
 
         <div class="row g-4">
             <div class="col-lg-8 fade-in fade-in-delay-2">
+
+                {% if attendance_message %}
+                <div class="glass-card mb-4 border-0" style="background: linear-gradient(135deg, rgba(15,17,22,0.9), rgba(30,41,59,0.9));">
+                    <div class="d-flex align-items-center gap-4 mb-3">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:80px;height:80px;background:rgba(255,255,255,0.08);">
+                            <i class="bi {{ attendance_message.icon }} text-{{ attendance_message.color }}" style="font-size:3rem;"></i>
+                        </div>
+                        <div>
+                            <h4 class="fw-bold mb-1 text-{{ attendance_message.color }}">{{ attendance_message.title }}</h4>
+                        </div>
+                    </div>
+                    <p class="mb-0 fs-5" style="color:rgba(255,255,255,0.7);">{{ attendance_message.text }}</p>
+                </div>
+                {% endif %}
                 
                 <!-- Trainee Live Alerts Node Stream Panel Addition -->
                 {% if is_trainee or request.user.names_set.first.role == 'trainee' %}
@@ -372,45 +386,25 @@
             <aside class="col-lg-4 fade-in fade-in-delay-4">
 
                 {% if is_trainee %}
-                <div class="row g-3 mb-4">
-                    {% if attendance_message %}
-                    <div class="col-md-7">
-                        <div class="glass-card h-100 border-0" style="background: linear-gradient(135deg, rgba(15,17,22,0.9), rgba(30,41,59,0.9));">
-                            <div class="d-flex align-items-center gap-3 mb-3">
-                                <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:64px;height:64px;background:rgba(255,255,255,0.08);">
-                                    <i class="bi {{ attendance_message.icon }} text-{{ attendance_message.color }}" style="font-size:2.5rem;"></i>
-                                </div>
-                                <div>
-                                    <h5 class="fw-bold mb-1 text-{{ attendance_message.color }}">{{ attendance_message.title }}</h5>
-                                </div>
-                            </div>
-                            <p class="mb-0 fs-6" style="color:rgba(255,255,255,0.7);">{{ attendance_message.text }}</p>
-                        </div>
-                    </div>
-                    {% endif %}
-
-                    <div class="{% if attendance_message %}col-md-5{% else %}col-md-12{% endif %}">
-                        <div class="glass-card h-100">
-                            <h6 class="fw-bold mb-3 d-flex align-items-center">
-                                <i class="bi bi-gear-fill text-primary me-2"></i> My Account
-                            </h6>
-                            <p class="small text-muted mb-3">Update your profile or add medical notes for your trainer.</p>
-                            
-                            <div class="d-grid gap-2">
-                                <a href="{% url 'membership_payment_url' %}" class="btn btn-success btn-sm rounded-3 text-white">
-                                    <i class="bi bi-credit-card-2-front-fill me-1"></i> Pay Membership
-                                </a>
-                                <a href="{% url 'my_id_card_url' %}" class="btn btn-outline-info btn-sm rounded-3 text-white border-secondary">
-                                    <i class="bi bi-card-text me-1"></i> My ID Card
-                                </a>
-                                <a href="{% url 'trainee_account_url' %}" class="btn btn-outline-primary btn-sm rounded-3 text-white border-secondary">
-                                    <i class="bi bi-person me-1"></i> Account details
-                                </a>
-                                <a href="{% url 'trainee_medical_url' %}" class="btn btn-outline-danger btn-sm rounded-3 text-white border-secondary">
-                                    <i class="bi bi-heart-pulse me-1"></i> Medical info
-                                </a>
-                            </div>
-                        </div>
+                <div class="glass-card mb-4">
+                    <h6 class="fw-bold mb-3 d-flex align-items-center">
+                        <i class="bi bi-gear-fill text-primary me-2"></i> My Account
+                    </h6>
+                    <p class="small text-muted mb-3">Update your profile or add medical notes for your trainer.</p>
+                    
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'membership_payment_url' %}" class="btn btn-success btn-sm rounded-3 text-white">
+                            <i class="bi bi-credit-card-2-front-fill me-1"></i> Pay Membership
+                        </a>
+                        <a href="{% url 'my_id_card_url' %}" class="btn btn-outline-info btn-sm rounded-3 text-white border-secondary">
+                            <i class="bi bi-card-text me-1"></i> My ID Card
+                        </a>
+                        <a href="{% url 'trainee_account_url' %}" class="btn btn-outline-primary btn-sm rounded-3 text-white border-secondary">
+                            <i class="bi bi-person me-1"></i> Account details
+                        </a>
+                        <a href="{% url 'trainee_medical_url' %}" class="btn btn-outline-danger btn-sm rounded-3 text-white border-secondary">
+                            <i class="bi bi-heart-pulse me-1"></i> Medical info
+                        </a>
                     </div>
                 </div>
                 {% endif %}
