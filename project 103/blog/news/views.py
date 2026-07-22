@@ -824,6 +824,36 @@ def home(request):
         if checked_in_today and attendance_message:
             attendance_message['text'] += ' Great job showing up today!'
 
+    subscription_alert = None
+    if is_trainee and request.user.is_authenticated:
+        from datetime import date as _date
+        today_date = _date.today()
+        latest_payment = MembershipPayment.objects.filter(
+            user=request.user, is_verified=True
+        ).order_by('-subscription_end').first()
+
+        if latest_payment and latest_payment.subscription_end:
+            sub_end = latest_payment.subscription_end
+            days_left = (sub_end - today_date).days
+            if days_left < 0:
+                subscription_alert = {
+                    'level': 'expired',
+                    'end_date': sub_end,
+                    'days_left': days_left,
+                }
+            elif days_left <= 7:
+                subscription_alert = {
+                    'level': 'expiring',
+                    'end_date': sub_end,
+                    'days_left': days_left,
+                }
+        else:
+            has_any = MembershipPayment.objects.filter(user=request.user).exists()
+            if not has_any:
+                subscription_alert = {
+                    'level': 'none',
+                }
+
     context = {
         'unread_count': unread_count,
         'is_trainee': is_trainee,
@@ -834,6 +864,7 @@ def home(request):
         'my_detail_name': my_detail_name,
         'my_trainee_id': my_trainee_id,
         'attendance_message': attendance_message,
+        'subscription_alert': subscription_alert,
     }
     return render(request, 'home.html', context)
 

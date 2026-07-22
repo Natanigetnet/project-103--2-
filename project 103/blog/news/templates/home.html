@@ -221,6 +221,67 @@
     </header>
 
     <main class="container mt-5 pt-4">
+
+        {% if subscription_alert %}
+        <div class="fade-in mb-4">
+            {% if subscription_alert.level == 'expired' %}
+            <div class="glass-card p-4" style="border-left: 4px solid #dc3545;">
+                <div class="d-flex align-items-center gap-3">
+                    <i class="bi bi-exclamation-triangle-fill text-danger fs-2"></i>
+                    <div class="flex-grow-1">
+                        <h5 class="fw-bold text-danger mb-1">Subscription Expired</h5>
+                        <p class="small text-muted mb-0">
+                            Your membership expired on <strong>{{ subscription_alert.end_date|date:"d M Y" }}</strong>.
+                            Please renew to continue using gym facilities.
+                        </p>
+                    </div>
+                    <a href="{% url 'membership_payment_url' %}" class="btn btn-danger rounded-pill px-4 flex-shrink-0">
+                        <i class="bi bi-credit-card me-1"></i> Renew Now
+                    </a>
+                </div>
+            </div>
+            {% elif subscription_alert.level == 'expiring' %}
+            <div class="glass-card p-4" style="border-left: 4px solid #f59e0b;">
+                <div class="d-flex align-items-center gap-3">
+                    <i class="bi bi-clock-history text-warning fs-2"></i>
+                    <div class="flex-grow-1">
+                        <h5 class="fw-bold text-warning mb-1">Subscription Expiring Soon</h5>
+                        <p class="small text-muted mb-0">
+                            Your membership expires on <strong>{{ subscription_alert.end_date|date:"d M Y" }}</strong>
+                            {% if subscription_alert.days_left == 0 %}
+                                <span class="text-warning fw-bold">(Today!)</span>
+                            {% elif subscription_alert.days_left == 1 %}
+                                <span class="text-warning fw-bold">(Tomorrow!)</span>
+                            {% else %}
+                                (in {{ subscription_alert.days_left }} days)
+                            {% endif %}.
+                            Renew now to avoid interruption.
+                        </p>
+                    </div>
+                    <a href="{% url 'membership_payment_url' %}" class="btn btn-warning rounded-pill px-4 flex-shrink-0">
+                        <i class="bi bi-credit-card me-1"></i> Renew
+                    </a>
+                </div>
+            </div>
+            {% elif subscription_alert.level == 'none' %}
+            <div class="glass-card p-4" style="border-left: 4px solid #dc3545;">
+                <div class="d-flex align-items-center gap-3">
+                    <i class="bi bi-exclamation-circle-fill text-danger fs-2"></i>
+                    <div class="flex-grow-1">
+                        <h5 class="fw-bold text-danger mb-1">No Active Subscription</h5>
+                        <p class="small text-muted mb-0">
+                            You don't have a membership plan yet. Subscribe now to access all gym facilities.
+                        </p>
+                    </div>
+                    <a href="{% url 'membership_payment_url' %}" class="btn btn-danger rounded-pill px-4 flex-shrink-0">
+                        <i class="bi bi-credit-card me-1"></i> Subscribe
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
         <div class="row g-4">
             <div class="col-lg-8 fade-in fade-in-delay-2">
                 
