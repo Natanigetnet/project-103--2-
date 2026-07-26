@@ -780,7 +780,7 @@ def home(request):
             my_trainee_id = my_record.id
 
     attendance_message = None
-    if is_trainee and my_trainee_id:
+    if my_trainee_id:
         now = timezone.now()
         thirty_days_ago = now - timedelta(days=30)
         recent_checkins = AttendanceLog.objects.filter(
@@ -806,6 +806,13 @@ def home(request):
                 'color': 'danger',
                 'title': 'Where have you been?',
                 'text': 'We miss you at the gym! Your gains are waiting for you.',
+            }
+        elif recent_checkins <= 7:
+            attendance_message = {
+                'icon': 'bi-emoji-smile',
+                'color': 'info',
+                'title': 'Nice start! Keep it going!',
+                'text': f'{recent_checkins} workout{"" if recent_checkins == 1 else "s"} this month. You\'re building momentum — aim for more!',
             }
         elif last_week_checkins >= 5 or recent_checkins >= 20:
             attendance_message = {
