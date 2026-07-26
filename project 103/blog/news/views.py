@@ -772,7 +772,8 @@ def home(request):
         my_record = names.objects.filter(
             Q(email__iexact=request.user.email) |
             Q(name__iexact=request.user.username) |
-            Q(name__iexact=request.user.get_full_name())
+            Q(name__iexact=request.user.get_full_name()) |
+            Q(trainer=request.user)
         ).first()
         if my_record:
             my_detail_name = my_record.name
