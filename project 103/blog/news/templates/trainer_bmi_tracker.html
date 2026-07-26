@@ -36,28 +36,28 @@
             {% if item.training_stats %}
             <div class="row g-3 mb-3">
                 <div class="col-md-3">
-                    <div class="bg-light rounded-4 p-3 text-center">
+                    <div class="rounded-4 p-3 text-center" style="background: rgba(255,255,255,0.05);">
                         <small class="text-muted text-uppercase fw-bold small">This Week</small>
                         <h5 class="fw-bold mb-0 text-primary">{{ item.training_stats.workouts_this_week }} / {{ item.training_stats.planned_days }}</h5>
                         <small class="text-muted">Workouts</small>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="bg-light rounded-4 p-3 text-center">
+                    <div class="rounded-4 p-3 text-center" style="background: rgba(255,255,255,0.05);">
                         <small class="text-muted text-uppercase fw-bold small">Completion</small>
                         <h5 class="fw-bold mb-0 {% if item.training_stats.completion >= 100 %}text-success{% elif item.training_stats.completion >= 50 %}text-warning{% else %}text-danger{% endif %}">{{ item.training_stats.completion }}%</h5>
                         <small class="text-muted">Weekly Goal</small>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="bg-light rounded-4 p-3 text-center">
+                    <div class="rounded-4 p-3 text-center" style="background: rgba(255,255,255,0.05);">
                         <small class="text-muted text-uppercase fw-bold small">Total</small>
                         <h5 class="fw-bold mb-0 text-primary">{{ item.training_stats.total_workouts }}</h5>
                         <small class="text-muted">All Time</small>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="bg-light rounded-4 p-3 text-center">
+                    <div class="rounded-4 p-3 text-center" style="background: rgba(255,255,255,0.05);">
                         <small class="text-muted text-uppercase fw-bold small">Next Workout</small>
                         <h5 class="fw-bold mb-0 text-primary">{{ item.training_stats.current_body_part|default:"—" }}</h5>
                         <small class="text-muted">{% if item.training_stats.last_workout %}Last: {{ item.training_stats.last_workout|date:"M d" }}{% else %}Never{% endif %}</small>
@@ -81,25 +81,25 @@
                 {% if item.latest %}
                 <div class="row g-3 mb-3">
                     <div class="col-md-3">
-                        <div class="bg-light rounded-4 p-3 text-center">
+                        <div class="rounded-4 p-3 text-center" style="background: rgba(255,255,255,0.05);">
                             <small class="text-muted text-uppercase fw-bold small">Weight</small>
                             <h5 class="fw-bold mb-0">{{ item.latest.weight }} kg</h5>
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <div class="bg-light rounded-4 p-3 text-center">
+                        <div class="rounded-4 p-3 text-center" style="background: rgba(255,255,255,0.05);">
                             <small class="text-muted text-uppercase fw-bold small">Height</small>
                             <h5 class="fw-bold mb-0">{{ item.latest.height }} cm</h5>
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <div class="bg-light rounded-4 p-3 text-center">
+                        <div class="rounded-4 p-3 text-center" style="background: rgba(255,255,255,0.05);">
                             <small class="text-muted text-uppercase fw-bold small">BMI</small>
                             <h5 class="fw-bold mb-0 stat-value">{{ item.latest.bmi }}</h5>
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <div class="bg-light rounded-4 p-3 text-center">
+                        <div class="rounded-4 p-3 text-center" style="background: rgba(255,255,255,0.05);">
                             <small class="text-muted text-uppercase fw-bold small">Change</small>
                             <h5 class="fw-bold mb-0 {% if item.weight_change and item.weight_change < 0 %}text-success{% elif item.weight_change and item.weight_change > 0 %}text-danger{% else %}text-muted{% endif %}">
                                 {{ item.weight_change|default:"—" }}{% if item.weight_change %} kg{% endif %}

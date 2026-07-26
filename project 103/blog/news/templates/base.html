@@ -26,7 +26,7 @@
             --radius-lg: 24px;
             --bg-image: url('https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=1920&q=80');
         }
-        html { background-color: #0f172a !important; }
+        html { background-color: #0f172a !important; margin: 0; padding: 0; }
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background: linear-gradient(rgba(15, 23, 42, 0.93), rgba(15, 23, 42, 0.93)), var(--bg-image) no-repeat center center fixed;
@@ -36,7 +36,10 @@
             overflow-x: hidden;
             scroll-behavior: smooth;
             min-height: 100vh;
+            margin: 0;
+            padding: 0;
         }
+        html, body { overscroll-behavior: none; }
         ::selection { background: var(--gym-blue); color: white; }
         .text-muted { color: #94a3b8 !important; }
         .text-secondary { color: #94a3b8 !important; }

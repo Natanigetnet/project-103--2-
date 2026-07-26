@@ -33,7 +33,7 @@
                 <div class="small opacity-75">Trainer: <strong>{{ session.trainer.name }}</strong></div>
             </div>
             <div class="p-4">
-                <div class="mb-3 bg-light p-3 rounded-3">
+                <div class="mb-3 p-3 rounded-3" style="background: rgba(255,255,255,0.05);">
                     <div class="fw-semibold">Registering as</div>
                     <div class="text-muted">{{ trainee.name }}</div>
                 </div>
@@ -71,5 +71,5 @@
 
     </main>
 
-    <footer class="py-5 mt-5 border-top bg-white"><div class="container text-center"></div></footer>
+    <footer class="py-5 mt-5 border-top border-secondary border-opacity-10" style="background: rgba(15, 23, 42, 0.5);"><div class="container text-center"></div></footer>
 {% endblock %}
