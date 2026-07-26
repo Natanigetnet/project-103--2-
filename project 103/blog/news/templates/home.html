@@ -186,23 +186,9 @@
                             <i class="bi bi-card-text me-1"></i> My ID
                         </a>
                         {% endif %}
-                        {% if is_trainee %}
-                        <a href="{% url 'membership_payment_url' %}" class="btn btn-glow"><i class="bi bi-credit-card-2-front-fill me-1"></i> Pay Membership</a>
-                        {% endif %}
-                        {% if is_trainee %}
-                        <a href="{% url 'trainer_selector_url' %}" class="btn btn-outline-glow">Find Trainers</a>
-                        {% endif %}
-                        {% if is_trainee %}
-                        <a href="{% url 'trainee_sessions_url' %}" class="btn btn-outline-glow">Trainer Sessions</a>
-                        {% endif %}
-                        {% if is_trainee and my_trainee_id %}
-                        <a href="{% url 'training_plan_url' my_trainee_id %}" class="btn btn-glow">Schedule</a>
-                        {% endif %}
                         {% if user.is_authenticated and user.profile.is_trainer %}
                         <a href="{% url 'session_hub_url' %}" class="btn btn-outline-glow">Sessions</a>
                         {% endif %}
-                        
-                        <!-- Trainer Create Action Button Addition -->
                         {% if user.is_authenticated and user.profile.is_trainer or request.user.names_set.first.role == 'trainer' %}
                         <button type="button" class="btn btn-success px-4 py-2 rounded-3 fw-bold shadow" data-bs-toggle="modal" data-bs-target="#createSessionModal">
                             <i class="bi bi-plus-circle me-2"></i>Create Session Slot
@@ -218,6 +204,16 @@
                         <a href="{% url 'login_url' %}" class="btn btn-glow"><i class="bi bi-box-arrow-in-right me-1"></i>Sign In</a>
                         {% endif %}
                     </div>
+                    {% if is_trainee %}
+                    <div class="d-flex gap-3 align-items-center flex-wrap mt-4 pt-3 border-top border-white border-opacity-10">
+                        <a href="{% url 'membership_payment_url' %}" class="btn btn-glow"><i class="bi bi-credit-card-2-front-fill me-1"></i> Pay Membership</a>
+                        <a href="{% url 'trainer_selector_url' %}" class="btn btn-outline-glow">Find Trainers</a>
+                        <a href="{% url 'trainee_sessions_url' %}" class="btn btn-outline-glow">Trainer Sessions</a>
+                        {% if my_trainee_id %}
+                        <a href="{% url 'training_plan_url' my_trainee_id %}" class="btn btn-glow">Schedule</a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
