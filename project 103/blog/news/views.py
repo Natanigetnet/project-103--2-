@@ -4394,7 +4394,9 @@ def create_feed_post(request):
             post.save()
             messages.success(request, 'Your post has been shared!')
         else:
-            messages.error(request, 'Could not create post. Please try again.')
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
     return redirect('feed_url')
 
 
