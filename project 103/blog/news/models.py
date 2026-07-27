@@ -459,6 +459,16 @@ class FeedPost(models.Model):
     def hype_count(self):
         return self.hyped_by.count()
 
+    @property
+    def image_url(self):
+        """Returns the image URL, works with both local and Cloudinary storage"""
+        if self.image:
+            try:
+                return self.image.url
+            except:
+                return None
+        return None
+
     def get_hashtags_list(self):
         if not self.hashtags:
             return []

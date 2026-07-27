@@ -4352,13 +4352,9 @@ def feed_view(request):
     
     # Clean up posts with missing images
     for post in all_posts:
-        if post.image:
-            try:
-                post.image.open()
-                post.image.close()
-            except:
-                post.image = None
-                post.save()
+        if post.image and not post.image_url:
+            post.image = None
+            post.save()
     
     total_posts = all_posts.count()
     start = 0
@@ -4456,7 +4452,7 @@ def edit_feed_post(request, post_id):
     
     # Check if the image file actually exists
     image_exists = False
-    if post.image:
+    if post.image_url:
         try:
             # Try to access the image file
             post.image.open()

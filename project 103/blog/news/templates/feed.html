@@ -268,8 +268,8 @@
                         </div>
                     </div>
 
-                    {% if post.image %}
-                    <img src="{{ post.image.url }}" class="feed-post-image" alt="Post image" onerror="this.outerHTML='<div class=\'feed-post-image\' style=\'display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.05);border-radius:16px;min-height:200px;\'><i class=\'bi bi-image\' style=\'font-size:3rem;color:rgba(255,255,255,0.2);\'></i></div>'">
+                    {% if post.image_url %}
+                    <img src="{{ post.image_url }}" class="feed-post-image" alt="Post image" onerror="this.outerHTML='<div class=\'feed-post-image\' style=\'display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.05);border-radius:16px;min-height:200px;\'><i class=\'bi bi-image\' style=\'font-size:3rem;color:rgba(255,255,255,0.2);\'></i></div>'">
                     {% endif %}
 
                     {% if post.quote %}
