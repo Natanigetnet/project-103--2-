@@ -289,8 +289,18 @@
                                 onclick="hypePost({{ post.id }}, this)"
                                 data-post-id="{{ post.id }}">
                             <i class="bi bi-fire{% if user in post.hyped_by.all %} fill{% endif %}"></i>
-                            <span class="hype-count" style="cursor: pointer; text-decoration: underline;" onclick="showHypers({{ post.id }})">{{ post.hype_count }}</span> Hype
+                            <span class="hype-count">{{ post.hype_count }}</span> Hype
                         </button>
+                        
+                        {% if post.hype_count > 0 %}
+                        <button class="btn btn-sm btn-link text-decoration-none p-0 ms-1" 
+                                onclick="showHypers({{ post.id }})"
+                                style="font-size: 0.85rem; color: #94a3b8 !important;"
+                                title="See who hyped this post">
+                            <span class="hype-count-display">{{ post.hype_count }}</span> hype{{ post.hype_count|pluralize }}
+                            <i class="bi bi-chevron-down" style="font-size: 0.7rem;"></i>
+                        </button>
+                        {% endif %}
                         
                         {% if user == post.author or user.is_superuser %}
                         <div class="ms-auto d-flex gap-2">
@@ -383,6 +393,12 @@ function hypePost(postId, btn) {
         const countEl = btn.querySelector('.hype-count');
         const iconEl = btn.querySelector('.bi');
         countEl.textContent = data.count;
+        
+        const displayEl = btn.parentElement.querySelector('.hype-count-display');
+        if (displayEl) {
+            displayEl.textContent = data.count;
+        }
+        
         if (data.hyped) {
             btn.classList.add('hyped');
             iconEl.classList.add('fill');
