@@ -4363,16 +4363,12 @@ def feed_view(request):
         if request.user.is_superuser:
             can_post = True
 
-    from .forms import FeedPostForm
-    form = FeedPostForm()
-
     return render(request, 'feed.html', {
         'posts': posts,
         'has_more': has_more,
         'next_page': page_number + 1,
         'total_posts': total_posts,
         'can_post': can_post,
-        'form': form,
     })
 
 
@@ -4400,6 +4396,22 @@ def create_feed_post(request):
         else:
             messages.error(request, 'Could not create post. Please try again.')
     return redirect('feed_url')
+
+
+@login_required(login_url='login_url')
+def create_feed_post_page(request):
+    profile = UserProfile.objects.filter(user=request.user).first()
+    can_post = False
+    if profile and profile.role in (UserProfile.ROLE_TRAINEE, UserProfile.ROLE_TRAINER):
+        can_post = True
+    if request.user.is_superuser:
+        can_post = True
+
+    if not can_post:
+        messages.error(request, 'Only trainees and trainers can create posts.')
+        return redirect('feed_url')
+
+    return render(request, 'create_post.html')
 
 
 @login_required(login_url='login_url')
