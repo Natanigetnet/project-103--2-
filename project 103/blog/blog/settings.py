@@ -147,7 +147,15 @@ if CLOUDINARY_CLOUD_NAME and CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET:
             api_key=CLOUDINARY_API_KEY,
             api_secret=CLOUDINARY_API_SECRET,
         )
-        DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+        # Django 4.2+ uses STORAGES setting
+        STORAGES = {
+            "default": {
+                "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+            },
+            "staticfiles": {
+                "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+            },
+        }
         MEDIA_URL = '/media/'
     except ImportError:
         # Fallback to local storage if cloudinary packages not installed
