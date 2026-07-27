@@ -4508,3 +4508,24 @@ def post_hypers_list(request, post_id):
             'initial': (user.first_name[:1] if user.first_name else user.username[:1]).upper(),
         })
     return JsonResponse({'hypers': hypers_data})
+
+
+@user_passes_test(lambda u: u.is_superuser, login_url='login_url')
+def admin_feed_management(request):
+    posts = FeedPost.objects.select_related('author', 'author__profile').prefetch_related('hyped_by').all().order_by('-created_at')
+    
+    posts_data = []
+    for post in posts:
+        posts_data.append({
+            'post': post,
+            'author_name': post.author.get_full_name() or post.author.username,
+            'author_username': post.author.username,
+            'hype_count': post.hyped_by.count(),
+            'created_at': post.created_at,
+            'has_image': bool(post.image),
+        })
+    
+    return render(request, 'admin_feed_management.html', {
+        'posts_data': posts_data,
+        'total_posts': posts.count(),
+    })
