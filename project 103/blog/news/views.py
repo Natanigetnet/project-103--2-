@@ -4375,6 +4375,10 @@ def feed_view(request):
 @login_required(login_url='login_url')
 def create_feed_post(request):
     if request.method == 'POST':
+        print(f"DEBUG: POST request received")
+        print(f"DEBUG: request.FILES = {request.FILES}")
+        print(f"DEBUG: request.POST = {request.POST}")
+        
         profile = UserProfile.objects.filter(user=request.user).first()
         can_post = False
         if profile and profile.role in (UserProfile.ROLE_TRAINEE, UserProfile.ROLE_TRAINER):
@@ -4388,15 +4392,25 @@ def create_feed_post(request):
 
         from .forms import FeedPostForm
         form = FeedPostForm(request.POST, request.FILES)
+        print(f"DEBUG: Form is valid: {form.is_valid()}")
+        if not form.is_valid():
+            print(f"DEBUG: Form errors: {form.errors}")
+        
         if form.is_valid():
             post = form.save(commit=False)
             post.author = request.user
             post.save()
-            messages.success(request, 'Your post has been shared!')
+            print(f"DEBUG: Post saved with image: {post.image}")
+            if post.image:
+                messages.success(request, f'Your post has been shared with image: {post.image.url}')
+            else:
+                messages.success(request, 'Your post has been shared (no image)')
         else:
             for field, errors in form.errors.items():
                 for error in errors:
                     messages.error(request, f'{field}: {error}')
+            if not request.FILES.get('image'):
+                messages.warning(request, 'No image file was received. Check the form enctype.')
     return redirect('feed_url')
 
 
