@@ -4349,6 +4349,17 @@ def feed_view(request):
         page_number = 1
 
     all_posts = FeedPost.objects.prefetch_related('hyped_by').select_related('author', 'author__profile').all()
+    
+    # Clean up posts with missing images
+    for post in all_posts:
+        if post.image:
+            try:
+                post.image.open()
+                post.image.close()
+            except:
+                post.image = None
+                post.save()
+    
     total_posts = all_posts.count()
     start = 0
     end = page_number * posts_per_page
@@ -4375,10 +4386,6 @@ def feed_view(request):
 @login_required(login_url='login_url')
 def create_feed_post(request):
     if request.method == 'POST':
-        print(f"DEBUG: POST request received")
-        print(f"DEBUG: request.FILES = {request.FILES}")
-        print(f"DEBUG: request.POST = {request.POST}")
-        
         profile = UserProfile.objects.filter(user=request.user).first()
         can_post = False
         if profile and profile.role in (UserProfile.ROLE_TRAINEE, UserProfile.ROLE_TRAINER):
@@ -4392,25 +4399,20 @@ def create_feed_post(request):
 
         from .forms import FeedPostForm
         form = FeedPostForm(request.POST, request.FILES)
-        print(f"DEBUG: Form is valid: {form.is_valid()}")
-        if not form.is_valid():
-            print(f"DEBUG: Form errors: {form.errors}")
-        
         if form.is_valid():
             post = form.save(commit=False)
             post.author = request.user
             post.save()
-            print(f"DEBUG: Post saved with image: {post.image}")
             if post.image:
-                messages.success(request, f'Your post has been shared with image: {post.image.url}')
+                messages.success(request, f'Your post has been shared with image!')
             else:
-                messages.success(request, 'Your post has been shared (no image)')
+                messages.success(request, 'Your post has been shared!')
         else:
             for field, errors in form.errors.items():
                 for error in errors:
                     messages.error(request, f'{field}: {error}')
             if not request.FILES.get('image'):
-                messages.warning(request, 'No image file was received. Check the form enctype.')
+                messages.warning(request, 'No image file was received.')
     return redirect('feed_url')
 
 
@@ -4452,7 +4454,20 @@ def edit_feed_post(request, post_id):
         messages.success(request, 'Post updated successfully!')
         return redirect('feed_url')
     
-    return render(request, 'edit_post.html', {'post': post})
+    # Check if the image file actually exists
+    image_exists = False
+    if post.image:
+        try:
+            # Try to access the image file
+            post.image.open()
+            post.image.close()
+            image_exists = True
+        except:
+            # Image file doesn't exist, clear it
+            post.image = None
+            post.save()
+    
+    return render(request, 'edit_post.html', {'post': post, 'image_exists': image_exists})
 
 
 @login_required(login_url='login_url')

@@ -269,7 +269,7 @@
                     </div>
 
                     {% if post.image %}
-                    <img src="{{ post.image.url }}" class="feed-post-image" alt="Post image">
+                    <img src="{{ post.image.url }}" class="feed-post-image" alt="Post image" onerror="this.style.display='none'">
                     {% endif %}
 
                     {% if post.quote %}
