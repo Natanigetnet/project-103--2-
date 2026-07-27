@@ -4415,6 +4415,46 @@ def create_feed_post_page(request):
 
 
 @login_required(login_url='login_url')
+def edit_feed_post(request, post_id):
+    post = get_object_or_404(FeedPost, id=post_id)
+    
+    if post.author != request.user and not request.user.is_superuser:
+        messages.error(request, 'You do not have permission to edit this post.')
+        return redirect('feed_url')
+    
+    if request.method == 'POST':
+        quote = request.POST.get('quote', '').strip()
+        hashtags = request.POST.get('hashtags', '').strip()
+        image = request.FILES.get('image')
+        
+        post.quote = quote
+        post.hashtags = hashtags
+        if image:
+            post.image = image
+        post.save()
+        
+        messages.success(request, 'Post updated successfully!')
+        return redirect('feed_url')
+    
+    return render(request, 'edit_post.html', {'post': post})
+
+
+@login_required(login_url='login_url')
+def delete_feed_post(request, post_id):
+    post = get_object_or_404(FeedPost, id=post_id)
+    
+    if post.author != request.user and not request.user.is_superuser:
+        messages.error(request, 'You do not have permission to delete this post.')
+        return redirect('feed_url')
+    
+    if request.method == 'POST':
+        post.delete()
+        messages.success(request, 'Post deleted successfully!')
+    
+    return redirect('feed_url')
+
+
+@login_required(login_url='login_url')
 @require_http_methods(["POST"])
 def hype_post(request, post_id):
     post = get_object_or_404(FeedPost, id=post_id)
