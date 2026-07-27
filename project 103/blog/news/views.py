@@ -4432,7 +4432,7 @@ def create_feed_post_page(request):
 def edit_feed_post(request, post_id):
     post = get_object_or_404(FeedPost, id=post_id)
     
-    if post.author != request.user and not request.user.is_superuser:
+    if post.author != request.user:
         messages.error(request, 'You do not have permission to edit this post.')
         return redirect('feed_url')
     
