@@ -132,22 +132,27 @@ STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Cloudinary configuration for media files (required for Render)
-import cloudinary
-import cloudinary.uploader
-import cloudinary.api
-
 CLOUDINARY_CLOUD_NAME = os.environ.get('CLOUDINARY_CLOUD_NAME', '')
 CLOUDINARY_API_KEY = os.environ.get('CLOUDINARY_API_KEY', '')
 CLOUDINARY_API_SECRET = os.environ.get('CLOUDINARY_API_SECRET', '')
 
 if CLOUDINARY_CLOUD_NAME and CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET:
-    cloudinary.config(
-        cloud_name=CLOUDINARY_CLOUD_NAME,
-        api_key=CLOUDINARY_API_KEY,
-        api_secret=CLOUDINARY_API_SECRET,
-    )
-    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-    MEDIA_URL = '/media/'
+    try:
+        import cloudinary
+        import cloudinary.uploader
+        import cloudinary.api
+        
+        cloudinary.config(
+            cloud_name=CLOUDINARY_CLOUD_NAME,
+            api_key=CLOUDINARY_API_KEY,
+            api_secret=CLOUDINARY_API_SECRET,
+        )
+        DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+        MEDIA_URL = '/media/'
+    except ImportError:
+        # Fallback to local storage if cloudinary packages not installed
+        MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+        MEDIA_URL = '/media/'
 else:
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
     MEDIA_URL = '/media/'
