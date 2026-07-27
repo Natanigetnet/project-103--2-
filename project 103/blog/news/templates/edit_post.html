@@ -146,7 +146,7 @@
                     <label class="form-label small fw-bold text-uppercase d-block mb-3" style="color:rgba(255,255,255,0.5); font-size:0.75rem; letter-spacing:0.5px;">Post Image</label>
                     <div class="upload-box {% if post.image %}has-image{% endif %}" id="uploadBox" onclick="document.getElementById('imageInput').click()">
                         {% if post.image %}
-                        <img src="{{ post.image.url }}" alt="Current image" id="imagePreview">
+                        <img src="{{ post.image.url }}" alt="Current image" id="imagePreview" onerror="document.getElementById('uploadBox').innerHTML='<i class=\'bi bi-camera\'></i><p class=\'small text-muted mt-2 mb-0\'>Click to upload</p>';document.getElementById('uploadBox').classList.remove('has-image');">
                         {% else %}
                         <i class="bi bi-camera"></i>
                         <p class="small text-muted mt-2 mb-0">Click to upload</p>

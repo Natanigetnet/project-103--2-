@@ -252,7 +252,7 @@
                 <div class="feed-post-card h-100">
                     <div class="d-flex align-items-center gap-3 mb-3">
                         {% if post.author.profile.image %}
-                        <img src="{{ post.author.profile.image.url }}" class="author-avatar" alt="">
+                        <img src="{{ post.author.profile.image.url }}" class="author-avatar" alt="" onerror="this.outerHTML='<div class=\'author-avatar\'>{{ post.author.first_name|first|upper|default:post.author.username|first|upper }}</div>'">
                         {% else %}
                         <div class="author-avatar">
                             {{ post.author.first_name|first|upper|default:post.author.username|first|upper }}
@@ -269,7 +269,7 @@
                     </div>
 
                     {% if post.image %}
-                    <img src="{{ post.image.url }}" class="feed-post-image" alt="Post image" onerror="this.style.display='none'">
+                    <img src="{{ post.image.url }}" class="feed-post-image" alt="Post image" onerror="this.outerHTML='<div class=\'feed-post-image\' style=\'display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.05);border-radius:16px;min-height:200px;\'><i class=\'bi bi-image\' style=\'font-size:3rem;color:rgba(255,255,255,0.2);\'></i></div>'">
                     {% endif %}
 
                     {% if post.quote %}
