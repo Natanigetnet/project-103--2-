@@ -4529,3 +4529,42 @@ def admin_feed_management(request):
         'posts_data': posts_data,
         'total_posts': posts.count(),
     })
+
+
+@user_passes_test(lambda u: u.is_superuser, login_url='login_url')
+def admin_feed_post_remove(request, post_id):
+    post = get_object_or_404(FeedPost, id=post_id)
+    post_author = post.author
+    
+    if request.method == 'POST':
+        reason = request.POST.get('removal_reason', '').strip()
+        
+        if not reason:
+            messages.error(request, 'Please provide a reason for removing this post.')
+            return redirect('admin_feed_post_remove_url', post_id=post.id)
+        
+        # Create a message to the post owner
+        question = questions.objects.create(
+            name=post_author.username,
+            email=post_author.email or 'noreply@futuregym.com',
+            quest=f'Feed Post Removed - Post ID: {post.id}'
+        )
+        
+        response_model.objects.create(
+            name=request.user,
+            quest=question,
+            text=f'Your feed post has been removed by an administrator.\n\nReason: {reason}\n\nIf you believe this was a mistake, please contact the administration.',
+            is_read=False
+        )
+        
+        # Delete the post
+        post.delete()
+        
+        messages.success(request, f'Post removed and notification sent to {post_author.username}.')
+        return redirect('admin_feed_management_url')
+    
+    return render(request, 'admin_feed_post_remove.html', {
+        'post': post,
+        'author_name': post_author.get_full_name() or post_author.username,
+        'author_username': post_author.username,
+    })

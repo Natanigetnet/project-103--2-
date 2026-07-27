@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}Remove Feed Post{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Remove Feed Post</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>Warning:</strong> This action will permanently delete the post and notify the author.
+                    </div>
+
+                    <div class="mb-4 p-3 bg-light rounded">
+                        <h6 class="text-muted mb-2">Post Details:</h6>
+                        <p class="mb-1"><strong>Author:</strong> {{ author_name }} (@{{ author_username }})</p>
+                        <p class="mb-1"><strong>Posted:</strong> {{ post.created_at|timesince }} ago</p>
+                        {% if post.quote %}
+                        <p class="mb-1"><strong>Quote:</strong> "{{ post.quote|truncatechars:100 }}"</p>
+                        {% endif %}
+                        {% if post.hashtags %}
+                        <p class="mb-0"><strong>Hashtags:</strong> {{ post.hashtags }}</p>
+                        {% endif %}
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="removal_reason" class="form-label">
+                                <strong>Reason for Removal</strong> <span class="text-danger">*</span>
+                            </label>
+                            <textarea 
+                                class="form-control" 
+                                id="removal_reason" 
+                                name="removal_reason" 
+                                rows="4" 
+                                placeholder="Explain why this post is being removed..."
+                                required
+                            ></textarea>
+                            <div class="form-text">
+                                This reason will be sent to the post author via their messages.
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'admin_feed_management_url' %}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash"></i> Remove Post & Notify Author
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
