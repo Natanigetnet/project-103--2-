@@ -439,3 +439,28 @@ class GymConfig(models.Model):
     class Meta:
         verbose_name = 'Gym Configuration'
         verbose_name_plural = 'Gym Configuration'
+
+
+class FeedPost(models.Model):
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='feed_posts')
+    image = models.ImageField(upload_to='feed_posts/', blank=True, null=True)
+    quote = models.TextField(blank=True, help_text='A motivational quote or message')
+    hashtags = models.CharField(max_length=500, blank=True, help_text='Space or comma separated hashtags e.g. #fitness #gym')
+    hyped_by = models.ManyToManyField(User, blank=True, related_name='hyped_posts')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Post by {self.author.username} on {self.created_at.strftime('%Y-%m-%d')}"
+
+    @property
+    def hype_count(self):
+        return self.hyped_by.count()
+
+    def get_hashtags_list(self):
+        if not self.hashtags:
+            return []
+        tags = self.hashtags.replace(',', ' ').split()
+        return [t if t.startswith('#') else f'#{t}' for t in tags if t.strip()]

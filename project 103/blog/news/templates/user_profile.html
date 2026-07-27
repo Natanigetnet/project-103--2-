@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 {% block title %}User Profile - FutureGym{% endblock %}
 {% block extra_head %}
 <style>
@@ -93,6 +93,7 @@
             <ul class="navbar-nav ms-auto align-items-center">
                 {% if user.is_authenticated %}
                     <li class="nav-item"><a class="nav-link" href="{% url 'home_url' %}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'feed_url' %}">Feed</a></li>
                     {% if user.is_superuser %}
                     <li class="nav-item"><a class="nav-link" href="{% url 'members_url' %}">Members</a></li>
                     {% endif %}
@@ -175,7 +176,7 @@
                     </div>
 
                     <div class="p-3 mt-4" style="background: rgba(255, 193, 7, 0.1); border: 1px solid rgba(255, 193, 7, 0.3); border-radius: 8px; font-size: 0.85rem; color: #f1f5f9;">
-                        <strong style="color: #fbbf24;">ℹ️ Confidential Information</strong>
+                        <strong style="color: #fbbf24;">â„¹ï¸ Confidential Information</strong>
                         <p style="color: #e2e8f0; margin: 0.5rem 0 0;">
                             Email, phone number, medical information, and other sensitive details are kept private and are not displayed on public profiles.
                         </p>

@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 {% block title %}Future Gym | Find Trainers{% endblock %}
 {% block extra_head %}
 <style>
@@ -34,6 +34,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto align-items-center">
                 <li class="nav-item"><a class="nav-link" href="{% url 'home_url' %}">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'feed_url' %}">Feed</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'trainer_categories_url' %}">Option List</a></li>
             </ul>
         </div>
@@ -99,8 +100,8 @@
                     data-gender="{{ trainer.gender|default:'' }}">
                     <td><strong>#{{ trainer.id }}</strong></td>
                     <td>{{ trainer.name }}</td>
-                    <td><small>{{ trainer.email|default:'—' }}</small></td>
-                    <td>{{ trainer.get_gender_display|default:'—' }}</td>
+                    <td><small>{{ trainer.email|default:'â€”' }}</small></td>
+                    <td>{{ trainer.get_gender_display|default:'â€”' }}</td>
                     <td>
                         {% if trainer.category %}
                             <span class="badge-modern bg-primary">{{ trainer.category.name }}</span>

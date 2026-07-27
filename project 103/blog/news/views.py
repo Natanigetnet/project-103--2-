@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.http import HttpResponse
 from django.utils.html import format_html   
-from .models import names,comments,Category,questions,response_model,TrainingSession,BodyMetric,TrainingSpace,MemberID,AttendanceLog,TrainerRating,TrainerChangeRequest,TrainingPlan,TrainingPlanDay,TrainerPayment,TrainerSchedule,GymConfig,SplitProgression
+from .models import names,comments,Category,questions,response_model,TrainingSession,BodyMetric,TrainingSpace,MemberID,AttendanceLog,TrainerRating,TrainerChangeRequest,TrainingPlan,TrainingPlanDay,TrainerPayment,TrainerSchedule,GymConfig,SplitProgression,FeedPost
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.backends import ModelBackend
 from django.contrib import messages
@@ -4337,3 +4337,79 @@ def income_report(request):
         'end_date': end_date or '',
     }
     return render(request, 'income_report.html', context)
+
+
+@login_required(login_url='login_url')
+def feed_view(request):
+    posts_per_page = 6
+    page_number = request.GET.get('page', 1)
+    try:
+        page_number = int(page_number)
+    except (ValueError, TypeError):
+        page_number = 1
+
+    all_posts = FeedPost.objects.prefetch_related('hyped_by').select_related('author', 'author__profile').all()
+    total_posts = all_posts.count()
+    start = 0
+    end = page_number * posts_per_page
+    posts = all_posts[start:end]
+    has_more = end < total_posts
+
+    can_post = False
+    if request.user.is_authenticated:
+        profile = UserProfile.objects.filter(user=request.user).first()
+        if profile and profile.role in (UserProfile.ROLE_TRAINEE, UserProfile.ROLE_TRAINER):
+            can_post = True
+        if request.user.is_superuser:
+            can_post = True
+
+    from .forms import FeedPostForm
+    form = FeedPostForm()
+
+    return render(request, 'feed.html', {
+        'posts': posts,
+        'has_more': has_more,
+        'next_page': page_number + 1,
+        'total_posts': total_posts,
+        'can_post': can_post,
+        'form': form,
+    })
+
+
+@login_required(login_url='login_url')
+def create_feed_post(request):
+    if request.method == 'POST':
+        profile = UserProfile.objects.filter(user=request.user).first()
+        can_post = False
+        if profile and profile.role in (UserProfile.ROLE_TRAINEE, UserProfile.ROLE_TRAINER):
+            can_post = True
+        if request.user.is_superuser:
+            can_post = True
+
+        if not can_post:
+            messages.error(request, 'Only trainees and trainers can create posts.')
+            return redirect('feed_url')
+
+        from .forms import FeedPostForm
+        form = FeedPostForm(request.POST, request.FILES)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.author = request.user
+            post.save()
+            messages.success(request, 'Your post has been shared!')
+        else:
+            messages.error(request, 'Could not create post. Please try again.')
+    return redirect('feed_url')
+
+
+@login_required(login_url='login_url')
+@require_http_methods(["POST"])
+def hype_post(request, post_id):
+    post = get_object_or_404(FeedPost, id=post_id)
+    if request.user in post.hyped_by.all():
+        post.hyped_by.remove(request.user)
+        hyped = False
+    else:
+        post.hyped_by.add(request.user)
+        hyped = True
+    return JsonResponse({'hyped': hyped, 'count': post.hype_count})

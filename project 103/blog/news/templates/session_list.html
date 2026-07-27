@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 {% block title %}Trainer Sessions | Future Gym{% endblock %}
 {% block navbar %}
     <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
@@ -10,6 +10,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto align-items-center">
                     <li class="nav-item"><a class="nav-link" href="{% url 'home_url' %}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'feed_url' %}">Feed</a></li>
                     <li class="nav-item"><a class="nav-link" href="javascript:history.back()"><i class="bi bi-arrow-left me-1"></i>Back</a></li>
                 </ul>
             </div>
@@ -55,7 +56,7 @@
                     <div>
                         <h5 class="fw-bold mb-1">Today's Workout: {{ split_info.current_body_part }}</h5>
                         <small class="text-muted">
-                            <i class="bi bi-diagram-3 me-1"></i>{{ split_info.split_type_display }} · Day {{ split_info.current_day_number }} of {{ split_info.total_days }}
+                            <i class="bi bi-diagram-3 me-1"></i>{{ split_info.split_type_display }} Â· Day {{ split_info.current_day_number }} of {{ split_info.total_days }}
                         </small>
                     </div>
                 </div>

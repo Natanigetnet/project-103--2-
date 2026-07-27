@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 {% block title %}Settings | Future Gym{% endblock %}
 {% block navbar %}
     <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
@@ -9,6 +9,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto align-items-center">
                     <li class="nav-item"><a class="nav-link" href="{% url 'home_url' %}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'feed_url' %}">Feed</a></li>
                     <li class="nav-item"><a class="nav-link" href="javascript:history.back()"><i class="bi bi-arrow-left me-1"></i>Back</a></li>
                 </ul>
             </div>
@@ -73,7 +74,7 @@
                             <h5 class="fw-bold mb-1">Medical information</h5>
                             <p class="text-muted small mb-0">
                                 {% if has_medical_info %}
-                                <span class="text-success"><i class="bi bi-check-circle"></i> On file</span> — tap to update
+                                <span class="text-success"><i class="bi bi-check-circle"></i> On file</span> â€” tap to update
                                 {% else %}
                                 Add allergies, conditions, or notes for your trainer
                                 {% endif %}

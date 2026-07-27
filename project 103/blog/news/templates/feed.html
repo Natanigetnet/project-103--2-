@@ -1,0 +1,374 @@
+{% extends 'base.html' %}
+{% block title %}Future Gym | Feed{% endblock %}
+{% block extra_head %}
+<style>
+    .hero-section {
+        background: linear-gradient(rgba(15, 23, 42, 0.55), rgba(15, 23, 42, 0.88)),
+                    url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1920&q=80') no-repeat center center;
+        background-size: cover;
+        padding: 160px 0 80px;
+        color: white;
+        border-radius: 0 0 50px 50px;
+        position: relative;
+    }
+    .feed-post-card {
+        background: rgba(15, 17, 22, 0.85);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 1.5rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        transition: all 0.35s cubic-bezier(0.165, 0.84, 0.44, 1);
+        color: #f1f5f9;
+        margin-bottom: 1.5rem;
+    }
+    .feed-post-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 20px 30px -8px rgba(0,0,0,0.4), 0 8px 12px -6px rgba(0,0,0,0.2);
+        border-color: rgba(99, 102, 241, 0.25);
+    }
+    .feed-post-image {
+        width: 100%;
+        max-height: 500px;
+        object-fit: cover;
+        border-radius: 16px;
+        margin-bottom: 1rem;
+    }
+    .feed-quote {
+        font-size: 1.1rem;
+        font-style: italic;
+        color: rgba(255,255,255,0.85);
+        line-height: 1.6;
+        margin-bottom: 0.75rem;
+    }
+    .feed-hashtag {
+        display: inline-block;
+        background: rgba(99, 102, 241, 0.15);
+        color: #a5b4fc;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin: 0.2rem 0.2rem;
+        transition: all 0.2s;
+    }
+    .feed-hashtag:hover {
+        background: rgba(99, 102, 241, 0.3);
+        color: white;
+    }
+    .hype-btn {
+        background: transparent;
+        border: 2px solid rgba(255,255,255,0.15);
+        color: rgba(255,255,255,0.6);
+        border-radius: 30px;
+        padding: 0.5rem 1.2rem;
+        font-weight: 700;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .hype-btn:hover {
+        border-color: #f59e0b;
+        color: #f59e0b;
+        background: rgba(245, 158, 11, 0.08);
+        transform: scale(1.05);
+    }
+    .hype-btn.hyped {
+        border-color: #f59e0b;
+        color: #f59e0b;
+        background: rgba(245, 158, 11, 0.15);
+    }
+    .hype-btn .bi {
+        font-size: 1.1rem;
+        transition: transform 0.3s;
+    }
+    .hype-btn:hover .bi {
+        transform: scale(1.2);
+    }
+    .author-avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        object-fit: cover;
+        background: rgba(255,255,255,0.08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1rem;
+        color: rgba(255,255,255,0.7);
+    }
+    .see-more-btn {
+        background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);
+        color: white;
+        border: none;
+        border-radius: 30px;
+        padding: 0.8rem 2.5rem;
+        font-weight: 700;
+        font-size: 0.95rem;
+        box-shadow: 0 8px 24px rgba(13, 110, 253, 0.25);
+        transition: all 0.3s ease;
+    }
+    .see-more-btn:hover {
+        box-shadow: 0 12px 32px rgba(13, 110, 253, 0.4);
+        transform: translateY(-2px);
+        color: white;
+    }
+    .post-form-card {
+        background: rgba(15, 17, 22, 0.9);
+        backdrop-filter: blur(14px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 1.5rem;
+    }
+    @media (max-width: 767.98px) {
+        .hero-section { padding: 100px 0 50px !important; border-radius: 0 0 30px 30px !important; }
+        .hero-section h1 { font-size: 1.8rem !important; }
+    }
+</style>
+{% endblock %}
+
+{% block navbar %}
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold fs-4 d-flex align-items-center" href="{% url 'home_url' %}">
+                <i class="bi bi-lightning-charge-fill text-primary"></i> FUTURE<span class="text-primary">GYM</span>
+                {% if user.is_authenticated %}
+                <span class="badge ms-2 fs-6"
+                      style="{% if user.is_superuser %}background: rgba(220, 38, 38, 0.8); color: white;{% elif user.profile.is_trainer %}background: rgba(99, 102, 241, 0.8); color: white;{% elif is_trainee %}background: rgba(16, 185, 129, 0.8); color: white;{% elif is_registrar %}background: rgba(245, 158, 11, 0.8); color: white;{% endif %}">
+                    {% if user.is_superuser %}
+                        Administrator
+                    {% elif user.profile.is_trainer %}
+                        Trainer
+                    {% elif is_trainee %}
+                        Member
+                    {% elif is_registrar %}
+                        Registrar
+                    {% endif %}
+                </span>
+                {% endif %}
+            </a>
+            
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <i class="bi bi-list fs-2 text-white"></i>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="{% url 'home_url' %}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="{% url 'feed_url' %}">Feed</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'about_url' %}">About</a></li>
+
+                    {% if user.is_authenticated %}
+                        {% if is_registrar %}
+                        <li class="nav-item dropdown ms-lg-2">
+                            <a class="nav-link dropdown-toggle fw-bold" href="#" data-bs-toggle="dropdown" style="color:rgba(255,255,255,0.65) !important;">
+                                <i class="bi bi-person-badge me-1" style="color:#f59e0b;"></i> Registrar
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark shadow-lg border-0 mt-3 p-2">
+                                <li><a class="dropdown-item rounded-3" href="{% url 'registrar_dashboard_url' %}"><i class="bi bi-speedometer2 me-2" style="color:#f59e0b;"></i>Dashboard</a></li>
+                                <li><a class="dropdown-item rounded-3" href="{% url 'registrar_register_url' %}"><i class="bi bi-person-plus me-2" style="color:#f59e0b;"></i>Register</a></li>
+                                <li><a class="dropdown-item rounded-3" href="{% url 'registrar_scan_qr_url' %}"><i class="bi bi-box-arrow-in-right me-2 text-success"></i>Check In</a></li>
+                                <li><a class="dropdown-item rounded-3" href="{% url 'registrar_scan_checkout_url' %}"><i class="bi bi-box-arrow-right me-2 text-warning"></i>Check Out</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item rounded-3" href="{% url 'registrar_currently_in_url' %}"><i class="bi bi-people-fill me-2" style="color:#f59e0b;"></i>Currently In Gym</a></li>
+                                <li><a class="dropdown-item rounded-3" href="{% url 'registrar_attendance_log_url' %}"><i class="bi bi-clock-history me-2" style="color:#f59e0b;"></i>Attendance Log</a></li>
+                            </ul>
+                        </li>
+                        {% endif %}
+
+                        {% if not user.is_superuser and not is_registrar %}
+                        <li class="nav-item dropdown ms-lg-2">
+                            <a class="nav-link dropdown-toggle fw-bold" href="#" data-bs-toggle="dropdown" style="color:rgba(255,255,255,0.65) !important;">
+                                <i class="bi bi-three-dots me-1"></i> Menu
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark shadow-lg border-0 mt-3 p-2">
+                                <li><a class="dropdown-item rounded-3" href="{% url 'chat_url' %}"><i class="bi bi-robot text-success me-2"></i>AI Assistant</a></li>
+                                <li><a class="dropdown-item rounded-3" href="{% url 'contact_url' %}"><i class="bi bi-envelope me-2"></i>Contact</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item rounded-3" href="{% url 'trainer_categories_url' %}"><i class="bi bi-grid me-2"></i>Explore</a></li>
+                                <li><a class="dropdown-item rounded-3 position-relative" href="{% url 'response_list_url' %}">
+                                    <i class="bi bi-chat-left-text-fill me-2"></i>Messages
+                                    {% if unread_count > 0 %}
+                                    <span class="badge rounded-pill bg-danger ms-2" style="font-size:0.65rem;">{{ unread_count }}</span>
+                                    {% endif %}
+                                </a></li>
+                                {% if user.profile.is_trainer %}
+                                <li><a class="dropdown-item rounded-3" href="{% url 'trainer_settings_url' %}"><i class="bi bi-gear me-2"></i>Profile</a></li>
+                                {% elif is_trainee %}
+                                <li><a class="dropdown-item rounded-3" href="{% url 'trainee_settings_url' %}"><i class="bi bi-gear me-2"></i>Settings</a></li>
+                                {% endif %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item rounded-3" href="{% url 'my_id_card_url' %}"><i class="bi bi-card-text me-2"></i>ID Card</a></li>
+                            </ul>
+                        </li>
+                        {% endif %}
+                        {% if user.is_superuser %}
+                        <li class="nav-item dropdown ms-lg-2">
+                            <a class="nav-link dropdown-toggle text-primary fw-bold" href="#" data-bs-toggle="dropdown">
+                                <i class="bi bi-shield-lock-fill me-1"></i> Management
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark shadow-lg border-0 mt-3 p-2">
+                                <li><a class="dropdown-item rounded-3" href="{% url 'members_url' %}"><i class="bi bi-people me-2"></i>Member</a></li>
+                                <li><a class="dropdown-item rounded-3" href="{% url 'user_management_url' %}"><i class="bi bi-person-badge me-2"></i>Staff Accounts</a></li>
+                                <li><a class="dropdown-item rounded-3" href="{% url 'cat_list_url' %}"><i class="bi bi-tags me-2"></i>Categories</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item rounded-3" href="{% url 'admin_url' %}"><i class="bi bi-cpu me-2"></i>Core Management</a></li>
+                            </ul>
+                        </li>
+                        {% endif %}
+                        <li class="nav-item ms-lg-2">
+                            <a href="{% url 'logout_url' %}" class="btn btn-outline-danger btn-sm rounded-pill px-4">Logout</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item ms-lg-3">
+                            <a href="{% url 'login_url' %}" class="btn btn-glow btn-sm rounded-pill">Sign In</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+{% endblock %}
+
+{% block content %}
+    <header class="hero-section text-center">
+        <div class="container">
+            <h1 class="display-3 fw-bold mb-3">Community <span class="text-primary">Feed</span></h1>
+            <p class="lead text-white-50 mb-0">Share your journey. Inspire others. Get hyped.</p>
+        </div>
+    </header>
+
+    <main class="container py-5">
+        {% if can_post %}
+        <div class="post-form-card mb-5 fade-in">
+            <h5 class="fw-bold mb-3 d-flex align-items-center gap-2">
+                <i class="bi bi-plus-circle text-primary"></i> Create a Post
+            </h5>
+            <form action="{% url 'create_feed_post_url' %}" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-uppercase" style="color:rgba(255,255,255,0.5); font-size:0.75rem; letter-spacing:0.5px;">Image</label>
+                    <input type="file" name="image" class="form-control rounded-3" accept="image/*">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-uppercase" style="color:rgba(255,255,255,0.5); font-size:0.75rem; letter-spacing:0.5px;">Quote</label>
+                    <textarea name="quote" class="form-control rounded-3" rows="3" placeholder="Share a motivational quote..."></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-uppercase" style="color:rgba(255,255,255,0.5); font-size:0.75rem; letter-spacing:0.5px;">Hashtags</label>
+                    <input type="text" name="hashtags" class="form-control rounded-3" placeholder="#fitness #gym #motivation">
+                </div>
+                <button type="submit" class="btn btn-glow rounded-pill px-4">
+                    <i class="bi bi-send me-1"></i> Post
+                </button>
+            </form>
+        </div>
+        {% endif %}
+
+        {% if posts %}
+        <div class="row g-4" id="feed-posts">
+            {% for post in posts %}
+            <div class="col-12 col-md-6 fade-in" style="animation-delay: {{ forloop.counter0|floatformat:"0" }}s;">
+                <div class="feed-post-card h-100">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        {% if post.author.profile.image %}
+                        <img src="{{ post.author.profile.image.url }}" class="author-avatar" alt="">
+                        {% else %}
+                        <div class="author-avatar">
+                            {{ post.author.first_name|first|upper|default:post.author.username|first|upper }}
+                        </div>
+                        {% endif %}
+                        <div>
+                            <div class="fw-bold" style="font-size:0.95rem;">
+                                {{ post.author.get_full_name|default:post.author.username }}
+                            </div>
+                            <div class="text-muted" style="font-size:0.75rem;">
+                                <i class="bi bi-clock me-1"></i>{{ post.created_at|timesince }} ago
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if post.image %}
+                    <img src="{{ post.image.url }}" class="feed-post-image" alt="Post image">
+                    {% endif %}
+
+                    {% if post.quote %}
+                    <p class="feed-quote">"{{ post.quote }}"</p>
+                    {% endif %}
+
+                    {% if post.get_hashtags_list %}
+                    <div class="mb-3">
+                        {% for tag in post.get_hashtags_list %}
+                        <span class="feed-hashtag">{{ tag }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="d-flex align-items-center gap-2 pt-2" style="border-top: 1px solid rgba(255,255,255,0.06);">
+                        <button class="hype-btn {% if user in post.hyped_by.all %}hyped{% endif %}" 
+                                onclick="hypePost({{ post.id }}, this)"
+                                data-post-id="{{ post.id }}">
+                            <i class="bi bi-fire{% if user in post.hyped_by.all %} fill{% endif %}"></i>
+                            <span class="hype-count">{{ post.hype_count }}</span> Hype
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if has_more %}
+        <div class="text-center mt-4 mb-5">
+            <a href="?page={{ next_page }}" class="see-more-btn" id="see-more-btn">
+                <i class="bi bi-chevron-down me-1"></i> See More
+            </a>
+        </div>
+        {% endif %}
+
+        {% else %}
+        <div class="empty-state text-center py-5">
+            <div class="empty-state-icon"><i class="bi bi-rss"></i></div>
+            <h5 class="fw-bold mb-2">No posts yet</h5>
+            <p class="text-muted">Be the first to share something with the community!</p>
+        </div>
+        {% endif %}
+    </main>
+
+    <footer class="py-4 border-top border-secondary border-opacity-10">
+        <div class="container text-center">
+        </div>
+    </footer>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function hypePost(postId, btn) {
+    fetch('/feed/hype/' + postId + '/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        const countEl = btn.querySelector('.hype-count');
+        const iconEl = btn.querySelector('.bi');
+        countEl.textContent = data.count;
+        if (data.hyped) {
+            btn.classList.add('hyped');
+            iconEl.classList.add('fill');
+        } else {
+            btn.classList.remove('hyped');
+            iconEl.classList.remove('fill');
+        }
+    })
+    .catch(err => console.error('Hype error:', err));
+}
+</script>
+{% endblock %}

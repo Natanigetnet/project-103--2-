@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 {% block title %}QR Scanner | Registrar{% endblock %}
 {% block extra_head %}
 <style>
@@ -45,6 +45,7 @@
                     </ul>
                 </li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'home_url' %}">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'feed_url' %}">Feed</a></li>
             </ul>
         </div>
     </div>
@@ -74,12 +75,12 @@
               <div class="mb-2" id="result-badge">
                 <span class="badge bg-success fs-5 px-3 py-1"><i class="bi bi-check-circle me-1"></i> CHECKED IN</span>
               </div>
-              <h3 class="fw-bold text-white mb-1" id="result-name">—</h3>
+              <h3 class="fw-bold text-white mb-1" id="result-name">â€”</h3>
               <p class="text-white-50 mb-2">
-                <span id="result-role" class="badge bg-info">—</span>
+                <span id="result-role" class="badge bg-info">â€”</span>
               </p>
               <p class="small text-white-50 mb-0" id="result-time-wrap">
-                <i class="bi bi-clock me-1"></i> <span id="result-time">—</span>
+                <i class="bi bi-clock me-1"></i> <span id="result-time">â€”</span>
               </p>
             </div>
           </div>
@@ -132,7 +133,7 @@
                   <td class="ps-4 fw-medium">{{ log.member.name }}</td>
                   <td><span class="badge bg-{% if log.member.role == 'trainer' %}success{% else %}info{% endif %}">{{ log.member.get_role_display }}</span></td>
                   <td class="small">{{ log.check_in|date:"M d, Y H:i" }}</td>
-                  <td class="pe-4">{{ log.checked_in_by.username|default:"—" }}</td>
+                  <td class="pe-4">{{ log.checked_in_by.username|default:"â€”" }}</td>
                 </tr>
                 {% empty %}
                 <tr>

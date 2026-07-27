@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 {% block title %}My Schedule | Future Gym{% endblock %}
 {% block extra_head %}
 <style>
@@ -59,6 +59,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto align-items-center">
                     <li class="nav-item"><a class="nav-link" href="{% url 'home_url' %}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'feed_url' %}">Feed</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'trainer_settings_url' %}"><i class="bi bi-arrow-left me-1"></i>Back</a></li>
                 </ul>
             </div>
@@ -85,7 +86,7 @@
         <div class="mb-4">
             <div class="d-flex align-items-center mb-3">
                 <span class="badge bg-primary bg-opacity-25 text-primary me-2">Week {{ week.week_number }}</span>
-                <small class="text-muted">{{ week.days.0.date|date:"M d" }} – {{ week.days.6.date|date:"M d, Y" }}</small>
+                <small class="text-muted">{{ week.days.0.date|date:"M d" }} â€“ {{ week.days.6.date|date:"M d, Y" }}</small>
             </div>
             <div class="row g-2">
                 {% for day in week.days %}

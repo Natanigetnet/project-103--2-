@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 {% block title %}Register Trainee | Future Gym{% endblock %}
 {% block extra_head %}
 <style>
@@ -36,6 +36,7 @@
                 <li class="nav-item"><a class="nav-link" href="{% url 'registrar_scan_qr_url' %}">Check In</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'registrar_scan_checkout_url' %}">Check Out</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'home_url' %}">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'feed_url' %}">Feed</a></li>
             </ul>
         </div>
     </div>

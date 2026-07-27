@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 {% block title %}Future Gym | {{ trainee.name }} Training Plan{% endblock %}
 {% block extra_head %}
 <style>
@@ -133,6 +133,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto align-items-center">
                 <li class="nav-item"><a class="nav-link" href="{% url 'home_url' %}">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'feed_url' %}">Feed</a></li>
                 {% if is_assigned_trainer %}
                 <li class="nav-item"><a class="nav-link" href="{% url 'trainer_tracker_url' %}">Tracker</a></li>
                 {% endif %}
@@ -193,8 +194,8 @@
                 <small class="text-muted text-uppercase fw-bold" style="font-size:0.7rem; letter-spacing:0.5px;">Next Workout</small>
                 <h3 class="fw-bold mb-1 text-white">{{ next_body_part }}</h3>
                 <small class="text-muted">
-                    {% if split_type_display %}<i class="bi bi-diagram-3 me-1"></i>{{ split_type_display }} · {% endif %}Day {{ current_day_number }} of {{ total_days }}
-                    {% if total_workouts > 0 %} · {{ total_workouts }} workout{{ total_workouts|pluralize }} completed{% endif %}
+                    {% if split_type_display %}<i class="bi bi-diagram-3 me-1"></i>{{ split_type_display }} Â· {% endif %}Day {{ current_day_number }} of {{ total_days }}
+                    {% if total_workouts > 0 %} Â· {{ total_workouts }} workout{{ total_workouts|pluralize }} completed{% endif %}
                 </small>
             </div>
         </div>
@@ -224,7 +225,7 @@
                 <i class="bi bi-chevron-left"></i>
             </a>
             <span class="fw-semibold" style="font-size:0.9rem; min-width:140px; text-align:center;">
-                {{ week_start|date:"M d" }} – {{ week_end|date:"M d, Y" }}
+                {{ week_start|date:"M d" }} â€“ {{ week_end|date:"M d, Y" }}
             </span>
             <a href="?week_start={{ next_week|date:'Y-m-d' }}" class="btn btn-outline-glow btn-sm">
                 <i class="bi bi-chevron-right"></i>

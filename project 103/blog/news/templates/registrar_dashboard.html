@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 {% block title %}Registrar Dashboard | Future Gym{% endblock %}
 {% block extra_head %}
 <meta http-equiv="refresh" content="30">
@@ -40,6 +40,7 @@
                 <li class="nav-item"><a class="nav-link" href="{% url 'registrar_scan_qr_url' %}">Check In</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'registrar_scan_checkout_url' %}">Check Out</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'home_url' %}">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'feed_url' %}">Feed</a></li>
                 <li class="nav-item ms-lg-3"><a href="{% url 'logout_url' %}" class="btn btn-outline-danger btn-sm rounded-pill px-4">Logout</a></li>
             </ul>
         </div>
@@ -101,7 +102,7 @@
                             {% for log in recent %}
                             <tr>
                                 <td class="fw-semibold">{{ log.member.name }}</td>
-                                <td><span class="badge-modern bg-secondary">{{ log.member.category.name|default:'—' }}</span></td>
+                                <td><span class="badge-modern bg-secondary">{{ log.member.category.name|default:'â€”' }}</span></td>
                                 <td class="small">{{ log.check_in|date:"H:i" }}</td>
                             </tr>
                             {% empty %}
@@ -124,7 +125,7 @@
                         <span class="trainer-dot active"></span>
                         <div>
                             <div class="fw-semibold">{{ t.name }}</div>
-                            <div class="small text-muted">{{ t.category.name|default:'—' }}</div>
+                            <div class="small text-muted">{{ t.category.name|default:'â€”' }}</div>
                         </div>
                     </div>
                     {% endfor %}

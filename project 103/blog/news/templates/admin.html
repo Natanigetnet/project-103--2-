@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 {% block title %}Future Gym | Admin Dashboard{% endblock %}
 {% block extra_head %}<style>body { background: linear-gradient(135deg, #0f172a, #1e293b) !important; }</style>{% endblock %}
 {% block navbar %}
@@ -10,6 +10,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto align-items-center">
                     <li class="nav-item"><a class="nav-link" href="{% url 'home_url' %}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'feed_url' %}">Feed</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'home_url' %}">View Live Site</a></li>
                 </ul>
             </div>
@@ -27,7 +28,7 @@
                         <strong class="text-warning">Upcoming Payments Due</strong>
                         <p class="small text-muted mb-0">
                             {% for p in upcoming_payments %}
-                            <span class="me-3">&bull; {{ p.trainer_name }} &mdash; ₪{{ p.salary }} due {{ p.next_due|date:"d/m" }} 
+                            <span class="me-3">&bull; {{ p.trainer_name }} &mdash; â‚ª{{ p.salary }} due {{ p.next_due|date:"d/m" }} 
                             {% if p.days_until == 0 %}<span class="text-warning fw-bold">(Today!)</span>
                             {% elif p.days_until == 1 %}<span class="text-warning fw-bold">(Tomorrow!)</span>
                             {% else %}(in {{ p.days_until }} days){% endif %}</span>

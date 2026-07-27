@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 {% block title %}Future Gym | Trainer Dashboard{% endblock %}
 {% block navbar %}
 <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
@@ -8,6 +8,7 @@
       <ul class="navbar-nav ms-auto align-items-center">
         <li class="nav-item"><a class="nav-link" href="{% url 'admin_url' %}">Admin</a></li>
         <li class="nav-item"><a class="nav-link" href="{% url 'home_url' %}">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'feed_url' %}">Feed</a></li>
       </ul>
     </div>
   </div>
@@ -58,7 +59,7 @@
         </span>
       </div>
       <span class="badge-modern bg-primary fs-6 fw-bold px-3 py-2">
-        {% if td.payment_info %}₪{{ td.payment_info.salary }}{% else %}<span class="text-muted small">No salary set</span>{% endif %}
+        {% if td.payment_info %}â‚ª{{ td.payment_info.salary }}{% else %}<span class="text-muted small">No salary set</span>{% endif %}
       </span>
     </div>
 
@@ -122,7 +123,7 @@
     <div class="mb-3">
       <div class="d-flex align-items-center mb-2">
         <span class="badge bg-primary bg-opacity-25 text-primary me-2">Week {{ week.week_number }}</span>
-        <small class="text-muted">{{ week.days.0.date|date:"M d" }} – {{ week.days.6.date|date:"M d, Y" }}</small>
+        <small class="text-muted">{{ week.days.0.date|date:"M d" }} â€“ {{ week.days.6.date|date:"M d, Y" }}</small>
       </div>
       <div class="table-responsive mb-2">
         <table class="table table-custom align-middle mb-0 text-center">

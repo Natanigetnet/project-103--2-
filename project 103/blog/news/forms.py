@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.core.validators import RegexValidator
-from .models import Category, UserProfile, names
+from .models import Category, UserProfile, names, FeedPost
 
 
 ethiopian_phone_validator = RegexValidator(
@@ -156,3 +156,13 @@ class UserRegisterForm(UserCreationForm):
         if self.fields['phone_number'].required and not cleaned_data.get('phone_number', '').strip():
             self.add_error('phone_number', 'Phone number is required.')
         return cleaned_data
+
+
+class FeedPostForm(forms.ModelForm):
+    class Meta:
+        model = FeedPost
+        fields = ['image', 'quote', 'hashtags']
+        widgets = {
+            'quote': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Share a motivational quote...'}),
+            'hashtags': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '#fitness #gym #motivation'}),
+        }
