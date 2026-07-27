@@ -289,7 +289,7 @@
                                 onclick="hypePost({{ post.id }}, this)"
                                 data-post-id="{{ post.id }}">
                             <i class="bi bi-fire{% if user in post.hyped_by.all %} fill{% endif %}"></i>
-                            <span class="hype-count">{{ post.hype_count }}</span> Hype
+                            <span class="hype-count" style="cursor: pointer; text-decoration: underline;" onclick="showHypers({{ post.id }})">{{ post.hype_count }}</span> Hype
                         </button>
                         
                         {% if user == post.author or user.is_superuser %}
@@ -332,6 +332,24 @@
         <div class="container text-center">
         </div>
     </footer>
+
+    <div class="modal fade" id="hypersModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background: rgba(15, 17, 22, 0.95); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px;">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold" style="color: #f1f5f9;">Hyped by</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body pt-2" id="hypersList">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block extra_scripts %}
@@ -374,6 +392,43 @@ function hypePost(postId, btn) {
         }
     })
     .catch(err => console.error('Hype error:', err));
+}
+
+function showHypers(postId) {
+    const modal = new bootstrap.Modal(document.getElementById('hypersModal'));
+    const listEl = document.getElementById('hypersList');
+    listEl.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+    modal.show();
+
+    fetch('/feed/hypers/' + postId + '/')
+    .then(response => response.json())
+    .then(data => {
+        if (data.hypers.length === 0) {
+            listEl.innerHTML = '<p class="text-center text-muted py-4">No one has hyped this post yet.</p>';
+            return;
+        }
+        let html = '<div class="list-group list-group-flush">';
+        data.hypers.forEach(hyper => {
+            const avatar = hyper.avatar_url 
+                ? `<img src="${hyper.avatar_url}" class="rounded-circle me-3" style="width:40px;height:40px;object-fit:cover;" alt="">`
+                : `<div class="rounded-circle me-3 d-flex align-items-center justify-content-center" style="width:40px;height:40px;background:rgba(99,102,241,0.2);color:#a5b4fc;font-weight:700;font-size:0.9rem;">${hyper.initial}</div>`;
+            html += `
+                <div class="list-group-item border-0 d-flex align-items-center py-2" style="background:transparent;color:#f1f5f9;">
+                    ${avatar}
+                    <div>
+                        <div class="fw-semibold">${hyper.full_name}</div>
+                        <div class="small text-muted">@${hyper.username}</div>
+                    </div>
+                </div>
+            `;
+        });
+        html += '</div>';
+        listEl.innerHTML = html;
+    })
+    .catch(err => {
+        console.error('Error loading hypers:', err);
+        listEl.innerHTML = '<p class="text-center text-muted py-4">Could not load hypers.</p>';
+    });
 }
 </script>
 {% endblock %}

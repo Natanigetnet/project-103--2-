@@ -4492,3 +4492,19 @@ def hype_post(request, post_id):
         post.hyped_by.add(request.user)
         hyped = True
     return JsonResponse({'hyped': hyped, 'count': post.hype_count})
+
+
+@login_required(login_url='login_url')
+def post_hypers_list(request, post_id):
+    post = get_object_or_404(FeedPost, id=post_id)
+    hypers = post.hyped_by.select_related('profile').all()
+    hypers_data = []
+    for user in hypers:
+        hypers_data.append({
+            'id': user.id,
+            'username': user.username,
+            'full_name': user.get_full_name() or user.username,
+            'avatar_url': user.profile.image.url if hasattr(user, 'profile') and user.profile.image else None,
+            'initial': (user.first_name[:1] if user.first_name else user.username[:1]).upper(),
+        })
+    return JsonResponse({'hypers': hypers_data})
