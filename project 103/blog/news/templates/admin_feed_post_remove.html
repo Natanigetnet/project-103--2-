@@ -1,87 +1,63 @@
 {% extends 'base.html' %}
-{% block title %}Future Gym | Remove Feed Post{% endblock %}
-
-{% block navbar %}
-<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
-    <div class="container">
-        <a class="navbar-brand fw-bold fs-4" href="{% url 'home_url' %}">
-            <i class="bi bi-lightning-charge-fill text-primary"></i> FUTURE<span class="text-primary">GYM</span>
-        </a>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto align-items-center">
-                <li class="nav-item"><a class="nav-link" href="{% url 'home_url' %}">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'feed_url' %}">Feed</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'admin_feed_management_url' %}">Feed Management</a></li>
-            </ul>
-        </div>
-    </div>
-</nav>
-{% endblock %}
+{% block title %}Remove Feed Post{% endblock %}
 
 {% block content %}
-<header class="gradient-header text-center">
-    <div class="container">
-        <h1 class="display-4 fw-bold"><i class="bi bi-exclamation-triangle text-danger"></i> Remove Post</h1>
-        <p class="lead opacity-75">This action will permanently delete the post and notify the author</p>
-    </div>
-</header>
-
-<main class="container my-5">
+<div class="container mt-4">
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-6">
-            <div class="glass-card p-4 fade-in">
-                <div class="alert alert-warning border-0 mb-4" style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3) !important;border-radius:12px;">
-                    <i class="bi bi-info-circle me-2" style="color:#f59e0b;"></i>
-                    <span style="color:#fbbf24;">The author will receive a notification with the reason you provide below.</span>
+            <div class="card shadow">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Remove Feed Post</h4>
                 </div>
-
-                <div class="mb-4 p-3" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;">
-                    <small class="text-muted text-uppercase fw-bold d-block mb-2">Post Details</small>
-                    <div class="d-flex align-items-center gap-2 mb-2">
-                        <div class="rounded-circle d-flex align-items-center justify-content-center" style="width:32px;height:32px;background:rgba(99,102,241,0.2);color:#a5b4fc;font-weight:700;font-size:0.8rem;">
-                            {{ author_name|first|upper }}
-                        </div>
-                        <div>
-                            <div class="fw-bold" style="font-size:0.9rem;">{{ author_name }}</div>
-                            <div class="text-muted" style="font-size:0.75rem;">@{{ author_username }} &middot; {{ post.created_at|timesince }} ago</div>
-                        </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>Warning:</strong> This action will permanently delete the post and notify the author.
                     </div>
-                    {% if post.quote %}
-                    <p class="mb-2 mt-2" style="color:rgba(255,255,255,0.7);font-style:italic;font-size:0.9rem;">"{{ post.quote|truncatechars:120 }}"</p>
-                    {% endif %}
-                    {% if post.hashtags %}
-                    <div class="text-muted" style="font-size:0.8rem;">{{ post.hashtags|truncatechars:60 }}</div>
-                    {% endif %}
+
+                    <div class="mb-4 p-3 bg-light rounded">
+                        <h6 class="text-muted mb-2">Post Details:</h6>
+                        <p class="mb-1"><strong>Author:</strong> {{ author_name }} (@{{ author_username }})</p>
+                        <p class="mb-1"><strong>Posted:</strong> {{ post.created_at|timesince }} ago</p>
+                        {% if post.quote %}
+                        <p class="mb-1"><strong>Quote:</strong> "{{ post.quote|truncatechars:100 }}"</p>
+                        {% endif %}
+                        {% if post.hashtags %}
+                        <p class="mb-0"><strong>Hashtags:</strong> {{ post.hashtags }}</p>
+                        {% endif %}
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="removal_reason" class="form-label">
+                                <strong>Reason for Removal</strong> <span class="text-danger">*</span>
+                            </label>
+                            <textarea 
+                                class="form-control" 
+                                id="removal_reason" 
+                                name="removal_reason" 
+                                rows="4" 
+                                placeholder="Explain why this post is being removed..."
+                                required
+                            ></textarea>
+                            <div class="form-text">
+                                This reason will be sent to the post author via their messages.
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'admin_feed_management_url' %}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash"></i> Remove Post & Notify Author
+                            </button>
+                        </div>
+                    </form>
                 </div>
-
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="mb-4">
-                        <label for="removal_reason" class="form-label fw-bold" style="color:#f1f5f9;">
-                            Reason for Removal <span class="text-danger">*</span>
-                        </label>
-                        <textarea
-                            class="form-control"
-                            id="removal_reason"
-                            name="removal_reason"
-                            rows="4"
-                            placeholder="Explain why this post is being removed..."
-                            required
-                        ></textarea>
-                        <div class="form-text text-muted">This reason will be sent to the post author via their messages.</div>
-                    </div>
-
-                    <div class="d-flex justify-content-between gap-2">
-                        <a href="{% url 'admin_feed_management_url' %}" class="btn btn-outline-secondary px-4">
-                            <i class="bi bi-x-circle me-1"></i>Cancel
-                        </a>
-                        <button type="submit" class="btn btn-danger px-4">
-                            <i class="bi bi-trash me-1"></i>Remove Post
-                        </button>
-                    </div>
-                </form>
             </div>
         </div>
     </div>
-</main>
+</div>
 {% endblock %}
