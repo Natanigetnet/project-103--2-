@@ -50,11 +50,9 @@
                         </small>
 
                         <div class="d-flex gap-2">
-                            {% if item.author_username == request.user.username %}
                             <a href="{% url 'admin_feed_post_remove_url' item.post.id %}" class="btn btn-danger btn-sm">
                                 <i class="bi bi-trash"></i> Remove
                             </a>
-                            {% endif %}
                             <a href="{% url 'feed_url' %}#post-{{ item.post.id }}" class="btn btn-outline-secondary btn-sm">
                                 <i class="bi bi-eye"></i> View
                             </a>
