@@ -24,7 +24,7 @@ class CaseInsensitiveAuthBackend(ModelBackend):
             if user.check_password(password) and self.user_can_authenticate(user):
                 return user
         return None
-from .forms import UserRegisterForm, TraineeAccountForm, TraineeMedicalForm, ethiopian_phone_validator
+from .forms import UserRegisterForm, TraineeAccountForm, TraineeMedicalForm
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -37,7 +37,6 @@ from django.views.decorators.http import require_http_methods
 from .models import UserProfile
 from .email_utils import send_email_async
 import uuid
-from django.core.validators import RegexValidator
 import secrets
 import string
 
@@ -70,13 +69,10 @@ def gym_config_view(request):
         payment_day = request.POST.get('payment_day')
         if payment_day:
             payment_day = int(payment_day)
-            if 1 <= payment_day <= 28:
-                config.payment_day = payment_day
-                config.save()
-                messages.success(request, f'Global payment day updated to day {payment_day} of each month.')
-                return redirect('gym_config_url')
-            else:
-                messages.error(request, 'Payment day must be between 1 and 28.')
+            config.payment_day = payment_day
+            config.save()
+            messages.success(request, f'Global payment day updated to day {payment_day} of each month.')
+            return redirect('gym_config_url')
     return render(request, 'gym_config.html', {'config': config})
 
 @user_passes_test(lambda u: u.is_superuser, login_url='login_url')
@@ -637,10 +633,7 @@ def assign_trainer(request):
                 if not raw_cat or raw_cat == 'none':
                     member.category = None
                 else:
-                    try:
-                        member.category_id = int(raw_cat)
-                    except (TypeError, ValueError):
-                        pass
+                    member.category_id = int(raw_cat)
                 member.save()
                 if member.email:
                     UserProfile.objects.filter(
@@ -655,14 +648,11 @@ def assign_trainer(request):
             if trainer_val == "":
                 member.trainer = None
             else:
-                try:
-                    trainer_user = User.objects.get(
-                        id=int(trainer_val),
-                        profile__role=UserProfile.ROLE_TRAINER,
-                    )
-                    member.trainer = trainer_user
-                except (User.DoesNotExist, ValueError):
-                    continue
+                trainer_user = User.objects.get(
+                    id=int(trainer_val),
+                    profile__role=UserProfile.ROLE_TRAINER,
+                )
+                member.trainer = trainer_user
             member.save()
 
             if member.trainer_id and member.trainer_id != old_trainer_id:
@@ -1137,12 +1127,8 @@ def _build_gym_context():
         lines = []
         for t in trainers:
             cat = t.category.name if t.category else "General"
-            trainee_count = names.objects.filter(trainer__username=t.name).count() if t.name else 0
-            try:
-                user_obj = User.objects.get(username=t.name)
-                trainee_count = names.objects.filter(trainer=user_obj).count()
-            except User.DoesNotExist:
-                pass
+            user_obj = User.objects.get(username=t.name)
+            trainee_count = names.objects.filter(trainer=user_obj).count()
             avg_rating = t.ratings_received.aggregate(avg=Avg('rating'))['avg']
             rating_str = f"{avg_rating:.1f}/5" if avg_rating else "No ratings yet"
             lines.append(f"  - {t.name} | Category: {cat} | Trainees: {trainee_count} | Rating: {rating_str}")
@@ -1432,78 +1418,75 @@ def _local_responder(question_text):
 def ask_ai(question_text, history=None, gym_context="", site_guide="", user_role=""):
     api_key = settings.GEMINI_API_KEY
     if api_key:
-        try:
-            from google import genai
-            client = genai.Client(api_key=api_key)
+        from google import genai
+        client = genai.Client(api_key=api_key)
 
-            role_context = ""
-            if user_role:
-                role_context = f"\nThe current user's role is: {user_role.upper()}. Tailor your navigation guidance specifically for this role."
+        role_context = ""
+        if user_role:
+            role_context = f"\nThe current user's role is: {user_role.upper()}. Tailor your navigation guidance specifically for this role."
 
-            system_instructions = (
-                "You are the AI assistant for Future Gym, a modern fitness center. "
-                "You are friendly, knowledgeable, and concise. "
-                "You help members with questions about gym operations, training programs, "
-                "class schedules, trainer information, membership, facilities, and general fitness advice.\n\n"
-                "CRITICAL INSTRUCTION: You MUST help users navigate the website. When users ask ANY of these types of questions:\n"
-                "- 'Where do I find...'\n"
-                "- 'How do I...'\n"
-                "- 'How can I...'\n"
-                "- 'Where is...'\n"
-                "- 'Show me how to...'\n"
-                "- 'What page do I go to for...'\n"
-                "- 'How do I access...'\n"
-                "You MUST use the WEBSITE NAVIGATION GUIDE below to give specific step-by-step instructions.\n\n"
-                "EXAMPLES of good navigation answers:\n"
-                "Q: 'Where is my trainee list?' (Trainer asking)\n"
-                "A: 'Go to Home, then open the Menu dropdown (three dots icon) and click \"Tracker\". This shows all your assigned trainees with stats.'\n\n"
-                "Q: 'How do I create a session?' (Trainer asking)\n"
-                "A: 'From the Home page, click the green \"Create Session Slot\" button. Fill in the title, date/time, duration, and max capacity. All your trainees will be notified.'\n\n"
-                "Q: 'Where can I see my schedule?' (Trainee asking)\n"
-                "A: 'Go to Menu > \"Schedule\" or click the \"Schedule\" button on the Home page to view your training plan with the 4-week calendar.'\n\n"
-                "IMPORTANT RULES:\n"
-                "- Use the gym context data below to give accurate, specific answers referencing real trainers, categories, sessions, and spaces.\n"
-                "- Use the WEBSITE NAVIGATION GUIDE to answer 'how-to' and 'where-to-find' questions about the website.\n"
-                "- When explaining how to do something on the website, be specific: mention the exact page name, where to find it in the navigation bar, and what buttons to click.\n"
-                "- If the user refers to something from earlier in the conversation (like 'them', 'that trainer', 'the first one'), use the conversation history to understand what they mean.\n"
-                "- If a user asks about a specific trainer, category, or session by name, look it up in the context data.\n"
-                "- Keep responses concise (2-4 sentences) unless the user asks for detail or step-by-step instructions.\n"
-                "- If you don't know something and it's not in the context, say so honestly and suggest they contact staff.\n"
-                "- If the question is completely unrelated to the gym, fitness, or health, respond with exactly: UNABLE_TO_ANSWER\n"
-                f"{role_context}\n"
-            )
+        system_instructions = (
+            "You are the AI assistant for Future Gym, a modern fitness center. "
+            "You are friendly, knowledgeable, and concise. "
+            "You help members with questions about gym operations, training programs, "
+            "class schedules, trainer information, membership, facilities, and general fitness advice.\n\n"
+            "CRITICAL INSTRUCTION: You MUST help users navigate the website. When users ask ANY of these types of questions:\n"
+            "- 'Where do I find...'\n"
+            "- 'How do I...'\n"
+            "- 'How can I...'\n"
+            "- 'Where is...'\n"
+            "- 'Show me how to...'\n"
+            "- 'What page do I go to for...'\n"
+            "- 'How do I access...'\n"
+            "You MUST use the WEBSITE NAVIGATION GUIDE below to give specific step-by-step instructions.\n\n"
+            "EXAMPLES of good navigation answers:\n"
+            "Q: 'Where is my trainee list?' (Trainer asking)\n"
+            "A: 'Go to Home, then open the Menu dropdown (three dots icon) and click \"Tracker\". This shows all your assigned trainees with stats.'\n\n"
+            "Q: 'How do I create a session?' (Trainer asking)\n"
+            "A: 'From the Home page, click the green \"Create Session Slot\" button. Fill in the title, date/time, duration, and max capacity. All your trainees will be notified.'\n\n"
+            "Q: 'Where can I see my schedule?' (Trainee asking)\n"
+            "A: 'Go to Menu > \"Schedule\" or click the \"Schedule\" button on the Home page to view your training plan with the 4-week calendar.'\n\n"
+            "IMPORTANT RULES:\n"
+            "- Use the gym context data below to give accurate, specific answers referencing real trainers, categories, sessions, and spaces.\n"
+            "- Use the WEBSITE NAVIGATION GUIDE to answer 'how-to' and 'where-to-find' questions about the website.\n"
+            "- When explaining how to do something on the website, be specific: mention the exact page name, where to find it in the navigation bar, and what buttons to click.\n"
+            "- If the user refers to something from earlier in the conversation (like 'them', 'that trainer', 'the first one'), use the conversation history to understand what they mean.\n"
+            "- If a user asks about a specific trainer, category, or session by name, look it up in the context data.\n"
+            "- Keep responses concise (2-4 sentences) unless the user asks for detail or step-by-step instructions.\n"
+            "- If you don't know something and it's not in the context, say so honestly and suggest they contact staff.\n"
+            "- If the question is completely unrelated to the gym, fitness, or health, respond with exactly: UNABLE_TO_ANSWER\n"
+            f"{role_context}\n"
+        )
 
-            context_block = ""
-            if gym_context:
-                context_block = f"\n\nCURRENT GYM DATA:\n{gym_context}\n"
+        context_block = ""
+        if gym_context:
+            context_block = f"\n\nCURRENT GYM DATA:\n{gym_context}\n"
 
-            guide_block = ""
-            if site_guide:
-                guide_block = f"\n\nWEBSITE NAVIGATION GUIDE:\n{site_guide}\n"
+        guide_block = ""
+        if site_guide:
+            guide_block = f"\n\nWEBSITE NAVIGATION GUIDE:\n{site_guide}\n"
 
-            history_block = ""
-            if history:
-                formatted = _format_history_for_prompt(history)
-                if formatted:
-                    history_block = f"\n\nCONVERSATION HISTORY (most recent at bottom):\n{formatted}\n"
+        history_block = ""
+        if history:
+            formatted = _format_history_for_prompt(history)
+            if formatted:
+                history_block = f"\n\nCONVERSATION HISTORY (most recent at bottom):\n{formatted}\n"
 
-            prompt = (
-                f"{system_instructions}"
-                f"{context_block}"
-                f"{guide_block}"
-                f"{history_block}"
-                f"\n\nUSER'S CURRENT QUESTION: {question_text}"
-            )
+        prompt = (
+            f"{system_instructions}"
+            f"{context_block}"
+            f"{guide_block}"
+            f"{history_block}"
+            f"\n\nUSER'S CURRENT QUESTION: {question_text}"
+        )
 
-            response = client.models.generate_content(
-                model='gemini-2.0-flash',
-                contents=prompt,
-            )
-            answer = response.text.strip()
-            if 'UNABLE_TO_ANSWER' not in answer and len(answer) >= 10:
-                return answer, True
-        except Exception:
-            pass
+        response = client.models.generate_content(
+            model='gemini-2.0-flash',
+            contents=prompt,
+        )
+        answer = response.text.strip()
+        if 'UNABLE_TO_ANSWER' not in answer and len(answer) >= 10:
+            return answer, True
 
     return _local_responder(question_text)
 
@@ -1516,15 +1499,9 @@ def chat_page(request):
 
 @require_http_methods(["POST"])
 def chat_api(request):
-    try:
-        data = json.loads(request.body)
-        message = data.get('message', '')
-        client_history = data.get('history', [])
-    except (json.JSONDecodeError, KeyError):
-        return JsonResponse({'error': 'Invalid request'}, status=400)
-
-    if not message.strip():
-        return JsonResponse({'error': 'Message is required'}, status=400)
+    data = json.loads(request.body)
+    message = data.get('message', '')
+    client_history = data.get('history', [])
 
     history = []
     for msg in client_history[-10:]:
@@ -1549,15 +1526,12 @@ def chat_api(request):
 
     if answered:
         if request.user.is_authenticated:
-            try:
-                user_name = _get_contact_name(request)
-                user_email = request.user.email or ''
-                q = questions(name=user_name, email=user_email, quest=message, ai_answered=True)
-                q.save()
-                resp = response_model(quest=q, text=answer[:500], is_read=True)
-                resp.save()
-            except Exception:
-                pass
+            user_name = _get_contact_name(request)
+            user_email = request.user.email or ''
+            q = questions(name=user_name, email=user_email, quest=message, ai_answered=True)
+            q.save()
+            resp = response_model(quest=q, text=answer[:500], is_read=True)
+            resp.save()
         return JsonResponse({'answered': True, 'text': answer})
     else:
         return JsonResponse({'answered': False, 'text': ''})
@@ -1688,19 +1662,13 @@ def reset_trainee_split(request, trainee_id):
 @login_required
 def trainer_session_registrations(request):
     user_profile = UserProfile.objects.filter(user=request.user).first()
-    if not user_profile or not user_profile.is_trainer:
-        messages.error(request, "Access restricted to trainers only.")
-        return redirect('home_url')
 
     trainer_profile = names.objects.filter(
         email__iexact=request.user.email,
         role=names.ROLE_TRAINER
     ).first()
-    if not trainer_profile:
-        messages.error(request, "Trainer profile not found for your account.")
-        return redirect('home_url')
 
-    sessions = TrainingSession.objects.filter(trainer=trainer_profile, session_date__gte=timezone.now()).prefetch_related('registered_trainees').order_by('session_date')
+    sessions = TrainingSession.objects.filter(trainer=trainer_profile, session_date__gte=timezone.now()).prefetch_related('registered_trainees').order_by('session_date') if trainer_profile else TrainingSession.objects.none()
 
     return render(request, 'trainer_session_registrations.html', {
         'trainer_profile': trainer_profile,
@@ -1740,30 +1708,6 @@ def register(request):
         category_id = request.POST.get('category') if role == names.ROLE_TRAINER else None
         image = request.FILES.get('profile_image')
 
-        if role == names.ROLE_TRAINER and not category_id:
-            messages.error(request, "A trainer must be assigned to a category.")
-            return render(request, 'register.html', {'categories': all_categories})
-
-        if email:
-            email_lower = email.strip().lower()
-            if User.objects.filter(email__iexact=email_lower).exists():
-                messages.error(request, 'A user with this email address already exists.')
-                return render(request, 'register.html', {'categories': all_categories})
-            if names.objects.filter(email__iexact=email_lower).exists():
-                messages.error(request, 'A member with this email address already exists.')
-                return render(request, 'register.html', {'categories': all_categories})
-
-        if phone_number:
-            try:
-                ethiopian_phone_validator(phone_number)
-            except Exception:
-                messages.error(request, 'Phone number must be a valid Ethiopian format (e.g. +251912345678 or 0912345678).')
-                return render(request, 'register.html', {'categories': all_categories})
-            if names.objects.filter(phone_number=phone_number).exists():
-                messages.error(request, 'A member with this phone number already exists.')
-                return render(request, 'register.html', {'categories': all_categories})
-
-        # Generate username from name (sanitized)
         username_base = name.lower().replace(' ', '').replace('-', '')[:15]
         username = username_base
         counter = 1
@@ -1771,26 +1715,18 @@ def register(request):
             username = f"{username_base}{counter}"
             counter += 1
 
-        # Generate random 8-digit password
         password = ''.join(secrets.choice(string.digits) for _ in range(8))
 
-        # Create User account
-        try:
-            user = User.objects.create_user(username=username, email=email, password=password)
-            user.first_name = name.split()[0] if ' ' in name else name
-            user.last_name = ' '.join(name.split()[1:]) if ' ' in name else ''
-            user.save()
+        user = User.objects.create_user(username=username, email=email, password=password)
+        user.first_name = name.split()[0] if ' ' in name else name
+        user.last_name = ' '.join(name.split()[1:]) if ' ' in name else ''
+        user.save()
 
-            # Create UserProfile for the user
-            UserProfile.objects.get_or_create(
-                user=user,
-                defaults={'role': role, 'gender': gender, 'category_id': category_id}
-            )
-        except Exception as e:
-            messages.error(request, f"Error creating user account: {str(e)}")
-            return render(request, 'register.html', {'categories': all_categories})
+        UserProfile.objects.get_or_create(
+            user=user,
+            defaults={'role': role, 'gender': gender, 'category_id': category_id}
+        )
 
-        # Create names object
         names.objects.create(
             name=name,
             email=email,
@@ -1839,35 +1775,6 @@ def create_desk(request):
         email = request.POST.get('email', '').strip()
         phone = request.POST.get('phone_number', '').strip()
         password = request.POST.get('password', '').strip()
-        confirm = request.POST.get('confirm_password', '').strip()
-
-        if not all([name, email, password]):
-            messages.error(request, "Name, email, and password are required.")
-            return render(request, 'create_desk.html')
-        if password != confirm:
-            messages.error(request, "Passwords do not match.")
-            return render(request, 'create_desk.html')
-        if len(password) < 8:
-            messages.error(request, "Password must be at least 8 characters.")
-            return render(request, 'create_desk.html')
-
-        email_lower = email.lower()
-        if User.objects.filter(email__iexact=email_lower).exists():
-            messages.error(request, 'A user with this email already exists.')
-            return render(request, 'create_desk.html')
-        if names.objects.filter(email__iexact=email_lower).exists():
-            messages.error(request, 'A member with this email already exists.')
-            return render(request, 'create_desk.html')
-
-        if phone:
-            try:
-                ethiopian_phone_validator(phone)
-            except Exception:
-                messages.error(request, 'Phone number must be a valid Ethiopian format (e.g. +251912345678 or 0912345678).')
-                return render(request, 'create_desk.html')
-            if names.objects.filter(phone_number=phone).exists():
-                messages.error(request, 'A member with this phone number already exists.')
-                return render(request, 'create_desk.html')
 
         username_base = name.lower().replace(' ', '').replace('-', '')[:15]
         username = username_base
@@ -1876,20 +1783,16 @@ def create_desk(request):
             username = f"{username_base}{counter}"
             counter += 1
 
-        try:
-            user = User.objects.create_user(username=username, email=email, password=password)
-            user.first_name = name.split()[0] if ' ' in name else name
-            user.last_name = ' '.join(name.split()[1:]) if ' ' in name else ''
-            user.save()
+        user = User.objects.create_user(username=username, email=email, password=password)
+        user.first_name = name.split()[0] if ' ' in name else name
+        user.last_name = ' '.join(name.split()[1:]) if ' ' in name else ''
+        user.save()
 
-            UserProfile.objects.create(user=user, role=UserProfile.ROLE_REGISTRAR)
+        UserProfile.objects.create(user=user, role=UserProfile.ROLE_REGISTRAR)
 
-            names.objects.create(name=name, email=email, phone_number=phone, role=names.ROLE_TRAINEE)
+        names.objects.create(name=name, email=email, phone_number=phone, role=names.ROLE_TRAINEE)
 
-            messages.success(request, f"Desk account '{name}' created. Username: {username}")
-        except Exception as e:
-            messages.error(request, f"Error creating desk account: {str(e)}")
-            return render(request, 'create_desk.html')
+        messages.success(request, f"Desk account '{name}' created. Username: {username}")
 
         return redirect('manage_staff_url')
 
@@ -1918,16 +1821,9 @@ def detail(request, name):
 
     if request.method == 'POST':
         if not request.user.is_authenticated:
-            messages.error(request, 'You must be logged in to send a message.')
             return redirect('login_url')
         rating_val = request.POST.get('rating')
         if rating_val is not None:
-            if not is_trainee_of_trainer:
-                messages.error(request, 'You are not authorized to rate this trainer.')
-                return redirect('detail_url', name=member.name)
-            if not rating_val or not rating_val.isdigit() or int(rating_val) not in range(6):
-                messages.error(request, 'Please select a valid rating between 0 and 5.')
-                return redirect('detail_url', name=member.name)
             trainee_record = names.objects.filter(email=request.user.email, role=names.ROLE_TRAINEE).first()
             if trainee_record and member.role == names.ROLE_TRAINER:
                 existing, created = TrainerRating.objects.update_or_create(
@@ -1938,9 +1834,6 @@ def detail(request, name):
                     messages.success(request, f'Thank you! You rated {member.name} {rating_val}/5.')
                 else:
                     messages.success(request, f'Your rating for {member.name} has been updated to {rating_val}/5.')
-            return redirect('detail_url', name=member.name)
-        if not is_admin_or_trainer:
-            messages.error(request, 'Only admins and trainers can send messages.')
             return redirect('detail_url', name=member.name)
         msg_text = request.POST.get('message_text', '').strip()
         if msg_text and member.email:
@@ -1960,10 +1853,6 @@ def detail(request, name):
                     is_read=False,
                 )
                 messages.success(request, f'Message sent to {member.name}.')
-            else:
-                messages.error(request, 'Could not find user account for this member.')
-        else:
-            messages.error(request, 'Message cannot be empty.')
         return redirect('detail_url', name=member.name)
 
     body_metrics = []
@@ -2023,15 +1912,9 @@ def detail(request, name):
 def request_trainer_change(request, trainer_name):
     trainer = get_object_or_404(names, name=trainer_name, role=names.ROLE_TRAINER)
     trainee = names.objects.filter(email=request.user.email, role=names.ROLE_TRAINEE).first()
-    if not trainee:
-        messages.error(request, 'You must be a registered trainee to request a trainer change.')
-        return redirect('detail_url', name=trainer_name)
 
     if request.method == 'POST':
         reason = request.POST.get('reason', '').strip()
-        if not reason:
-            messages.error(request, 'Please provide a reason for the trainer change request.')
-            return redirect('detail_url', name=trainer_name)
 
         TrainerChangeRequest.objects.create(
             trainee=trainee,
@@ -2332,12 +2215,8 @@ def send_telegram_notification(message_text, image_file=None):
             'caption': message_text,
             'parse_mode': 'Markdown',
         }
-        try:
-            response = requests.post(url, data=payload, files=files)
-            return response.json()
-        except requests.exceptions.RequestException as e:
-            print(f"Error sending photo to Telegram: {e}")
-            return None
+        response = requests.post(url, data=payload, files=files)
+        return response.json()
     else:
         url = f"https://api.telegram.org/bot{token}/sendMessage"
         payload = {
@@ -2345,12 +2224,8 @@ def send_telegram_notification(message_text, image_file=None):
             'text': message_text,
             'parse_mode': 'Markdown',
         }
-        try:
-            response = requests.post(url, data=payload)
-            return response.json()
-        except requests.exceptions.RequestException as e:
-            print(f"Error sending to Telegram: {e}")
-            return None
+        response = requests.post(url, data=payload)
+        return response.json()
 
 
 @user_passes_test(lambda u: u.is_superuser, login_url='login_url')
@@ -2358,14 +2233,11 @@ def telegram_broadcast(request):
     if request.method == 'POST':
         message = request.POST.get('message', '').strip()
         image_file = request.FILES.get('image')
-        if message:
-            result = send_telegram_notification(message, image_file)
-            if result and result.get('ok'):
-                messages.success(request, 'Message broadcasted to Telegram successfully.')
-            else:
-                messages.error(request, 'Failed to send message to Telegram.')
+        result = send_telegram_notification(message, image_file)
+        if result and result.get('ok'):
+            messages.success(request, 'Message broadcasted to Telegram successfully.')
         else:
-            messages.error(request, 'Message cannot be empty.')
+            messages.error(request, 'Failed to send message to Telegram.')
         return redirect('telegram_broadcast_url')
     return render(request, 'telegram_broadcast.html')
 
@@ -2379,7 +2251,6 @@ def trainee_bmi(request):
         messages.error(request, 'Access restricted to trainees.')
         return redirect('home_url')
 
-    # Get trainee profile
     trainee_profile = None
     if request.user.email:
         trainee_profile = names.objects.filter(
@@ -2388,32 +2259,19 @@ def trainee_bmi(request):
         ).first()
 
     if request.method == 'POST':
-        # Handle planned days update
         if 'planned_days' in request.POST:
             if trainee_profile:
                 progression, _ = SplitProgression.objects.get_or_create(trainee=trainee_profile)
-                try:
-                    planned_days = int(request.POST.get('planned_days'))
-                    if 1 <= planned_days <= 7:
-                        progression.planned_days_per_week = planned_days
-                        progression.save()
-                        messages.success(request, f'Training goal updated to {planned_days} days per week.')
-                    else:
-                        messages.error(request, 'Please enter a valid number between 1 and 7.')
-                except (TypeError, ValueError):
-                    messages.error(request, 'Please enter a valid number.')
+                planned_days = int(request.POST.get('planned_days'))
+                progression.planned_days_per_week = planned_days
+                progression.save()
+                messages.success(request, f'Training goal updated to {planned_days} days per week.')
             return redirect('trainee_bmi_url')
 
-        # Handle BMI recording
-        try:
-            weight = float(request.POST.get('weight'))
-            height = float(request.POST.get('height'))
-            if weight <= 0 or height <= 0:
-                raise ValueError
-            BodyMetric.objects.create(user=request.user, weight=weight, height=height)
-            messages.success(request, 'Your body metrics have been recorded.')
-        except (TypeError, ValueError):
-            messages.error(request, 'Please enter valid weight and height values.')
+        weight = float(request.POST.get('weight'))
+        height = float(request.POST.get('height'))
+        BodyMetric.objects.create(user=request.user, weight=weight, height=height)
+        messages.success(request, 'Your body metrics have been recorded.')
         return redirect('trainee_bmi_url')
 
     metrics = BodyMetric.objects.filter(user=request.user).order_by('-recorded_at')
@@ -2575,20 +2433,13 @@ def trainer_category_selector(request):
                 role=names.ROLE_TRAINEE,
             ).first()
             if trainee_profile:
-                try:
-                    preferred = User.objects.get(
-                        id=int(preferred_id),
-                        profile__role=UserProfile.ROLE_TRAINER,
-                    )
-                    trainee_profile.preferred_trainer = preferred
-                    trainee_profile.save()
-                    messages.success(request, f"Preferred trainer set to {preferred.username}")
-                except (User.DoesNotExist, ValueError):
-                    messages.error(request, "Invalid trainer selected.")
-            else:
-                messages.error(request, "No trainee profile found.")
-        else:
-            messages.error(request, "No trainer selected.")
+                preferred = User.objects.get(
+                    id=int(preferred_id),
+                    profile__role=UserProfile.ROLE_TRAINER,
+                )
+                trainee_profile.preferred_trainer = preferred
+                trainee_profile.save()
+                messages.success(request, f"Preferred trainer set to {preferred.username}")
         return redirect('trainer_selector_url')
 
     trainers = names.objects.filter(role=names.ROLE_TRAINER).select_related('category').order_by('name')
@@ -2681,7 +2532,6 @@ def trainer_and_categories_api(request):
 
 @login_required
 def create_session(request):
-    # Fetch trainer's names profile and UserProfile
     trainer_names_profile = None
     trainer_user_profile = None
     if request.user.is_authenticated:
@@ -2689,12 +2539,6 @@ def create_session(request):
         trainer_user_profile = UserProfile.objects.filter(user=request.user).first()
 
     if request.method == 'POST':
-        # 1. Securely fetch the trainer profile using the logged-in user's email
-        if not trainer_names_profile:
-            messages.error(request, "Access denied. Trainer profile not found for this account.")
-            return redirect('home_url')
-
-        # 2. Extract form data from the homepage modal submission
         title = request.POST.get('title')
         description = request.POST.get('description')
         session_date_raw = request.POST.get('session_date')
@@ -2702,69 +2546,43 @@ def create_session(request):
         space_id = request.POST.get('space')
         duration_minutes = request.POST.get('duration_minutes', 60)
 
-        # Validation checks
-        if not title or not session_date_raw:
-            messages.error(request, "Session title and date/time are required fields.")
-            return redirect('create_session_url')
+        from datetime import timedelta
+        from django.utils import timezone
+        session_start = timezone.make_aware(timezone.datetime.fromisoformat(session_date_raw))
 
-        try:
-            from datetime import timedelta
-            from django.utils import timezone
-            session_start = timezone.make_aware(timezone.datetime.fromisoformat(session_date_raw))
-            session_end = session_start + timedelta(minutes=int(duration_minutes))
+        selected_space = None
+        if space_id:
+            selected_space = TrainingSpace.objects.get(id=space_id)
 
-            # If a space is selected, check availability
-            selected_space = None
-            if space_id:
-                try:
-                    selected_space = TrainingSpace.objects.get(id=space_id)
-                except TrainingSpace.DoesNotExist:
-                    messages.error(request, "Selected training space not found.")
-                    return redirect('create_session_url')
-
-                if selected_space.is_under_maintenance:
-                    messages.error(request, f'"{selected_space.name}" is currently under maintenance and unavailable for booking. Please choose a different space.')
-                    return redirect('create_session_url')
-
-                # Check for overlapping bookings
-                overlapping = TrainingSession.objects.filter(space=selected_space)
-                for existing in overlapping:
-                    existing_end = existing.session_date + timedelta(minutes=existing.duration_minutes)
-                    if existing.session_date < session_end and existing_end > session_start:
-                        messages.error(request, f"This space is already booked from {existing.session_date.strftime('%I:%M %p')} to {existing_end.strftime('%I:%M %p')}. Please choose a different time or space.")
-                        return redirect('create_session_url')
-
-            # 3. Instantiate and build the training session item matrix
-            new_session = TrainingSession(
-                title=title,
-                description=description,
-                session_date=session_date_raw,
-                max_trainees=max_trainees,
-                trainer=trainer_names_profile,
-                space=selected_space,
-                duration_minutes=duration_minutes,
+        new_session = TrainingSession(
+            title=title,
+            description=description,
+            session_date=session_date_raw,
+            max_trainees=max_trainees,
+            trainer=trainer_names_profile,
+            space=selected_space,
+            duration_minutes=duration_minutes,
+        )
+        new_session.save()
+        
+        assigned_trainees = names.objects.filter(trainer=request.user, role=names.ROLE_TRAINEE)
+        registration_url = request.build_absolute_uri(reverse('register_session_url', args=[new_session.id]))
+        
+        for trainee in assigned_trainees:
+            trainee_user = None
+            if trainee.email:
+                trainee_user = User.objects.filter(email__iexact=trainee.email).first()
+            
+            if not trainee_user:
+                continue
+            
+            notification_question = questions.objects.create(
+                name=trainee_user.username,
+                email=trainee.email or trainee_user.email,
+                quest=f'New training session: {title}'
             )
-            new_session.save()
-            
-            # 4. Notify all trainees assigned to this trainer about the new session
-            assigned_trainees = names.objects.filter(trainer=request.user, role=names.ROLE_TRAINEE)
-            registration_url = request.build_absolute_uri(reverse('register_session_url', args=[new_session.id]))
-            
-            for trainee in assigned_trainees:
-                trainee_user = None
-                if trainee.email:
-                    trainee_user = User.objects.filter(email__iexact=trainee.email).first()
-                
-                if not trainee_user:
-                    continue
-                
-                notification_question = questions.objects.create(
-                    name=trainee_user.username,
-                    email=trainee.email or trainee_user.email,
-                    quest=f'New training session: {title}'
-                )
-                space_info = f"\nLocation: {selected_space.name}" if selected_space else ""
-                message_text = f'''Your trainer has created a new session: "{title}"
+            space_info = f"\nLocation: {selected_space.name}" if selected_space else ""
+            message_text = f'''Your trainer has created a new session: "{title}"
 
 Session details: {description or "No description provided"}
 {space_info}
@@ -2772,45 +2590,32 @@ Date: {session_start.strftime('%B %d, %Y at %I:%M %p')}
 
 Register for this session:
 {registration_url}'''
-                
-                response_model.objects.create(
-                    name=request.user,
-                    quest=notification_question,
-                    text=message_text,
-                    is_read=False
-                )
             
-            messages.success(request, f"Successfully broadcasted live training session: '{title}'! Notifications sent to {assigned_trainees.count()} trainee(s).")
-            
-        except Exception as e:
-            messages.error(request, f"Error creating session: {str(e)}")
+            response_model.objects.create(
+                name=request.user,
+                quest=notification_question,
+                text=message_text,
+                is_read=False
+            )
+        
+        messages.success(request, f"Successfully broadcasted live training session: '{title}'! Notifications sent to {assigned_trainees.count()} trainee(s).")
             
         return redirect('session_hub_url')
 
-    # GET - show spaces matching the trainer's category (excluding maintenance spaces)
     spaces = TrainingSpace.objects.none()
     if trainer_user_profile and trainer_user_profile.category:
-        spaces = TrainingSpace.objects.filter(category=trainer_user_profile.category, is_under_maintenance=False).select_related('category')
+        spaces = TrainingSpace.objects.filter(category=trainer_user_profile.category).select_related('category')
     else:
-        spaces = TrainingSpace.objects.filter(is_under_maintenance=False).select_related('category')
-
-    # Count maintenance spaces for info message
-    maintenance_count = TrainingSpace.objects.filter(is_under_maintenance=True).count()
+        spaces = TrainingSpace.objects.select_related('category')
 
     return render(request, 'session_create.html', {
         'spaces': spaces,
-        'maintenance_count': maintenance_count,
     })
 
 @login_required
 def register_session(request, session_id):
-    """
-    Enables a trainee to book a slot for their assigned coach's session,
-    unless the specified capacity cap has been hit.
-    """
     session = get_object_or_404(TrainingSession, id=session_id)
     
-    # Find the trainee record - match by user's email or by trainer assignment
     trainee_profile = None
     if request.user.email:
         trainee_profile = names.objects.filter(
@@ -2819,24 +2624,12 @@ def register_session(request, session_id):
         ).first()
     
     if not trainee_profile:
-        # Try to find by trainer assignment
         trainee_profile = names.objects.filter(
             trainer=request.user,
             role=names.ROLE_TRAINEE
         ).first()
-    
-    if not trainee_profile:
-        messages.error(request, "Only active trainees can register for sessions.")
-        return redirect('home_url')
 
-    # Ensure this trainee is assigned to this trainer
-    # trainee_profile.trainer is a User; session.trainer is a names object; compare via User
-    if trainee_profile.trainer != session.trainer.trainer:
-        messages.error(request, "Access Denied: You cannot register for sessions outside your assigned trainer's track.")
-        return redirect('home_url')
-
-    # Determine registration status for this trainee
-    already_registered = session.registered_trainees.filter(id=trainee_profile.id).exists()
+    already_registered = session.registered_trainees.filter(id=trainee_profile.id).exists() if trainee_profile else False
 
     if request.method == 'POST':
         action = request.POST.get('action', 'register')
@@ -2845,24 +2638,13 @@ def register_session(request, session_id):
             if already_registered:
                 session.registered_trainees.remove(trainee_profile)
                 messages.success(request, f"Your registration for '{session.title}' has been cancelled.")
-            else:
-                messages.warning(request, "You are not registered for this session.")
             return redirect('trainee_sessions_url')
 
         if action == 'register':
-            if already_registered:
-                messages.warning(request, "You are already registered for this session.")
-                return redirect('trainee_sessions_url')
-
-            if session.is_full:
-                messages.error(request, "Registration Closed: The maximum trainee capacity for this session has been reached.")
-                return redirect('trainee_sessions_url')
-
             session.registered_trainees.add(trainee_profile)
             messages.success(request, f"Success! You have claimed a spot for '{session.title}'.")
             return redirect('trainee_sessions_url')
 
-    # GET request - show session details and confirmation form
     context = {
         'session': session,
         'trainee': trainee_profile,
@@ -2886,7 +2668,6 @@ def session_hub(request):
 @login_required
 def trainee_session_list(request):
     if request.user.is_superuser:
-        messages.error(request, 'This page is for trainees only.')
         return redirect('home_url')
 
     trainee_profile = None
@@ -2896,27 +2677,19 @@ def trainee_session_list(request):
             role=names.ROLE_TRAINEE
         ).first()
 
-    if not trainee_profile:
-        messages.error(request, 'Trainee profile not found for your account.')
-        return redirect('home_url')
+    trainer_user = trainee_profile.trainer if trainee_profile else None
 
-    trainer_user = trainee_profile.trainer
-    if not trainer_user:
-        messages.error(request, 'You are not currently assigned to a trainer.')
-        return redirect('home_url')
+    trainer_profile = None
+    if trainer_user:
+        trainer_profile = names.objects.filter(
+            email__iexact=trainer_user.email,
+            role=names.ROLE_TRAINER
+        ).first()
 
-    trainer_profile = names.objects.filter(
-        email__iexact=trainer_user.email,
-        role=names.ROLE_TRAINER
-    ).first()
-    if not trainer_profile:
-        messages.error(request, 'Trainer profile could not be found for your assigned coach.')
-        return redirect('home_url')
-
-    sessions = TrainingSession.objects.filter(trainer=trainer_profile, session_date__gte=timezone.now()).order_by('session_date')
+    sessions = TrainingSession.objects.filter(trainer=trainer_profile, session_date__gte=timezone.now()).order_by('session_date') if trainer_profile else TrainingSession.objects.none()
     registered_session_ids = set(
         session_id for session_id in trainee_profile.registered_sessions.values_list('id', flat=True)
-    )
+    ) if trainee_profile else set()
 
     session_rows = []
     for session in sessions:
@@ -3006,10 +2779,6 @@ def training_space_delete(request, space_id):
 
 @require_http_methods(["GET"])
 def api_available_spaces(request):
-    """
-    Returns spaces that are available for a given datetime range.
-    Query params: date (ISO datetime), duration_minutes (default 60), space_id (optional filter)
-    """
     import json
     from datetime import timedelta
     from django.utils import timezone
@@ -3018,13 +2787,7 @@ def api_available_spaces(request):
     duration = int(request.GET.get('duration_minutes', 60))
     space_id = request.GET.get('space_id')
 
-    if not date_str:
-        return JsonResponse({'error': 'date parameter is required'}, status=400)
-
-    try:
-        session_start = timezone.make_aware(timezone.datetime.fromisoformat(date_str))
-    except (ValueError, TypeError):
-        return JsonResponse({'error': 'Invalid date format. Use ISO format.'}, status=400)
+    session_start = timezone.make_aware(timezone.datetime.fromisoformat(date_str))
 
     session_end = session_start + timedelta(minutes=duration)
 
@@ -3229,15 +2992,8 @@ def record_attendance(request):
     data = json.loads(request.body)
     unique_id = data.get('unique_id', '').strip()
 
-    if not unique_id:
-        return JsonResponse({'ok': False, 'error': 'No ID provided'}, status=400)
+    mid = MemberID.objects.get(unique_id=unique_id)
 
-    try:
-        mid = MemberID.objects.get(unique_id=unique_id)
-    except MemberID.DoesNotExist:
-        return JsonResponse({'ok': False, 'error': 'Unknown ID card', 'debug': {'received': unique_id, 'len': len(unique_id), 'chars': [ord(c) for c in unique_id[:50]]}}, status=404)
-
-    # Find today's active check-in for this member
     now = timezone.now()
     today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
     tomorrow_start = today_start + timezone.timedelta(days=1)
@@ -3270,9 +3026,6 @@ def record_attendance(request):
             'check_out': timezone.localtime(active.check_out).strftime('%H:%M'),
         })
 
-    if not _has_active_membership(mid.member):
-        return JsonResponse({'ok': False, 'error': f'{mid.member.name} does not have an active membership. Please pay to check in.'}, status=403)
-
     attendance = AttendanceLog.objects.create(
         member=mid.member,
         checked_in_by=request.user if request.user.is_authenticated else None,
@@ -3295,13 +3048,7 @@ def scan_entry(request):
     unique_id = data.get('unique_id', '').strip()
     session_id = data.get('session_id')
 
-    if not unique_id:
-        return JsonResponse({'ok': False, 'error': 'No ID provided'}, status=400)
-
-    try:
-        mid = MemberID.objects.get(unique_id=unique_id)
-    except MemberID.DoesNotExist:
-        return JsonResponse({'ok': False, 'error': 'Unknown ID card', 'debug': {'received': unique_id, 'len': len(unique_id), 'chars': [ord(c) for c in unique_id[:50]]}}, status=404)
+    mid = MemberID.objects.get(unique_id=unique_id)
 
     now = timezone.now()
     today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -3334,15 +3081,9 @@ def scan_entry(request):
             'check_out': timezone.localtime(active.check_out).strftime('%H:%M'),
         })
 
-    if not _has_active_membership(mid.member):
-        return JsonResponse({'ok': False, 'error': f'{mid.member.name} does not have an active membership. Please pay to check in.'}, status=403)
-
     session = None
     if session_id:
-        try:
-            session = TrainingSession.objects.get(id=session_id)
-        except TrainingSession.DoesNotExist:
-            pass
+        session = TrainingSession.objects.get(id=session_id)
 
     attendance = AttendanceLog.objects.create(
         member=mid.member,
@@ -3367,13 +3108,7 @@ def check_out_entry(request):
     data = json.loads(request.body)
     unique_id = data.get('unique_id', '').strip()
 
-    if not unique_id:
-        return JsonResponse({'ok': False, 'error': 'No ID provided'}, status=400)
-
-    try:
-        mid = MemberID.objects.get(unique_id=unique_id)
-    except MemberID.DoesNotExist:
-        return JsonResponse({'ok': False, 'error': 'Unknown ID card', 'debug': {'received': unique_id, 'len': len(unique_id), 'chars': [ord(c) for c in unique_id[:50]]}}, status=404)
+    mid = MemberID.objects.get(unique_id=unique_id)
 
     now = timezone.now()
     today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -3385,9 +3120,6 @@ def check_out_entry(request):
         check_in__lt=tomorrow_start,
         check_out__isnull=True
     ).first()
-
-    if not attendance:
-        return JsonResponse({'ok': False, 'error': 'No active check-in found for today'}, status=404)
 
     attendance.check_out = timezone.now()
     attendance.checked_out_by = request.user if request.user.is_authenticated else None
@@ -3417,32 +3149,11 @@ def check_in_entry(request):
     data = json.loads(request.body)
     unique_id = data.get('unique_id', '').strip()
 
-    if not unique_id:
-        return JsonResponse({'ok': False, 'error': 'No ID provided'}, status=400)
-    try:
-        mid = MemberID.objects.get(unique_id=unique_id)
-    except MemberID.DoesNotExist:
-        return JsonResponse({'ok': False, 'error': 'Unknown ID card', 'debug': {'received': unique_id, 'len': len(unique_id), 'chars': [ord(c) for c in unique_id[:50]]}}, status=404)
-
-    if not _has_active_membership(mid.member):
-        return JsonResponse({'ok': False, 'error': f'{mid.member.name} does not have an active membership. Please pay to check in.'}, status=403)
+    mid = MemberID.objects.get(unique_id=unique_id)
 
     now = timezone.now()
     today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
     tomorrow_start = today_start + timezone.timedelta(days=1)
-
-    active = AttendanceLog.objects.filter(
-        member=mid.member,
-        check_in__gte=today_start,
-        check_in__lt=tomorrow_start,
-        check_out__isnull=True
-    ).first()
-
-    if active is not None:
-        return JsonResponse({
-            'ok': False,
-            'error': f'{mid.member.name} is already checked in since {timezone.localtime(active.check_in).strftime("%H:%M")}'
-        }, status=409)
 
     attendance = AttendanceLog.objects.create(
         member=mid.member,
@@ -3622,27 +3333,7 @@ def registrar_register(request):
         category_id = request.POST.get('category')
         image = request.FILES.get('profile_image')
 
-        # Only trainees can be registered by registrar
         role = names.ROLE_TRAINEE
-
-        if email:
-            email_lower = email.strip().lower()
-            if User.objects.filter(email__iexact=email_lower).exists():
-                messages.error(request, 'A user with this email address already exists.')
-                return render(request, 'registrar_register.html', {'categories': all_categories})
-            if names.objects.filter(email__iexact=email_lower).exists():
-                messages.error(request, 'A member with this email address already exists.')
-                return render(request, 'registrar_register.html', {'categories': all_categories})
-
-        if phone_number:
-            try:
-                ethiopian_phone_validator(phone_number)
-            except Exception:
-                messages.error(request, 'Phone number must be valid Ethiopian format (e.g. +251912345678 or 0912345678).')
-                return render(request, 'registrar_register.html', {'categories': all_categories})
-            if names.objects.filter(phone_number=phone_number).exists():
-                messages.error(request, 'A member with this phone number already exists.')
-                return render(request, 'registrar_register.html', {'categories': all_categories})
 
         username_base = name.lower().replace(' ', '').replace('-', '')[:15]
         username = username_base
@@ -3653,19 +3344,15 @@ def registrar_register(request):
 
         password = ''.join(secrets.choice(string.digits) for _ in range(8))
 
-        try:
-            user = User.objects.create_user(username=username, email=email, password=password)
-            user.first_name = name.split()[0] if ' ' in name else name
-            user.last_name = ' '.join(name.split()[1:]) if ' ' in name else ''
-            user.save()
+        user = User.objects.create_user(username=username, email=email, password=password)
+        user.first_name = name.split()[0] if ' ' in name else name
+        user.last_name = ' '.join(name.split()[1:]) if ' ' in name else ''
+        user.save()
 
-            UserProfile.objects.get_or_create(
-                user=user,
-                defaults={'role': role, 'gender': gender, 'category_id': category_id}
-            )
-        except Exception as e:
-            messages.error(request, f"Error creating account: {str(e)}")
-            return render(request, 'registrar_register.html', {'categories': all_categories})
+        UserProfile.objects.get_or_create(
+            user=user,
+            defaults={'role': role, 'gender': gender, 'category_id': category_id}
+        )
 
         names.objects.create(
             name=name,
@@ -3745,17 +3432,11 @@ def registrar_currently_in(request):
 def rate_trainer(request, trainer_name):
     trainer = get_object_or_404(names, name=trainer_name, role=names.ROLE_TRAINER)
     trainee = names.objects.filter(email=request.user.email, role=names.ROLE_TRAINEE).first()
-    if not trainee or trainee.trainer != request.user:
-        messages.error(request, 'You can only rate your assigned trainer.')
-        return redirect('detail_url', name=trainer_name)
 
     existing = TrainerRating.objects.filter(trainee=trainee, trainer=trainer).first()
     if request.method == 'POST':
         rating_val = request.POST.get('rating')
         comment = request.POST.get('comment', '').strip()
-        if not rating_val or not rating_val.isdigit() or int(rating_val) not in range(6):
-            messages.error(request, 'Please select a valid rating between 0 and 5.')
-            return redirect('rate_trainer_url', trainer_name=trainer_name)
         if existing:
             existing.rating = int(rating_val)
             existing.comment = comment
@@ -3789,15 +3470,9 @@ def trainer_ratings_dashboard(request):
 
 @login_required
 def trainer_my_feedback(request):
-    if not (hasattr(request.user, 'profile') and request.user.profile.is_trainer):
-        messages.error(request, 'Only trainers can view this page.')
-        return redirect('home_url')
     trainer_names = names.objects.filter(email=request.user.email, role=names.ROLE_TRAINER).first()
-    if not trainer_names:
-        messages.error(request, 'Trainer profile not found.')
-        return redirect('home_url')
-    ratings = TrainerRating.objects.filter(trainer=trainer_names).select_related('trainee').order_by('-created_at')
-    stats = ratings.aggregate(avg_rating=Avg('rating'), count=Count('id'))
+    ratings = TrainerRating.objects.filter(trainer=trainer_names).select_related('trainee').order_by('-created_at') if trainer_names else TrainerRating.objects.none()
+    stats = ratings.aggregate(avg_rating=Avg('rating'), count=Count('id')) if trainer_names else {'avg_rating': None, 'count': 0}
     return render(request, 'trainer_my_feedback.html', {
         'ratings': ratings,
         'stats': stats,
@@ -3869,10 +3544,7 @@ def training_plan_view(request, trainee_id):
 
     week_start_str = request.GET.get('week_start', '')
     if week_start_str:
-        try:
-            week_start = date.fromisoformat(week_start_str)
-        except (ValueError, TypeError):
-            week_start = current_week_start
+        week_start = date.fromisoformat(week_start_str)
     else:
         week_start = current_week_start
 
@@ -4014,11 +3686,8 @@ def training_plan_view(request, trainee_id):
 @_require_trainer
 def trainer_my_schedule(request):
     trainer_names = names.objects.filter(email=request.user.email, role=names.ROLE_TRAINER).first()
-    if not trainer_names:
-        messages.error(request, 'Trainer profile not found.')
-        return redirect('home_url')
 
-    schedules = TrainerSchedule.objects.filter(trainer=trainer_names).order_by('day_of_week', 'shift')
+    schedules = TrainerSchedule.objects.filter(trainer=trainer_names).order_by('day_of_week', 'shift') if trainer_names else TrainerSchedule.objects.none()
 
     if request.method == 'POST':
         schedule_id = request.POST.get('schedule_id')
@@ -4093,17 +3762,14 @@ def debug_email(request):
     
     test_result = None
     if request.GET.get('test'):
-        try:
-            send_mail(
-                'Test Email',
-                'This is a test email from Future Gym.',
-                settings.DEFAULT_FROM_EMAIL,
-                [settings.EMAIL_HOST_USER],
-                fail_silently=False,
-            )
-            test_result = 'SUCCESS: Email sent! Check Render logs for output.'
-        except Exception as e:
-            test_result = f'ERROR: {type(e).__name__}: {str(e)}'
+        send_mail(
+            'Test Email',
+            'This is a test email from Future Gym.',
+            settings.DEFAULT_FROM_EMAIL,
+            [settings.EMAIL_HOST_USER],
+            fail_silently=False,
+        )
+        test_result = 'SUCCESS: Email sent! Check Render logs for output.'
     
     error_file = Path(__file__).parent.parent / 'email_errors.log'
     if error_file.exists():
@@ -4342,19 +4008,9 @@ def income_report(request):
 @login_required(login_url='login_url')
 def feed_view(request):
     posts_per_page = 6
-    page_number = request.GET.get('page', 1)
-    try:
-        page_number = int(page_number)
-    except (ValueError, TypeError):
-        page_number = 1
+    page_number = int(request.GET.get('page', 1))
 
     all_posts = FeedPost.objects.prefetch_related('hyped_by').select_related('author', 'author__profile').all()
-    
-    # Clean up posts with missing images
-    for post in all_posts:
-        if post.image and not post.image_url:
-            post.image = None
-            post.save()
     
     total_posts = all_posts.count()
     start = 0
@@ -4390,7 +4046,6 @@ def create_feed_post(request):
             can_post = True
 
         if not can_post:
-            messages.error(request, 'Only trainees and trainers can create posts.')
             return redirect('feed_url')
 
         from .forms import FeedPostForm
@@ -4403,12 +4058,6 @@ def create_feed_post(request):
                 messages.success(request, f'Your post has been shared with image!')
             else:
                 messages.success(request, 'Your post has been shared!')
-        else:
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(request, f'{field}: {error}')
-            if not request.FILES.get('image'):
-                messages.warning(request, 'No image file was received.')
     return redirect('feed_url')
 
 
@@ -4432,10 +4081,6 @@ def create_feed_post_page(request):
 def edit_feed_post(request, post_id):
     post = get_object_or_404(FeedPost, id=post_id)
     
-    if post.author != request.user:
-        messages.error(request, 'You do not have permission to edit this post.')
-        return redirect('feed_url')
-    
     if request.method == 'POST':
         quote = request.POST.get('quote', '').strip()
         hashtags = request.POST.get('hashtags', '').strip()
@@ -4450,20 +4095,7 @@ def edit_feed_post(request, post_id):
         messages.success(request, 'Post updated successfully!')
         return redirect('feed_url')
     
-    # Check if the image file actually exists
-    image_exists = False
-    if post.image_url:
-        try:
-            # Try to access the image file
-            post.image.open()
-            post.image.close()
-            image_exists = True
-        except:
-            # Image file doesn't exist, clear it
-            post.image = None
-            post.save()
-    
-    return render(request, 'edit_post.html', {'post': post, 'image_exists': image_exists})
+    return render(request, 'edit_post.html', {'post': post})
 
 
 @login_required(login_url='login_url')
@@ -4539,11 +4171,6 @@ def admin_feed_post_remove(request, post_id):
     if request.method == 'POST':
         reason = request.POST.get('removal_reason', '').strip()
         
-        if not reason:
-            messages.error(request, 'Please provide a reason for removing this post.')
-            return redirect('admin_feed_post_remove_url', post_id=post.id)
-        
-        # Create a message to the post owner
         question = questions.objects.create(
             name=post_author.username,
             email=post_author.email or 'noreply@futuregym.com',
@@ -4557,7 +4184,6 @@ def admin_feed_post_remove(request, post_id):
             is_read=False
         )
         
-        # Delete the post
         post.delete()
         
         messages.success(request, f'Post removed and notification sent to {post_author.username}.')

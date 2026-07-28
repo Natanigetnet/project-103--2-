@@ -461,12 +461,8 @@ class FeedPost(models.Model):
 
     @property
     def image_url(self):
-        """Returns the image URL, works with both local and Cloudinary storage"""
         if self.image:
-            try:
-                return self.image.url
-            except:
-                return None
+            return self.image.url
         return None
 
     def get_hashtags_list(self):

@@ -9,10 +9,7 @@ TELEGRAM_CHAT_ID = '-5141645804'
 
 def send_telegram_message(message_text):
     url = f'https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage'
-    try:
-        requests.post(url, json={'chat_id': TELEGRAM_CHAT_ID, 'text': message_text, 'parse_mode': 'Markdown'})
-    except requests.exceptions.RequestException as e:
-        print(f'Telegram error: {e}')
+    requests.post(url, json={'chat_id': TELEGRAM_CHAT_ID, 'text': message_text, 'parse_mode': 'Markdown'})
 
 class Command(BaseCommand):
     help = 'Check today\'s attendance vs schedule and notify admin of missed shifts'
