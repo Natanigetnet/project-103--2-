@@ -5,57 +5,58 @@
 <div class="container mt-4">
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-6">
-            <div class="card shadow">
-                <div class="card-header bg-danger text-white">
-                    <h4 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Remove Feed Post</h4>
+            <div class="glass-card">
+                <div class="mb-4 p-3" style="background: rgba(220, 38, 38, 0.1); border: 1px solid rgba(220, 38, 38, 0.3); border-radius: 12px;">
+                    <h4 class="mb-0" style="color: #fca5a5;"><i class="bi bi-exclamation-triangle me-2"></i>Remove Feed Post</h4>
                 </div>
-                <div class="card-body">
-                    <div class="alert alert-warning">
-                        <i class="bi bi-info-circle"></i>
-                        <strong>Warning:</strong> This action will permanently delete the post and notify the author.
+                
+                <div class="mb-4 p-3" style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px;">
+                    <i class="bi bi-info-circle me-2" style="color: #f59e0b;"></i>
+                    <strong style="color: #fbbf24;">Warning:</strong>
+                    <span style="color: #fcd34d;">This action will permanently delete the post and notify the author.</span>
+                </div>
+
+                <div class="mb-4 p-3" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px;">
+                    <h6 class="mb-2" style="color: #94a3b8;">Post Details:</h6>
+                    <p class="mb-1" style="color: #f1f5f9;"><strong>Author:</strong> {{ author_name }} (@{{ author_username }})</p>
+                    <p class="mb-1" style="color: #f1f5f9;"><strong>Posted:</strong> {{ post.created_at|timesince }} ago</p>
+                    {% if post.quote %}
+                    <p class="mb-1" style="color: #f1f5f9;"><strong>Quote:</strong> "{{ post.quote|truncatechars:100 }}"</p>
+                    {% endif %}
+                    {% if post.hashtags %}
+                    <p class="mb-0" style="color: #f1f5f9;"><strong>Hashtags:</strong> {{ post.hashtags }}</p>
+                    {% endif %}
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="removal_reason" class="form-label" style="color: #f1f5f9;">
+                            <strong>Reason for Removal</strong> <span class="text-danger">*</span>
+                        </label>
+                        <textarea 
+                            class="form-control" 
+                            id="removal_reason" 
+                            name="removal_reason" 
+                            rows="4" 
+                            placeholder="Explain why this post is being removed..."
+                            required
+                            style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #f1f5f9;"
+                        ></textarea>
+                        <div class="form-text" style="color: #94a3b8;">
+                            This reason will be sent to the post author via their messages.
+                        </div>
                     </div>
 
-                    <div class="mb-4 p-3 bg-light rounded">
-                        <h6 class="text-muted mb-2">Post Details:</h6>
-                        <p class="mb-1"><strong>Author:</strong> {{ author_name }} (@{{ author_username }})</p>
-                        <p class="mb-1"><strong>Posted:</strong> {{ post.created_at|timesince }} ago</p>
-                        {% if post.quote %}
-                        <p class="mb-1"><strong>Quote:</strong> "{{ post.quote|truncatechars:100 }}"</p>
-                        {% endif %}
-                        {% if post.hashtags %}
-                        <p class="mb-0"><strong>Hashtags:</strong> {{ post.hashtags }}</p>
-                        {% endif %}
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'admin_feed_management_url' %}" class="btn btn-outline-glow">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> Remove Post & Notify Author
+                        </button>
                     </div>
-
-                    <form method="post">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label for="removal_reason" class="form-label">
-                                <strong>Reason for Removal</strong> <span class="text-danger">*</span>
-                            </label>
-                            <textarea 
-                                class="form-control" 
-                                id="removal_reason" 
-                                name="removal_reason" 
-                                rows="4" 
-                                placeholder="Explain why this post is being removed..."
-                                required
-                            ></textarea>
-                            <div class="form-text">
-                                This reason will be sent to the post author via their messages.
-                            </div>
-                        </div>
-
-                        <div class="d-flex justify-content-between">
-                            <a href="{% url 'admin_feed_management_url' %}" class="btn btn-secondary">
-                                <i class="bi bi-x-circle"></i> Cancel
-                            </a>
-                            <button type="submit" class="btn btn-danger">
-                                <i class="bi bi-trash"></i> Remove Post & Notify Author
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                </form>
             </div>
         </div>
     </div>
