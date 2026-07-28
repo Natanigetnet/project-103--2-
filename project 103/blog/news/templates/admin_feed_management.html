@@ -1,72 +1,128 @@
 {% extends 'base.html' %}
-{% block title %}Admin Feed Management{% endblock %}
+{% block title %}Future Gym | Feed Management{% endblock %}
+
+{% block navbar %}
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold fs-4" href="{% url 'home_url' %}">
+            <i class="bi bi-lightning-charge-fill text-primary"></i> FUTURE<span class="text-primary">GYM</span>
+        </a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <i class="bi bi-list fs-2 text-white"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a class="nav-link" href="{% url 'home_url' %}">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'feed_url' %}">Feed</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'admin_url' %}">Management</a></li>
+                <li class="nav-item"><a class="nav-link active" href="#">Feed Management</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="bi bi-shield-lock"></i> Feed Management</h2>
-        <a href="{% url 'feed_url' %}" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left"></i> Back to Feed
-        </a>
-    </div>
+{% if messages %}
+<div class="container mt-3">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show shadow-sm" role="alert">{{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
+    {% endfor %}
+</div>
+{% endif %}
 
-    <div class="alert alert-info">
-        <i class="bi bi-info-circle"></i>
-        <strong>Total Posts:</strong> {{ total_posts }}
+<header class="gradient-header text-center">
+    <div class="container">
+        <h1 class="display-4 fw-bold"><i class="bi bi-newspaper text-primary"></i> Feed Management</h1>
+        <p class="lead opacity-75">Moderate and manage all community feed posts</p>
+    </div>
+</header>
+
+<main class="container my-5">
+    <div class="glass-card p-4 mb-4 fade-in">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="fw-bold mb-1">All Posts</h4>
+                <p class="text-muted mb-0 small">{{ total_posts }} post{{ total_posts|pluralize }} in the community feed</p>
+            </div>
+            <a href="{% url 'feed_url' %}" class="btn btn-outline-glow btn-sm px-4">
+                <i class="bi bi-arrow-left me-1"></i>Back to Feed
+            </a>
+        </div>
     </div>
 
     {% if posts_data %}
-        <div class="row">
-            {% for item in posts_data %}
-            <div class="col-md-6 col-lg-4 mb-4">
-                <div class="card h-100 shadow-sm">
-                    {% if item.has_image %}
-                    <img src="{{ item.post.image.url }}" class="card-img-top" alt="Post image" style="max-height: 200px; object-fit: cover;">
-                    {% endif %}
-                    
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <div>
-                                <h6 class="card-title mb-1">{{ item.author_name }}</h6>
-                                <small class="text-muted">@{{ item.author_username }}</small>
+    <div class="glass-card p-4 fade-in">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="text-muted small text-uppercase">
+                    <tr>
+                        <th>Author</th>
+                        <th>Content</th>
+                        <th>Hype</th>
+                        <th>Posted</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in posts_data %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width:36px;height:36px;background:rgba(99,102,241,0.2);color:#a5b4fc;font-weight:700;font-size:0.85rem;flex-shrink:0;">
+                                    {{ item.author_name|first|upper }}
+                                </div>
+                                <div>
+                                    <div class="fw-bold" style="font-size:0.9rem;">{{ item.author_name }}</div>
+                                    <div class="text-muted" style="font-size:0.75rem;">@{{ item.author_username }}</div>
+                                </div>
                             </div>
-                            <span class="badge bg-primary">{{ item.hype_count }} <i class="bi bi-fire"></i></span>
-                        </div>
-
-                        {% if item.post.quote %}
-                        <p class="card-text" style="font-size: 0.9rem;">
-                            <em>"{{ item.post.quote|truncatechars:100 }}"</em>
-                        </p>
-                        {% endif %}
-
-                        {% if item.post.hashtags %}
-                        <div class="mb-2">
-                            <small class="text-muted">{{ item.post.hashtags|truncatechars:50 }}</small>
-                        </div>
-                        {% endif %}
-
-                        <small class="text-muted d-block mb-3">
-                            <i class="bi bi-clock"></i> {{ item.created_at|timesince }} ago
-                        </small>
-
-                        <div class="d-flex gap-2">
-                            <a href="{% url 'admin_feed_post_remove_url' item.post.id %}" class="btn btn-danger btn-sm">
-                                <i class="bi bi-trash"></i> Remove
+                        </td>
+                        <td>
+                            {% if item.post.quote %}
+                            <div class="text-truncate" style="max-width:280px;font-size:0.9rem;">
+                                <em>"{{ item.post.quote|truncatechars:80 }}"</em>
+                            </div>
+                            {% endif %}
+                            {% if item.post.hashtags %}
+                            <div class="text-muted text-truncate" style="max-width:280px;font-size:0.75rem;">
+                                {{ item.post.hashtags|truncatechars:40 }}
+                            </div>
+                            {% endif %}
+                            {% if not item.post.quote and not item.post.hashtags %}
+                            <span class="text-muted fst-italic" style="font-size:0.85rem;">
+                                {% if item.has_image %}Image post{% else %}No content{% endif %}
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge-modern bg-primary">
+                                <i class="bi bi-fire"></i> {{ item.hype_count }}
+                            </span>
+                        </td>
+                        <td class="small text-muted">{{ item.created_at|timesince }} ago</td>
+                        <td class="text-end">
+                            <a href="{% url 'feed_url' %}#post-{{ item.post.id }}" class="btn btn-sm btn-outline-glow me-1" title="View post">
+                                <i class="bi bi-eye"></i>
                             </a>
-                            <a href="{% url 'feed_url' %}#post-{{ item.post.id }}" class="btn btn-outline-secondary btn-sm">
-                                <i class="bi bi-eye"></i> View
+                            {% if item.author_username == request.user.username %}
+                            <a href="{% url 'admin_feed_post_remove_url' item.post.id %}" class="btn btn-sm btn-outline-danger" title="Remove post">
+                                <i class="bi bi-trash"></i>
                             </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
+    </div>
     {% else %}
-        <div class="alert alert-warning text-center">
-            <i class="bi bi-exclamation-triangle"></i>
-            No posts found in the feed.
-        </div>
+    <div class="empty-state glass-card">
+        <div class="empty-state-icon"><i class="bi bi-rss"></i></div>
+        <h5>No posts yet</h5>
+        <p class="text-muted">The community feed is empty.</p>
+    </div>
     {% endif %}
-</div>
+</main>
 {% endblock %}
