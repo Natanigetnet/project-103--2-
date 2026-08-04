@@ -18,7 +18,8 @@ class CaseInsensitiveAuthBackend(ModelBackend):
             username = kwargs.get(UserModel.USERNAME_FIELD)
         try:
             user = UserModel._default_manager.get(username__iexact=username)
-        except UserModel.DoesNotExist:
+        except (UserModel.DoesNotExist, UserModel.MultipleObjectsReturned):
+            # Do not expose or authenticate ambiguous case-insensitive usernames.
             return None
         else:
             if user.check_password(password) and self.user_can_authenticate(user):
