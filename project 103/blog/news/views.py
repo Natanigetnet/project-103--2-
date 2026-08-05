@@ -1463,7 +1463,7 @@ _FAQ = [
     (r'(?i)^\s*(hi|hello|hey|good\s*(morning|afternoon|evening)|sup|yo|hey.?\s*there)\s*[.!?]*\s*$', (
         'Hello! Welcome to Future Gym support. How can I help you today?'
     )),
-    (r'(?i)(forgot|forgotten|reset|lost).*(password|passcode)', (
+    (r'(?i)((forgot|forgotten|reset|lost).*(password|passcode)|(password|passcode).*(reset|forgot|lost))', (
         'Open the Login page and select the password reset option. Follow the email instructions to create a new password. '
         'If you do not receive the email, contact the gym administrator.'
     )),
