@@ -475,3 +475,26 @@ class FeedPost(models.Model):
             return []
         tags = self.hashtags.replace(',', ' ').split()
         return [t if t.startswith('#') else f'#{t}' for t in tags if t.strip()]
+
+
+class FeedReport(models.Model):
+    STATUS_PENDING = 'pending'
+    STATUS_REVIEWED = 'reviewed'
+    STATUS_DISMISSED = 'dismissed'
+    STATUS_CHOICES = [
+        (STATUS_PENDING, 'Pending'),
+        (STATUS_REVIEWED, 'Reviewed'),
+        (STATUS_DISMISSED, 'Dismissed'),
+    ]
+
+    post = models.ForeignKey(FeedPost, on_delete=models.CASCADE, related_name='reports')
+    reporter = models.ForeignKey(User, on_delete=models.CASCADE, related_name='feed_reports')
+    reason = models.TextField(blank=True)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default=STATUS_PENDING)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['post', 'reporter'], name='unique_feed_reporter_post'),
+        ]
+        ordering = ['-created_at']

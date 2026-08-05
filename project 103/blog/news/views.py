@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.http import HttpResponse
 from django.utils.html import format_html   
-from .models import names,comments,Category,questions,response_model,TrainingSession,BodyMetric,TrainingSpace,MemberID,AttendanceLog,TrainerRating,TrainerChangeRequest,TrainingPlan,TrainingPlanDay,TrainerPayment,TrainerSchedule,GymConfig,SplitProgression,FeedPost
+from .models import names,comments,Category,questions,response_model,TrainingSession,BodyMetric,TrainingSpace,MemberID,AttendanceLog,TrainerRating,TrainerChangeRequest,TrainingPlan,TrainingPlanDay,TrainerPayment,TrainerSchedule,GymConfig,SplitProgression,FeedPost,FeedReport
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.backends import ModelBackend
 from django.contrib import messages
@@ -4144,8 +4144,13 @@ def chapa_checkout(request):
 
         from datetime import date
         today = date.today()
-        sub_start = today
-        sub_end = _add_months(today, config.subscription_months)
+        previous_payment = MembershipPayment.objects.filter(
+            user=user,
+            is_verified=True,
+            subscription_end__isnull=False,
+        ).order_by('-subscription_end').first()
+        sub_start = previous_payment.subscription_end if previous_payment and previous_payment.subscription_end >= today else today
+        sub_end = _add_months(sub_start, config.subscription_months)
 
         receipt_num = f"FG-{uuid.uuid4().hex[:8].upper()}"
 
@@ -4350,6 +4355,41 @@ def feed_view(request):
 
 
 @login_required(login_url='login_url')
+@require_http_methods(["POST"])
+def report_feed_post(request, post_id):
+    post = get_object_or_404(FeedPost, id=post_id)
+    if post.author == request.user or request.user.is_superuser:
+        messages.error(request, 'You cannot report this post.')
+        return redirect('feed_url')
+
+    report, created = FeedReport.objects.get_or_create(
+        post=post,
+        reporter=request.user,
+        defaults={'reason': request.POST.get('reason', '').strip()},
+    )
+    if created:
+        for admin in User.objects.filter(is_superuser=True):
+            question = questions.objects.create(
+                name=request.user.get_full_name() or request.user.username,
+                email=admin.email or '',
+                quest=f'Feed post reported: Post #{post.id}',
+            )
+            response_model.objects.create(
+                name=request.user,
+                quest=question,
+                text=(
+                    f'Post #{post.id} by {post.author.get_full_name() or post.author.username} '
+                    f'was reported. Reason: {report.reason or "No reason provided."}'
+                ),
+                is_read=False,
+            )
+        messages.success(request, 'The post was reported to the administrators.')
+    else:
+        messages.info(request, 'You have already reported this post.')
+    return redirect('feed_url')
+
+
+@login_required(login_url='login_url')
 def create_feed_post(request):
     if request.method == 'POST':
         profile = UserProfile.objects.filter(user=request.user).first()
@@ -4459,6 +4499,9 @@ def post_hypers_list(request, post_id):
 @user_passes_test(lambda u: u.is_superuser, login_url='login_url')
 def admin_feed_management(request):
     posts = FeedPost.objects.select_related('author', 'author__profile').prefetch_related('hyped_by').all().order_by('-created_at')
+    reports_by_post = {}
+    for report in FeedReport.objects.select_related('reporter').filter(post__in=posts):
+        reports_by_post.setdefault(report.post_id, []).append(report)
     
     posts_data = []
     for post in posts:
@@ -4469,6 +4512,7 @@ def admin_feed_management(request):
             'hype_count': post.hyped_by.count(),
             'created_at': post.created_at,
             'has_image': bool(post.image),
+            'reports': reports_by_post.get(post.id, []),
         })
     
     return render(request, 'admin_feed_management.html', {

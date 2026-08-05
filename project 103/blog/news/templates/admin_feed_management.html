@@ -33,6 +33,15 @@
                             <span class="badge bg-primary">{{ item.hype_count }} <i class="bi bi-fire"></i></span>
                         </div>
 
+                        {% if item.reports %}
+                        <div class="alert alert-warning py-2 small">
+                            <strong><i class="bi bi-flag-fill me-1"></i>{{ item.reports|length }} report{{ item.reports|length|pluralize }}</strong>
+                            {% for report in item.reports %}
+                            <div>{{ report.reporter.username }}: {{ report.reason|default:"No reason provided." }}</div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
                         {% if item.post.quote %}
                         <p style="font-size: 0.9rem; color: rgba(255,255,255,0.7);">
                             <em>"{{ item.post.quote|truncatechars:100 }}"</em>
