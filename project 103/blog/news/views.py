@@ -1763,7 +1763,11 @@ def register(request):
         )
 
         subject = f"Welcome to Future Gym - Your Account Details"
-        role_label = "Trainer" if role == names.ROLE_TRAINER else "Trainee"
+        role_label = {
+            names.ROLE_TRAINER: 'Trainer',
+            UserProfile.ROLE_REGISTRAR: 'Registrar',
+            names.ROLE_TRAINEE: 'Trainee',
+        }.get(role, role.title())
         message = f"""
 Dear {name},
 
