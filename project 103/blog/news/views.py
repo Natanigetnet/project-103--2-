@@ -961,6 +961,19 @@ def _require_trainee(view_func):
     return wrapper
 
 
+def _expire_category_changed_trainer(trainee):
+    if (
+        trainee
+        and trainee.category_changed_at
+        and timezone.now() >= trainee.category_changed_at + timedelta(days=1)
+        and (trainee.trainer_id or trainee.preferred_trainer_id)
+    ):
+        trainee.trainer = None
+        trainee.preferred_trainer = None
+        trainee.category_changed_at = None
+        trainee.save(update_fields=['trainer', 'preferred_trainer', 'category_changed_at'])
+
+
 def _get_trainee_name_record(user):
     if user.email:
         record = names.objects.filter(role=names.ROLE_TRAINEE, email__iexact=user.email).first()
@@ -1108,9 +1121,37 @@ def trainer_update_account(request):
 @_require_trainee
 def trainee_settings(request):
     profile = request.trainee_profile
+    trainee = _get_trainee_name_record(request.user)
+    _expire_category_changed_trainer(trainee)
+    current_trainer = None
+    if trainee and trainee.trainer:
+        current_trainer = names.objects.filter(
+            email__iexact=trainee.trainer.email,
+            role=names.ROLE_TRAINER,
+        ).first()
+
+    if request.method == 'POST' and request.POST.get('action') == 'change_category':
+        category = get_object_or_404(Category, id=request.POST.get('category'))
+        if trainee.category_id != category.id:
+            trainee.category = category
+            trainee.category_changed_at = timezone.now()
+            trainee.save(update_fields=['category', 'category_changed_at'])
+            messages.success(
+                request,
+                f'Category changed to {category.name}. Your current trainer will be removed in 24 hours. '
+                'You can request a trainer change now.'
+            )
+        else:
+            messages.info(request, 'You are already assigned to this category.')
+        return redirect('trainee_settings_url')
+
     return render(request, 'trainee/settings.html', {
         'profile': profile,
         'has_medical_info': bool(profile.medical_info and profile.medical_info.strip()),
+        'trainee': trainee,
+        'categories': Category.objects.all().order_by('name'),
+        'category_change_pending': bool(trainee and trainee.category_changed_at and trainee.trainer),
+        'current_trainer': current_trainer,
     })
 
 

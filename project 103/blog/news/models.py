@@ -57,6 +57,7 @@ class names(models.Model):
     trainer=models.ForeignKey(User,on_delete=models.SET_NULL,related_name='trainees',null=True, blank=True)
     preferred_trainer=models.ForeignKey(User,on_delete=models.SET_NULL,related_name='preferred_by',null=True, blank=True)
     category=models.ForeignKey(Category,on_delete=models.SET_NULL,null=True, blank=True)
+    category_changed_at=models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return self.name
