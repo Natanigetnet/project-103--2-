@@ -246,11 +246,12 @@ def employee_payments_list(request):
 
 @user_passes_test(lambda u: u.is_superuser, login_url='login_url')
 def admin_trainer_dashboard(request):
-    from datetime import timedelta, date
+    from datetime import datetime, timedelta, date
     import calendar
 
     today = timezone.now()
-    today_date = today.date()
+    local_now = timezone.localtime(today)
+    today_date = local_now.date()
 
     # Week boundaries: Sunday-Saturday (Israeli convention)
     days_since_sunday = (today_date.weekday() + 1) % 7
@@ -298,11 +299,17 @@ def admin_trainer_dashboard(request):
         scheduled_days = set()
         missed_days = []
         cur = month_start
-        while cur <= month_end:
+        while cur <= min(month_end, today_date):
             py_weekday = cur.weekday()
             schedule_weekday = (py_weekday + 1) % 7  # convert to our Sun=0..Sat=6
             day_schedules = [s for s in schedules if s.day_of_week == schedule_weekday]
             if day_schedules:
+                if cur == today_date and not any(
+                    datetime.strptime(s.shift_end(), '%H:%M').time() <= local_now.time()
+                    for s in day_schedules
+                ):
+                    cur += timedelta(days=1)
+                    continue
                 scheduled_days.add(cur)
                 if cur not in attended_dates:
                     missed_days.append({
@@ -364,6 +371,22 @@ def admin_trainer_dashboard(request):
             'missed_recent': missed_recent,
             'days_until_payment': days_until,
         })
+
+    seen_alerts = request.session.get('missed_shift_alerts', [])
+    seen_alerts = set(seen_alerts)
+    current_alerts = []
+    for td in trainer_data:
+        for missed in td['missed_recent']:
+            alert_key = f"{td['trainer'].id}:{missed['date'].isoformat()}:{missed['start']}-{missed['end']}"
+            current_alerts.append(alert_key)
+            if alert_key not in seen_alerts:
+                messages.warning(
+                    request,
+                    f"{td['trainer'].name} missed their scheduled shift on "
+                    f"{missed['date'].strftime('%d/%m/%Y')} ({missed['start']}-{missed['end']})."
+                )
+
+    request.session['missed_shift_alerts'] = list(set(current_alerts))
 
     return render(request, 'admin_trainer_dashboard.html', {
         'trainer_data': trainer_data,
