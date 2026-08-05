@@ -7,6 +7,14 @@
         border-left: 4px solid var(--gym-blue);
         border-radius: 8px;
     }
+    #answer_text {
+        background-color: #ffffff;
+        color: #212529;
+        border: 1px solid #cbd5e1;
+    }
+    #answer_text::placeholder {
+        color: #64748b;
+    }
 </style>
 {% endblock %}
 {% block navbar %}
@@ -55,7 +63,7 @@
                         <textarea
                             name="answer_text"
                             id="answer_text"
-                            class="form-control"
+                            class="form-control response-message"
                             rows="6"
                             placeholder="Type your answer here..."
                             required></textarea>
