@@ -1463,6 +1463,52 @@ _FAQ = [
     (r'(?i)^\s*(hi|hello|hey|good\s*(morning|afternoon|evening)|sup|yo|hey.?\s*there)\s*[.!?]*\s*$', (
         'Hello! Welcome to Future Gym support. How can I help you today?'
     )),
+    (r'(?i)(forgot|forgotten|reset|lost).*(password|passcode)', (
+        'Open the Login page and select the password reset option. Follow the email instructions to create a new password. '
+        'If you do not receive the email, contact the gym administrator.'
+    )),
+    (r'(?i)(how|where).*(register|sign.?up|create).*(account|member)', (
+        'Visit the registration page or ask the gym front desk to create your account. '
+        'A registrar can register trainees and provide their login details.'
+    )),
+    (r'(?i)(change|update|edit).*(email|phone|contact)', (
+        'Trainees can update their email and phone from Menu > Settings > Update account details. '
+        'Trainer and member names are managed by an administrator.'
+    )),
+    (r'(?i)(change|select|update).*(training|workout).*(category|type)', (
+        'Trainees can change their training category from Menu > Settings. '
+        'After changing category, you can open your current trainer page to request a trainer change.'
+    )),
+    (r'(?i)(request|change|switch|new).*(trainer|coach)', (
+        'Open your current trainer\'s profile and choose Request Trainer Change. '
+        'Enter a reason and submit the request for administrator review.'
+    )),
+    (r'(?i)(where|how).*(attendance|check.?in|check.?out).*(history|log|records)', (
+        'Open Menu > Attendance Log to view your attendance records. The log can be filtered by day, week, or month.'
+    )),
+    (r'(?i)(where|how).*(payment|receipt|transaction).*(history|receipt|record)', (
+        'Open Menu > Settings > Membership & Payment to view your subscription status and payment receipts.'
+    )),
+    (r'(?i)(renew|renewal|extend).*(membership|subscription)', (
+        'Open Membership & Payment from Settings and complete the Chapa mobile payment form. '
+        'Payments made before the current subscription ends extend the subscription period.'
+    )),
+    (r'(?i)(cancel|unregister|leave).*(session|class|booking)', (
+        'Open Trainer Sessions, find the session you joined, and choose the unregister or cancel option before the session begins.'
+    )),
+    (r'(?i)(report|flag).*(post|image|photo|feed)', (
+        'On the Feed, click Report on the post. A report page will open where you must explain the reason before submitting it to administrators.'
+    )),
+    (r'(?i)(trainer|work).*(schedule|shift).*(comment|message|change)', (
+        'Trainers can open Menu > My Schedule and add a comment to a shift. The comment is sent to the administrators through Messages.'
+    )),
+    (r'(?i)(where|how).*(message|reply|response).*(admin|trainer)', (
+        'Open Menu > Messages to read replies from administrators and trainers. You can send questions through the Contact page.'
+    )),
+    (r'(?i)\b(messages?|inbox|replies?)\b', (
+        'Open Menu > Messages to view your questions and replies from administrators or trainers. '
+        'Use the Contact page to send a new question.'
+    )),
     (r'(?i)(how|where).*(trainee|member|client).*(list|page|account|dashboard|view|see|find|access)', (
         'Trainers: Go to Home, then open the Menu dropdown and click "Tracker" to see all your assigned trainees. '
         'You can also click "Workout Tracking" to see each trainee\'s current workout plan and progress.'
