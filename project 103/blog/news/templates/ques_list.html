@@ -45,7 +45,7 @@
             </thead>
             <tbody>
                 {% for item in quest%}
-                {% if user.is_superuser or item.name == user.username %}
+                {% if user.is_superuser or item.email == user.email or item.name == user.username %}
                 <tr>
                     <td class="fw-bold">
                         {% if item.has_unread %}

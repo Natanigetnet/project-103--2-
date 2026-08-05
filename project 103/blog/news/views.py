@@ -299,6 +299,13 @@ def admin_trainer_dashboard(request):
     local_now = timezone.localtime(today)
     today_date = local_now.date()
 
+    expired_category_changes = names.objects.filter(
+        category_changed_at__isnull=False,
+        category_changed_at__lte=today - timedelta(days=1),
+    ).select_related('trainer')
+    for trainee in expired_category_changes:
+        _expire_category_changed_trainer(trainee)
+
     # Week boundaries: Sunday-Saturday (Israeli convention)
     days_since_sunday = (today_date.weekday() + 1) % 7
     week_start = today_date - timedelta(days=days_since_sunday)
@@ -792,6 +799,13 @@ def edit_legacy_member(request, member_id):
 
 
 def home(request):
+    expired_category_changes = names.objects.filter(
+        category_changed_at__isnull=False,
+        category_changed_at__lte=timezone.now() - timedelta(days=1),
+    ).select_related('trainer')
+    for trainee in expired_category_changes:
+        _expire_category_changed_trainer(trainee)
+
     unread_count = 0
     is_trainee = False
     is_registrar = False
@@ -968,6 +982,29 @@ def _expire_category_changed_trainer(trainee):
         and timezone.now() >= trainee.category_changed_at + timedelta(days=1)
         and (trainee.trainer_id or trainee.preferred_trainer_id)
     ):
+        former_trainer = trainee.trainer
+        sender = User.objects.filter(is_superuser=True).first()
+        recipients = list(User.objects.filter(is_superuser=True))
+        if former_trainer and former_trainer.email:
+            recipients.append(former_trainer)
+
+        trainee_link = reverse('detail_url', kwargs={'name': trainee.name})
+        for recipient in {recipient.id: recipient for recipient in recipients}.values():
+            notification = questions.objects.create(
+                name=trainee.name,
+                email=recipient.email or '',
+                quest=f'Trainer removed after category change: {trainee.name}',
+            )
+            response_model.objects.create(
+                name=sender,
+                quest=notification,
+                text=(
+                    f'{trainee.name} changed training category and their previous trainer assignment '
+                    f'has now been removed after 24 hours. View the trainee profile: {trainee_link}'
+                ),
+                is_read=False,
+            )
+
         trainee.trainer = None
         trainee.preferred_trainer = None
         trainee.category_changed_at = None
