@@ -1743,8 +1743,19 @@ def contact(request):
     })
 @user_passes_test(lambda u: u.is_superuser, login_url='login_url')
 def members(request):
-    trainers = names.objects.filter(role=names.ROLE_TRAINER).order_by('-date')
-    trainees = names.objects.filter(role=names.ROLE_TRAINEE).order_by('-date')
+    excluded_emails = set(
+        email.lower()
+        for email in User.objects.filter(
+            Q(is_superuser=True) | Q(profile__role=UserProfile.ROLE_REGISTRAR)
+        ).values_list('email', flat=True)
+        if email
+    )
+    trainers = names.objects.filter(role=names.ROLE_TRAINER).exclude(
+        email__in=excluded_emails
+    ).order_by('-date')
+    trainees = names.objects.filter(role=names.ROLE_TRAINEE).exclude(
+        email__in=excluded_emails
+    ).order_by('-date')
 
     def enrich(queryset):
         result = []
