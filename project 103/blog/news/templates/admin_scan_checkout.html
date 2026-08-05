@@ -34,6 +34,13 @@
       <div class="card border-0 shadow-lg rounded-4 bg-dark">
         <div class="card-body p-4">
           <div id="reader"></div>
+          <div class="mt-3">
+            <label for="manual-id" class="form-label text-white-50 small">Or enter member ID manually</label>
+            <div class="input-group">
+              <input type="text" id="manual-id" class="form-control" placeholder="Enter member unique ID" autocomplete="off">
+              <button class="btn btn-warning" onclick="manualCheckout()">Check Out</button>
+            </div>
+          </div>
           <div id="scan-result" class="mt-4" style="display:none;">
             <div class="card scan-result-card rounded-4 p-4 text-center" id="result-card">
               <div class="mb-2" id="result-badge">
@@ -85,11 +92,6 @@
       document.getElementById('reader').innerHTML =
         `<div class="alert alert-warning rounded-4">
           <i class="bi bi-camera-video-off me-2"></i>Camera access denied or not available.
-          <br><small class="d-block mt-2">Or enter a member ID manually:</small>
-          <div class="input-group mt-2">
-            <input type="text" id="manual-id" class="form-control" placeholder="Paste member unique ID here">
-            <button class="btn btn-warning" onclick="manualCheckout()">Check Out</button>
-          </div>
         </div>`;
     });
   }

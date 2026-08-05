@@ -3158,7 +3158,10 @@ def check_out_entry(request):
     data = json.loads(request.body)
     unique_id = data.get('unique_id', '').strip()
 
-    mid = MemberID.objects.get(unique_id=unique_id)
+    try:
+        mid = MemberID.objects.get(unique_id=unique_id)
+    except MemberID.DoesNotExist:
+        return JsonResponse({'ok': False, 'error': 'Member ID not found.'}, status=404)
 
     now = timezone.now()
     today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -3170,6 +3173,9 @@ def check_out_entry(request):
         check_in__lt=tomorrow_start,
         check_out__isnull=True
     ).first()
+
+    if attendance is None:
+        return JsonResponse({'ok': False, 'error': 'This member has no active check-in today.'}, status=400)
 
     attendance.check_out = timezone.now()
     attendance.checked_out_by = request.user if request.user.is_authenticated else None
