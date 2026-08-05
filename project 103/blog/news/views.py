@@ -68,11 +68,20 @@ def gym_config_view(request):
         config = GymConfig.objects.create(payment_day=1)
     if request.method == 'POST':
         payment_day = request.POST.get('payment_day')
-        if payment_day:
+        subscription_months = request.POST.get('subscription_months')
+        subscription_grace_days = request.POST.get('subscription_grace_days')
+        if payment_day and subscription_months and subscription_grace_days:
             payment_day = int(payment_day)
+            subscription_months = int(subscription_months)
+            subscription_grace_days = int(subscription_grace_days)
+            if not 1 <= payment_day <= 28 or not 1 <= subscription_months <= 24 or not 0 <= subscription_grace_days <= 90:
+                messages.error(request, 'Enter valid payment, subscription, and grace-period settings.')
+                return render(request, 'gym_config.html', {'config': config})
             config.payment_day = payment_day
+            config.subscription_months = subscription_months
+            config.subscription_grace_days = subscription_grace_days
             config.save()
-            messages.success(request, f'Global payment day updated to day {payment_day} of each month.')
+            messages.success(request, 'Gym subscription and payment settings updated.')
             return redirect('gym_config_url')
     return render(request, 'gym_config.html', {'config': config})
 
@@ -553,6 +562,9 @@ def loginUser(request):
         password = request.POST.get('password', '')
         user = authenticate(request, username=username, password=password)
         if user is not None:
+            if _deactivate_expired_membership(user):
+                messages.error(request, 'Your membership has expired. Please renew to continue.')
+                return redirect('login_url')
             is_first_login = user.last_login is None
             login(request, user)
             if is_first_login and not user.is_superuser and hasattr(user, 'profile') and user.profile.role in (UserProfile.ROLE_TRAINEE, UserProfile.ROLE_TRAINER):
@@ -805,6 +817,11 @@ def home(request):
     ).select_related('trainer')
     for trainee in expired_category_changes:
         _expire_category_changed_trainer(trainee)
+
+    if request.user.is_authenticated and _deactivate_expired_membership(request.user):
+        logout(request)
+        messages.error(request, 'Your membership has expired. Please renew to continue.')
+        return redirect('login_url')
 
     unread_count = 0
     is_trainee = False
@@ -4048,6 +4065,42 @@ import hashlib
 MEMBERSHIP_FEE = 5000
 SUBSCRIPTION_MONTHS = 3
 
+
+def _subscription_config():
+    config = GymConfig.objects.first()
+    if not config:
+        config = GymConfig.objects.create(payment_day=1)
+    return config
+
+
+def _add_months(start_date, months):
+    import calendar
+    month_index = start_date.month - 1 + months
+    year = start_date.year + month_index // 12
+    month = month_index % 12 + 1
+    day = min(start_date.day, calendar.monthrange(year, month)[1])
+    return start_date.replace(year=year, month=month, day=day)
+
+
+def _deactivate_expired_membership(user):
+    from datetime import date
+    if not user or user.is_superuser:
+        return False
+
+    config = _subscription_config()
+    payment = MembershipPayment.objects.filter(
+        user=user,
+        is_verified=True,
+        subscription_end__isnull=False,
+    ).order_by('-subscription_end').first()
+    if payment and date.today() > payment.subscription_end + timedelta(days=config.subscription_grace_days):
+        if user.is_active:
+            user.is_active = False
+            user.save(update_fields=['is_active'])
+        return True
+    return False
+
+
 @login_required
 def membership_payment_page(request):
     user = request.user
@@ -4061,19 +4114,21 @@ def membership_payment_page(request):
         subscription_end = latest_payment.subscription_end
         is_active = subscription_end >= date.today()
 
+    config = _subscription_config()
     context = {
         'latest_payment': latest_payment,
         'all_payments': all_payments,
         'is_active': is_active,
         'subscription_end': subscription_end,
         'membership_fee': MEMBERSHIP_FEE,
-        'subscription_months': SUBSCRIPTION_MONTHS,
+        'subscription_months': config.subscription_months,
     }
     return render(request, 'membership_payment.html', context)
 
 
 @login_required
 def chapa_checkout(request):
+    config = _subscription_config()
     if request.method == 'POST':
         import re
         phone_number = request.POST.get('phone_number', '').strip()
@@ -4081,7 +4136,7 @@ def chapa_checkout(request):
             messages.error(request, 'Enter a valid 10-digit Ethiopian mobile number starting with 09.')
             return render(request, 'chapa_checkout.html', {
                 'membership_fee': MEMBERSHIP_FEE,
-                'subscription_months': SUBSCRIPTION_MONTHS,
+                'subscription_months': config.subscription_months,
             })
 
         tx_ref = f"TX-{uuid.uuid4().hex[:12].upper()}"
@@ -4090,7 +4145,7 @@ def chapa_checkout(request):
         from datetime import date
         today = date.today()
         sub_start = today
-        sub_end = today + timedelta(days=SUBSCRIPTION_MONTHS * 30)
+        sub_end = _add_months(today, config.subscription_months)
 
         receipt_num = f"FG-{uuid.uuid4().hex[:8].upper()}"
 
@@ -4121,7 +4176,7 @@ def chapa_checkout(request):
 
     context = {
         'membership_fee': MEMBERSHIP_FEE,
-        'subscription_months': SUBSCRIPTION_MONTHS,
+        'subscription_months': config.subscription_months,
     }
     return render(request, 'chapa_checkout.html', context)
 

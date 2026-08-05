@@ -415,6 +415,18 @@
             tooltipTriggerList.forEach(function(el) { new bootstrap.Tooltip(el); });
         });
     </script>
+    <script>
+        (function() {
+            const nativeConfirm = window.confirm.bind(window);
+            window.confirm = function(message) {
+                if (!nativeConfirm(message)) return false;
+                if (/delete|remove|permanently/i.test(message || '')) {
+                    return nativeConfirm('Please confirm deletion one more time. This action cannot be undone.');
+                }
+                return true;
+            };
+        })();
+    </script>
     {% block extra_scripts %}{% endblock %}
 </body>
 </html>

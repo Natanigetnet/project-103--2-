@@ -435,6 +435,8 @@ class TrainerSchedule(models.Model):
 
 class GymConfig(models.Model):
     payment_day = models.IntegerField(default=1, help_text='Global constant pay day for all employees (1-28)')
+    subscription_months = models.PositiveIntegerField(default=3, help_text='Membership duration in months')
+    subscription_grace_days = models.PositiveIntegerField(default=0, help_text='Days after expiry before account deactivation')
 
     def __str__(self):
         return f"Global payment day: {self.payment_day}"

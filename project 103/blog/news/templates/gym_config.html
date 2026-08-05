@@ -27,6 +27,16 @@
                 <p class="text-muted small mb-2">All employees are paid on this day of each month (1-28).</p>
                 <input type="number" name="payment_day" class="form-control form-control-lg" min="1" max="28" value="{{ config.payment_day }}" required style="max-width: 120px;">
             </div>
+            <div class="mb-4">
+                <label class="form-label fw-bold">Subscription Duration (Months)</label>
+                <p class="text-muted small mb-2">Members must renew after this period. Default: 3 months.</p>
+                <input type="number" name="subscription_months" class="form-control form-control-lg" min="1" max="24" value="{{ config.subscription_months }}" required style="max-width: 120px;">
+            </div>
+            <div class="mb-4">
+                <label class="form-label fw-bold">Renewal Grace Period (Days)</label>
+                <p class="text-muted small mb-2">After expiry and this grace period, the member account is deactivated.</p>
+                <input type="number" name="subscription_grace_days" class="form-control form-control-lg" min="0" max="90" value="{{ config.subscription_grace_days }}" required style="max-width: 120px;">
+            </div>
             <button type="submit" class="btn btn-glow btn-lg"><i class="bi bi-save me-2"></i>Save Setting</button>
         </form>
     </div>
