@@ -1917,6 +1917,20 @@ def detail(request, name):
                 email=request.user.email, role=names.ROLE_TRAINEE, trainer=trainer_user
             ).exists()
 
+    profile_user = User.objects.filter(email=member.email).first()
+    is_viewing_own_profile = bool(
+        request.user.is_authenticated and profile_user and request.user == profile_user
+    )
+    can_send_message = bool(
+        request.user.is_authenticated
+        and not is_viewing_own_profile
+        and (
+            request.user.is_superuser
+            or (member.role == names.ROLE_TRAINER and is_trainee_of_trainer)
+            or (member.role == names.ROLE_TRAINEE and is_assigned_trainer)
+        )
+    )
+
     if request.method == 'POST':
         if not request.user.is_authenticated:
             return redirect('login_url')
@@ -1934,6 +1948,9 @@ def detail(request, name):
                     messages.success(request, f'Your rating for {member.name} has been updated to {rating_val}/5.')
             return redirect('detail_url', name=member.name)
         msg_text = request.POST.get('message_text', '').strip()
+        if not can_send_message:
+            messages.error(request, 'You do not have permission to message this member.')
+            return redirect('detail_url', name=member.name)
         if msg_text and member.email:
             target_user = User.objects.filter(email=member.email).first()
             if target_user:
@@ -1979,12 +1996,8 @@ def detail(request, name):
         if trainee_record:
             existing_rating = TrainerRating.objects.filter(trainee=trainee_record, trainer=member).first()
 
-    is_viewing_own_profile = False
     trainer_rating_stats = None
     if request.user.is_authenticated:
-        profile_user = User.objects.filter(email=member.email).first()
-        if profile_user and request.user == profile_user:
-            is_viewing_own_profile = True
         if member.role == names.ROLE_TRAINER:
             stats = TrainerRating.objects.filter(trainer=member).aggregate(
                 avg_rating=Avg('rating'), count=Count('id')
@@ -1995,6 +2008,7 @@ def detail(request, name):
     return render(request, 'detail.html', {
         'name': member,
         'is_admin_or_trainer': is_admin_or_trainer,
+        'can_send_message': can_send_message,
         'is_assigned_trainer': is_assigned_trainer,
         'is_trainee_of_trainer': is_trainee_of_trainer,
         'is_viewing_own_profile': is_viewing_own_profile,
