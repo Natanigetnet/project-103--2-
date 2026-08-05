@@ -1971,16 +1971,19 @@ def user_profile(request, user_id):
         'target_user': target_user,
         'names_record': names_record,
     })
+@user_passes_test(lambda u: u.is_staff or u.is_superuser, login_url='login_url')
 def category_list(request):
     if request.method == 'POST':
-        cat_name = request.POST.get('category_name')
+        cat_name = request.POST.get('category_name', '').strip()
         cat_description = request.POST.get('description', '')
         
-        if cat_name:
-            obj = Category()
-            obj.name = cat_name
-            obj.description = cat_description
-            obj.save()
+        if not cat_name:
+            messages.error(request, 'Category name is required.')
+        elif Category.objects.filter(name__iexact=cat_name).exists():
+            messages.error(request, f'A category named "{cat_name}" already exists.')
+        else:
+            Category.objects.create(name=cat_name, description=cat_description.strip())
+            messages.success(request, f'Category "{cat_name}" created successfully.')
             return redirect('cat_list_url')
 
     all_categories = Category.objects.all()
