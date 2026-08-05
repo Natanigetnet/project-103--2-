@@ -85,7 +85,7 @@
                                 <i class="bi bi-chat-left-dots text-success me-2"></i>
                                 {{ resp.text|linebreaks|urlize }}
                                 <div class="mt-1">
-                                    <small class="text-muted">â€” {{ resp.name }}</small>
+                                    <small class="text-muted">- {{ resp.name }}</small>
                                 </div>
                             </div>
                         </td>
@@ -96,7 +96,7 @@
                                 <a href="{% url 'response_delete_url' resp.id %}" class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="return confirm('Delete this response?')">Delete</a>
                             </div>
                             {% else %}
-                            <span class="text-muted small">â€”</span>
+                            <span class="text-muted small">-</span>
                             {% endif %}
                         </td>
                     </tr>

@@ -41,7 +41,7 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h2 class="mb-1">Assign Trainers to Members</h2>
-                <p class="text-muted mb-0 small">Each row has dropdowns in the Category and Assign Trainer columns. Pick a category first â€” the trainer list updates to matching coaches.</p>
+                <p class="text-muted mb-0 small">Each row has dropdowns in the Category and Assign Trainer columns. Pick a category first - the trainer list updates to matching coaches.</p>
             </div>
             <a href="javascript:history.back()" class="btn btn-outline-glow"><i class="bi bi-arrow-left me-1"></i>Back</a>
         </div>
@@ -71,13 +71,13 @@
                     {% with member=row.member %}
                     <tr class="member-row" data-member-id="{{ member.id }}" data-preferred="{{ row.preferred_id|default:'' }}">
                         <td>{{ forloop.counter }}</td>
-                        <td>{{ member.name|default:'â€”' }}</td>
-                        <td>{{ member.email|default:'â€”' }}</td>
-                        <td>{{ member.phone_number|default:'â€”' }}</td>
+                        <td>{{ member.name|default:'-' }}</td>
+                        <td>{{ member.email|default:'-' }}</td>
+                        <td>{{ member.phone_number|default:'-' }}</td>
                         <td>
                             <span class="col-label">Select category</span>
                             <select name="category_{{ member.id }}" class="form-select form-select-sm category-select" aria-label="Category for {{ member.name }}">
-                                <option value="none"{% if not member.category_id %} selected{% endif %}>â€” Unassigned â€”</option>
+                                <option value="none"{% if not member.category_id %} selected{% endif %}>- Unassigned -</option>
                                 {% for cat in categories %}
                                 <option value="{{ cat.id }}"{% if member.category_id == cat.id %} selected{% endif %}>{{ cat.name }}</option>
                                 {% endfor %}
@@ -90,13 +90,13 @@
                             {% if member.preferred_trainer %}
                                 <span class="preferred-suggestion"><i class="bi bi-star-fill"></i> {{ member.preferred_trainer.username }}</span>
                             {% else %}
-                                <span class="text-muted">â€”</span>
+                                <span class="text-muted">-</span>
                             {% endif %}
                         </td>
                         <td>
                             <span class="col-label">Select trainer</span>
                             <select name="trainer_{{ member.id }}" class="form-select form-select-sm trainer-select" aria-label="Trainer for {{ member.name }}">
-                                <option value="">â€” Unassign â€”</option>
+                                    <option value="">- Unassign -</option>
                                 {% for t in row.trainers %}
                                 <option value="{{ t.id }}" {% if member.trainer and member.trainer.id == t.id %}selected{% endif %}>
                                     {{ t.username }}{% if t.email %} ({{ t.email }}){% endif %}
@@ -145,7 +145,7 @@
         const previous = keepSelection ? trainerSelect.value : '';
         const list = trainersForCategory(catSelect.value);
 
-        trainerSelect.innerHTML = '<option value="">â€” Unassign â€”</option>';
+                trainerSelect.innerHTML = '<option value="">- Unassign -</option>';
         list.forEach(t => {
             const opt = document.createElement('option');
             opt.value = t.id;

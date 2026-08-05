@@ -58,7 +58,7 @@
                 <div class="row mt-4 g-3">
                     <div class="col-md-3"><div class="fw-semibold">Session Date</div><div class="text-muted">{{ session.session_date|date:'F j, Y \a\t g:i A' }}</div></div>
                     <div class="col-md-3"><div class="fw-semibold">Trainer</div><div class="text-muted">{{ trainer_profile.name }}</div></div>
-                    <div class="col-md-3"><div class="fw-semibold">Space</div><div class="text-muted">{{ session.space.name|default:'â€”' }} {% if session.space %}<span class="badge-modern bg-secondary">{{ session.space.category.name }}</span>{% endif %}</div></div>
+                    <div class="col-md-3"><div class="fw-semibold">Space</div><div class="text-muted">{{ session.space.name|default:'-' }} {% if session.space %}<span class="badge-modern bg-secondary">{{ session.space.category.name }}</span>{% endif %}</div></div>
                     <div class="col-md-3"><div class="fw-semibold">Space left</div><div class="text-muted">{{ session.slots_left }} spots</div></div>
                 </div>
 

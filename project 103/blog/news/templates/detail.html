@@ -125,15 +125,15 @@
                 </div>
                 <div class="mb-3">
                     <div class="info-label">Email</div>
-                    <div class="info-value">{{ name.email|default:'â€”' }}</div>
+                    <div class="info-value">{{ name.email|default:'-' }}</div>
                 </div>
                 <div class="mb-3">
                     <div class="info-label">Phone</div>
-                    <div class="info-value">{{ name.phone_number|default:'â€”' }}</div>
+                    <div class="info-value">{{ name.phone_number|default:'-' }}</div>
                 </div>
                 <div class="mb-3">
                     <div class="info-label">Gender</div>
-                    <div class="info-value">{{ name.get_gender_display|default:'â€”' }}</div>
+                    <div class="info-value">{{ name.get_gender_display|default:'-' }}</div>
                 </div>
                 <div>
                     <div class="info-label">Joined</div>
@@ -194,7 +194,7 @@
                 <div class="section-title">
                     <i class="bi bi-person-check text-success"></i> Assigned Trainer
                 </div>
-                <div class="info-value">{{ name.trainer.username|default:'â€”' }}</div>
+                <div class="info-value">{{ name.trainer.username|default:'-' }}</div>
                 {% if name.preferred_trainer and name.preferred_trainer != name.trainer %}
                 <div class="mt-2 small text-muted">
                     <i class="bi bi-star-fill text-warning"></i> Preferred: {{ name.preferred_trainer.username }}
@@ -314,7 +314,7 @@
                         <div class="metric-box">
                             <div class="metric-label">Change</div>
                             <div class="metric-value {% if bmi_progress.weight_change and bmi_progress.weight_change < 0 %}text-success{% elif bmi_progress.weight_change and bmi_progress.weight_change > 0 %}text-danger{% else %}text-muted{% endif %}">
-                                {{ bmi_progress.weight_change|default:'â€”' }}{% if bmi_progress.weight_change %}<small style="font-size:0.7rem;"> kg</small>{% endif %}
+                                {{ bmi_progress.weight_change|default:'-' }}{% if bmi_progress.weight_change %}<small style="font-size:0.7rem;"> kg</small>{% endif %}
                             </div>
                         </div>
                     </div>
@@ -364,8 +364,8 @@
                             {% for log in attendance_logs %}
                             <tr>
                                 <td>{{ log.check_in|date:"M d, Y H:i" }}</td>
-                                <td>{{ log.checked_in_by.username|default:"â€”" }}</td>
-                                <td>{{ log.session.title|default:"â€”" }}</td>
+                                <td>{{ log.checked_in_by.username|default:"-" }}</td>
+                                <td>{{ log.session.title|default:"-" }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>

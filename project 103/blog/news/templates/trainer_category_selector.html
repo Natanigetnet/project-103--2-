@@ -100,8 +100,8 @@
                     data-gender="{{ trainer.gender|default:'' }}">
                     <td><strong>#{{ trainer.id }}</strong></td>
                     <td>{{ trainer.name }}</td>
-                    <td><small>{{ trainer.email|default:'â€”' }}</small></td>
-                    <td>{{ trainer.get_gender_display|default:'â€”' }}</td>
+                    <td><small>{{ trainer.email|default:'-' }}</small></td>
+                    <td>{{ trainer.get_gender_display|default:'-' }}</td>
                     <td>
                         {% if trainer.category %}
                             <span class="badge-modern bg-primary">{{ trainer.category.name }}</span>

@@ -81,7 +81,7 @@
         <tbody>
           {% for cat in data.by_category %}
           <tr>
-            <td>{{ cat.member__category__name|default:"â€”" }}</td>
+            <td>{{ cat.member__category__name|default:"-" }}</td>
             <td class="text-center"><span class="badge-modern bg-primary">{{ cat.count }}</span></td>
           </tr>
           {% empty %}
