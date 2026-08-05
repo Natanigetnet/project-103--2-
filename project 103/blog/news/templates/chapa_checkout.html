@@ -77,6 +77,29 @@
     }
     .chapa-field input::placeholder { color: #64748b; }
     .chapa-field select option { background: #1e293b; color: #f1f5f9; }
+    .phone-entry {
+        display: flex;
+        align-items: center;
+        background: rgba(15, 17, 22, 0.6);
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    .phone-entry .country-code {
+        padding: 0.75rem 0.85rem;
+        color: #94a3b8;
+        font-weight: 700;
+        border-right: 1px solid rgba(255,255,255,0.12);
+    }
+    .phone-entry input {
+        border: 0;
+        background: transparent;
+        border-radius: 0;
+    }
+    .phone-entry:focus-within {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+    }
     .chapa-pay-btn {
         width: 100%;
         padding: 14px;
@@ -167,9 +190,14 @@
         <div class="chapa-card">
             <div class="chapa-header">
                 <div class="chapa-logo"><span>CHAPA</span></div>
-                <p class="text-white-50 small mb-0 mt-1">Secure Payment Gateway</p>
+                <p class="text-white-50 small mb-0 mt-1">Secure mobile money payment</p>
             </div>
             <div class="chapa-body">
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags|default:'danger' }} py-2 small" role="alert">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
                 <div class="chapa-amount-box">
                     <div class="text-muted small text-uppercase fw-bold mb-1">Amount to Pay</div>
                     <div class="chapa-amount">{{ membership_fee|floatformat:0 }} ETB</div>
@@ -201,31 +229,14 @@
                 <form method="POST" id="chapaForm">
                     {% csrf_token %}
                     <div class="chapa-field">
-                        <label>Card Number</label>
-                        <input type="text" placeholder="4242 4242 4242 4242" maxlength="19" id="cardNumber" required>
-                    </div>
-                    <div class="row g-2">
-                        <div class="col-6">
-                            <div class="chapa-field">
-                                <label>Expiry</label>
-                                <input type="text" placeholder="MM/YY" maxlength="5" id="cardExpiry" required>
-                            </div>
+                        <label for="phoneNumber">TeleBirr phone number</label>
+                        <div class="phone-entry">
+                            <span class="country-code">ET</span>
+                            <input type="tel" name="phone_number" id="phoneNumber" inputmode="numeric"
+                                   placeholder="0912345678" maxlength="10" pattern="09[0-9]{8}"
+                                   title="Enter a valid 10-digit Ethiopian mobile number starting with 09" required>
                         </div>
-                        <div class="col-6">
-                            <div class="chapa-field">
-                                <label>CVV</label>
-                                <input type="text" placeholder="123" maxlength="4" id="cardCvv" required>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="chapa-field">
-                        <label>Payment Method</label>
-                        <select id="payMethod">
-                            <option value="card">Card Payment</option>
-                            <option value="mobile">Mobile Banking</option>
-                            <option value="telebirr">TeleBirr</option>
-                            <option value="cbe">CBE Birr</option>
-                        </select>
+                        <div class="form-text text-muted">Enter 10 digits, starting with 09.</div>
                     </div>
                     <button type="submit" class="chapa-pay-btn">
                         <i class="bi bi-lock-fill me-2"></i>Pay {{ membership_fee|floatformat:0 }} ETB
@@ -242,20 +253,18 @@
 {% endblock %}
 {% block extra_scripts %}
 <script>
-    document.getElementById('cardNumber').addEventListener('input', function(e) {
-        let v = e.target.value.replace(/\s/g, '').replace(/\D/g, '');
-        let formatted = v.match(/.{1,4}/g);
-        e.target.value = formatted ? formatted.join(' ') : '';
-    });
-    document.getElementById('cardExpiry').addEventListener('input', function(e) {
-        let v = e.target.value.replace(/\D/g, '');
-        if (v.length >= 2) v = v.slice(0,2) + '/' + v.slice(2);
-        e.target.value = v;
-    });
-    document.getElementById('cardCvv').addEventListener('input', function(e) {
-        e.target.value = e.target.value.replace(/\D/g, '');
+    document.getElementById('phoneNumber').addEventListener('input', function(e) {
+        e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10);
     });
     document.getElementById('chapaForm').addEventListener('submit', function(e) {
+        const phone = document.getElementById('phoneNumber').value;
+        if (!/^09\d{8}$/.test(phone)) {
+            e.preventDefault();
+            document.getElementById('phoneNumber').setCustomValidity('Enter a valid 10-digit Ethiopian mobile number starting with 09.');
+            document.getElementById('phoneNumber').reportValidity();
+            return;
+        }
+        document.getElementById('phoneNumber').setCustomValidity('');
         e.preventDefault();
         document.getElementById('processingOverlay').classList.add('active');
         setTimeout(function() {

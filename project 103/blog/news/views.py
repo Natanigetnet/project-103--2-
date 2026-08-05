@@ -3983,6 +3983,15 @@ def membership_payment_page(request):
 @login_required
 def chapa_checkout(request):
     if request.method == 'POST':
+        import re
+        phone_number = request.POST.get('phone_number', '').strip()
+        if not re.fullmatch(r'09\d{8}', phone_number):
+            messages.error(request, 'Enter a valid 10-digit Ethiopian mobile number starting with 09.')
+            return render(request, 'chapa_checkout.html', {
+                'membership_fee': MEMBERSHIP_FEE,
+                'subscription_months': SUBSCRIPTION_MONTHS,
+            })
+
         tx_ref = f"TX-{uuid.uuid4().hex[:12].upper()}"
         user = request.user
 
