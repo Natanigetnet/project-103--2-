@@ -1302,8 +1302,10 @@ def _build_gym_context():
         lines = []
         for t in trainers:
             cat = t.category.name if t.category else "General"
-            user_obj = User.objects.get(username=t.name)
-            trainee_count = names.objects.filter(trainer=user_obj).count()
+            user_obj = User.objects.filter(email__iexact=t.email).first() if t.email else None
+            if not user_obj:
+                user_obj = User.objects.filter(username=t.name).first()
+            trainee_count = names.objects.filter(trainer=user_obj).count() if user_obj else 0
             avg_rating = t.ratings_received.aggregate(avg=Avg('rating'))['avg']
             rating_str = f"{avg_rating:.1f}/5" if avg_rating else "No ratings yet"
             lines.append(f"  - {t.name} | Category: {cat} | Trainees: {trainee_count} | Rating: {rating_str}")
