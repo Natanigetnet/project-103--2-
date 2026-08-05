@@ -238,9 +238,23 @@ def employee_payments_list(request):
     employee_records.sort(key=lambda r: r['name'].lower())
 
     payments = TrainerPayment.objects.select_related('trainer').all().order_by('trainer__name')
+    registrar_emails = {
+        email.lower()
+        for email in UserProfile.objects.filter(role=UserProfile.ROLE_REGISTRAR)
+        .values_list('user__email', flat=True)
+        if email
+    }
+    payment_rows = [
+        {
+            'payment': payment,
+            'role': 'Registrar' if payment.trainer.email and payment.trainer.email.lower() in registrar_emails
+            else payment.trainer.role.title(),
+        }
+        for payment in payments
+    ]
     return render(request, 'employee_payments.html', {
         'employees': employee_records,
-        'payments': payments,
+        'payments': payment_rows,
         'config': config,
     })
 

@@ -86,10 +86,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for p in payments %}
+                    {% for row in payments %}
+                    {% with p=row.payment %}
                     <tr>
                         <td class="fw-semibold">{{ p.trainer.name }}</td>
-                        <td><span class="badge-modern {% if p.trainer.role == 'trainer' %}bg-primary{% else %}bg-secondary{% endif %}">{{ p.trainer.role|title }}</span></td>
+                        <td><span class="badge-modern {% if row.role == 'Trainer' %}bg-primary{% else %}bg-secondary{% endif %}">{{ row.role }}</span></td>
                         <td>₪{{ p.salary }}</td>
                         <td><span class="badge-modern bg-info text-capitalize">{{ p.get_payment_frequency_display }}</span></td>
                         <td>{{ p.next_payment_due|date:"d/m/Y"|default:"—" }}</td>
@@ -113,6 +114,7 @@
                             <a href="{% url 'employee_payment_delete_url' p.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete payment record for {{ p.trainer.name }}?')"><i class="bi bi-trash"></i></a>
                         </td>
                     </tr>
+                    {% endwith %}
                     {% empty %}
                     <tr>
                         <td colspan="7" class="text-center text-muted py-4">No payment records found.</td>
