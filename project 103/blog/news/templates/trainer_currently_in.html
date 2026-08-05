@@ -122,13 +122,13 @@
       </div>
       <h5 class="text-muted mb-2">No attendance today</h5>
       <p class="text-muted mb-4">None of your trainees have checked in today.</p>
-      <a href="{% url 'home_url' %}" class="btn btn-outline-glow">
+       <a href="javascript:history.back()" class="btn btn-outline-glow">
         <i class="bi bi-arrow-left me-2"></i>Back to Home
       </a>
     </div>
   {% else %}
     <div class="text-center mt-3">
-      <a href="{% url 'home_url' %}" class="btn btn-outline-glow">
+       <a href="javascript:history.back()" class="btn btn-outline-glow">
         <i class="bi bi-arrow-left me-2"></i>Back to Home
       </a>
     </div>
