@@ -163,11 +163,13 @@
               <tbody>
                 <tr>
                   {% for day in week.days %}
-                  <td class="text-center py-3 {% if not day.in_month %}opacity-50{% endif %} {% if day.scheduled %}{% if day.was_present %}table-success{% else %}table-danger{% endif %}{% endif %}">
+                  <td class="text-center py-3 {% if not day.in_month %}opacity-50{% endif %} {% if day.scheduled and day.date <= today %}{% if day.was_present %}table-success{% else %}table-danger{% endif %}{% endif %}">
                     {% if day.scheduled %}
                       <span class="fw-semibold small">{{ day.scheduled.shift_start }}-{{ day.scheduled.shift_end }}</span>
                       <br>
-                      {% if day.in_month %}
+                      {% if day.date > today %}
+                        <span class="badge-modern bg-secondary mt-1">Upcoming</span>
+                      {% elif day.in_month %}
                         {% if day.was_present %}
                           <span class="badge-modern bg-success mt-1">Present</span>
                         {% else %}
