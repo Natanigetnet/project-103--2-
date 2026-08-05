@@ -33,9 +33,11 @@ class response_model(models.Model):
 class names(models.Model):
     ROLE_TRAINER = 'trainer'
     ROLE_TRAINEE = 'trainee'
+    ROLE_REGISTRAR = 'registrar'
     ROLE_CHOICES = [
         (ROLE_TRAINER, 'Trainer'),
         (ROLE_TRAINEE, 'Trainee'),
+        (ROLE_REGISTRAR, 'Registrar'),
     ]
     GENDER_MALE = 'male'
     GENDER_FEMALE = 'female'

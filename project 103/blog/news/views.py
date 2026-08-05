@@ -149,7 +149,7 @@ def employee_payment_edit(request, payment_id):
             payment.save()
             messages.success(request, 'Payment record updated.')
             return redirect('employee_payments_url')
-    employees = names.objects.filter(role__in=['trainer', 'trainee']).order_by('name')
+    employees = names.objects.filter(role__in=['trainer', 'trainee', 'registrar']).order_by('name')
     return render(request, 'employee_payment_edit.html', {'payment': payment, 'employees': employees})
 
 @user_passes_test(lambda u: u.is_superuser, login_url='login_url')
@@ -224,7 +224,7 @@ def employee_payments_list(request):
                 })
         else:
             # No names record found — create one so payment can be assigned
-            n = names.objects.create(name=user.get_full_name() or user.username, email=user.email, role='trainee')
+            n = names.objects.create(name=user.get_full_name() or user.username, email=user.email, role=names.ROLE_REGISTRAR)
             payment = getattr(n, 'payment_info', None)
             employee_records.append({
                 'id': n.id,
