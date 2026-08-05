@@ -76,6 +76,33 @@ def gym_config_view(request):
             return redirect('gym_config_url')
     return render(request, 'gym_config.html', {'config': config})
 
+
+def _notify_trainer_schedule(trainer, schedules):
+    if not trainer.email or not schedules:
+        return
+
+    schedule_lines = '\n'.join(
+        f'- {schedule.get_day_of_week_display()} {schedule.get_shift_display()} '
+        f'({schedule.shift_start()} - {schedule.shift_end()})'
+        for schedule in schedules
+    )
+    schedule_link = reverse('trainer_my_schedule_url')
+    notification = questions.objects.create(
+        name=trainer.name,
+        email=trainer.email,
+        quest=f'New schedule assigned to {trainer.name}.',
+    )
+    response_model.objects.create(
+        name=User.objects.filter(email__iexact=trainer.email).first(),
+        quest=notification,
+        text=(
+            f'You have been assigned a new schedule:\n\n{schedule_lines}\n\n'
+            f'View your full schedule here: {schedule_link}'
+        ),
+        is_read=False,
+    )
+
+
 @user_passes_test(lambda u: u.is_superuser, login_url='login_url')
 def trainer_schedules_list(request):
     if request.method == 'POST':
@@ -84,15 +111,19 @@ def trainer_schedules_list(request):
         shifts = request.POST.getlist('shifts')
         if trainer_id and days and shifts:
             count = 0
+            created_schedules = []
             for day in days:
                 for shift in shifts:
-                    _, created = TrainerSchedule.objects.get_or_create(
+                    schedule, created = TrainerSchedule.objects.get_or_create(
                         trainer_id=trainer_id,
                         day_of_week=day,
                         shift=shift,
                     )
                     if created:
                         count += 1
+                        created_schedules.append(schedule)
+            if created_schedules:
+                _notify_trainer_schedule(created_schedules[0].trainer, created_schedules)
             messages.success(request, f'{count} schedule entries added.')
             return redirect('trainer_schedules_url')
     trainers = names.objects.filter(role='trainer').order_by('name')
@@ -119,6 +150,7 @@ def trainer_schedule_edit(request, schedule_id):
             schedule.day_of_week = day_of_week
             schedule.shift = shift
             schedule.save()
+            _notify_trainer_schedule(schedule.trainer, [schedule])
             messages.success(request, 'Schedule updated.')
             return redirect('trainer_schedules_url')
     trainers = names.objects.filter(role='trainer').order_by('name')
