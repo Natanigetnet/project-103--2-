@@ -1034,6 +1034,7 @@ def trainer_update_account(request):
 
     if request.method == 'POST':
         form = TraineeAccountForm(request.POST, request.FILES, exclude_user=user)
+        form.fields['full_name'].disabled = True
         if form.is_valid():
             full_name = form.cleaned_data['full_name'].strip()
             email = form.cleaned_data['email'].strip()
@@ -1057,6 +1058,7 @@ def trainer_update_account(request):
             return redirect('trainer_settings_url')
     else:
         form = TraineeAccountForm(initial=initial, exclude_user=user)
+        form.fields['full_name'].disabled = True
 
     return render(request, 'trainer_account.html', {
         'form': form,
@@ -1082,6 +1084,7 @@ def trainee_update_account(request):
 
     if request.method == 'POST':
         form = TraineeAccountForm(request.POST, request.FILES, exclude_user=user)
+        form.fields['full_name'].disabled = True
         if form.is_valid():
             full_name = form.cleaned_data['full_name'].strip()
             email = form.cleaned_data['email'].strip()
@@ -1105,6 +1108,7 @@ def trainee_update_account(request):
             return redirect('trainee_settings_url')
     else:
         form = TraineeAccountForm(initial=initial, exclude_user=user)
+        form.fields['full_name'].disabled = True
 
     return render(request, 'trainee/account.html', {
         'form': form,
@@ -2146,6 +2150,7 @@ def newpeeps(request):
         obj.comment=comment
         obj.save()
     return render(request,'anonymous_com.html',{'cComments':cComments})
+@user_passes_test(lambda u: u.is_superuser, login_url='login_url')
 def edit(request, name):
     member = get_object_or_404(names, name=name)
     
@@ -2165,6 +2170,7 @@ def edit(request, name):
         'member': member,
         'categories': all_categories
     })
+@user_passes_test(lambda u: u.is_superuser, login_url='login_url')
 def delete_member(request, name):
     member = get_object_or_404(names, name=name)
     member.delete()
