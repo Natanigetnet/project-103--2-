@@ -389,16 +389,22 @@ def admin_trainer_dashboard(request):
     seen_alerts = request.session.get('missed_shift_alerts', [])
     seen_alerts = set(seen_alerts)
     current_alerts = []
+    new_missed = {}
     for td in trainer_data:
         for missed in td['missed_recent']:
             alert_key = f"{td['trainer'].id}:{missed['date'].isoformat()}:{missed['start']}-{missed['end']}"
             current_alerts.append(alert_key)
             if alert_key not in seen_alerts:
-                messages.warning(
-                    request,
-                    f"{td['trainer'].name} missed their scheduled shift on "
-                    f"{missed['date'].strftime('%d/%m/%Y')} ({missed['start']}-{missed['end']})."
+                new_missed.setdefault(td['trainer'].name, []).append(
+                    f"{missed['date'].strftime('%d/%m/%Y')} ({missed['start']}-{missed['end']})"
                 )
+
+    if new_missed:
+        summary = '; '.join(
+            f"{name}: {', '.join(shifts)}"
+            for name, shifts in new_missed.items()
+        )
+        messages.warning(request, f"Missed shift alert: {summary}")
 
     request.session['missed_shift_alerts'] = list(set(current_alerts))
 
