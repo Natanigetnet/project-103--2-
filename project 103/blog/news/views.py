@@ -2410,7 +2410,12 @@ def trainer_and_categories_list(request):
     This is useful for selection dropdowns, directory lists, and reference pages
     """
     trainers = names.objects.filter(role=names.ROLE_TRAINER).order_by('name')
-    categories = Category.objects.all().order_by('name')
+    categories = Category.objects.annotate(
+        trainee_count=Count(
+            'names',
+            filter=Q(names__role=names.ROLE_TRAINEE),
+        )
+    ).order_by('name')
     total_trainers = trainers.count()
     total_categories = categories.count()
     total_members = names.objects.filter(role=names.ROLE_TRAINEE).count()

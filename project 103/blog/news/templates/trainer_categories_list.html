@@ -208,9 +208,7 @@
                 </div>
                     <div>
                         <span class="option-count">
-                            {% with total=category.names_set.count %}
-                                {{ total }} Trainee{{ total|pluralize }}
-                            {% endwith %}
+                            {{ category.trainee_count }} Trainee{{ category.trainee_count|pluralize }}
                         </span>
                     </div>
                 </div>
