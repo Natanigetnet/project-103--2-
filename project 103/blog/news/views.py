@@ -600,8 +600,14 @@ def manage_members(request):
         })
 
     existing_emails = [row['email'] for row in rows if row['email']]
+    excluded_staff_emails = list(
+        UserProfile.objects.filter(
+            role__in=[UserProfile.ROLE_TRAINER, UserProfile.ROLE_REGISTRAR]
+        ).values_list('user__email', flat=True)
+    )
     superuser_emails = list(User.objects.filter(is_superuser=True).values_list('email', flat=True))
-    legacy_members = names.objects.filter(role=names.ROLE_TRAINEE).exclude(email__in=existing_emails).exclude(email__in=superuser_emails).order_by('-date')
+    excluded_emails = existing_emails + excluded_staff_emails + superuser_emails
+    legacy_members = names.objects.filter(role=names.ROLE_TRAINEE).exclude(email__in=excluded_emails).order_by('-date')
     for member in legacy_members:
         rows.append({
             'id': member.id,
