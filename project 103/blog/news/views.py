@@ -1464,10 +1464,17 @@ def _local_responder(question_text):
 
 
 def ask_ai(question_text, history=None, gym_context="", site_guide="", user_role=""):
-    api_key = settings.GEMINI_API_KEY
+    question_text = (question_text or '').strip()
+    if not question_text:
+        return None, False
+
+    api_key = settings.GEMINI_API_KEY.strip()
     if api_key:
-        from google import genai
-        client = genai.Client(api_key=api_key)
+        try:
+            from google import genai
+            client = genai.Client(api_key=api_key)
+        except Exception:
+            client = None
 
         role_context = ""
         if user_role:
@@ -1528,13 +1535,17 @@ def ask_ai(question_text, history=None, gym_context="", site_guide="", user_role
             f"\n\nUSER'S CURRENT QUESTION: {question_text}"
         )
 
-        response = client.models.generate_content(
-            model='gemini-2.0-flash',
-            contents=prompt,
-        )
-        answer = response.text.strip()
-        if 'UNABLE_TO_ANSWER' not in answer and len(answer) >= 10:
-            return answer, True
+        try:
+            response = client.models.generate_content(
+                model=settings.GEMINI_MODEL,
+                contents=prompt,
+            )
+            answer = (response.text or '').strip()
+            if 'UNABLE_TO_ANSWER' not in answer and len(answer) >= 10:
+                return answer, True
+        except Exception:
+            # Keep common gym questions available if the external AI service fails.
+            pass
 
     return _local_responder(question_text)
 
@@ -1547,7 +1558,10 @@ def chat_page(request):
 
 @require_http_methods(["POST"])
 def chat_api(request):
-    data = json.loads(request.body)
+    try:
+        data = json.loads(request.body or '{}')
+    except (TypeError, ValueError):
+        return JsonResponse({'answered': False, 'text': 'Invalid request.'}, status=400)
     message = data.get('message', '')
     client_history = data.get('history', [])
 
