@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Report Feed Post | Future Gym{% endblock %}
+{% block content %}
+<main class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <div class="glass-card p-4">
+                <div class="d-flex align-items-center gap-2 mb-4">
+                    <i class="bi bi-flag-fill text-warning fs-3"></i>
+                    <div>
+                        <h3 class="fw-bold mb-0">Report Post</h3>
+                        <p class="text-muted small mb-0">Tell the administrators why this post should be reviewed.</p>
+                    </div>
+                </div>
+
+                {% if error %}
+                <div class="alert alert-danger">{{ error }}</div>
+                {% endif %}
+
+                <div class="member-card mb-4">
+                    <div class="fw-semibold mb-2">Post by {{ post.author.get_full_name|default:post.author.username }}</div>
+                    {% if post.image %}
+                    <img src="{{ post.image.url }}" alt="Reported post image" class="img-fluid rounded-3 mb-3" style="max-height: 280px; object-fit: cover; width: 100%;">
+                    {% endif %}
+                    {% if post.quote %}<p class="mb-0 text-muted">{{ post.quote }}</p>{% endif %}
+                    {% if post.hashtags %}<small class="text-muted">{{ post.hashtags }}</small>{% endif %}
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <label for="reportReason" class="form-label fw-semibold">Reason for report</label>
+                    <textarea id="reportReason" name="reason" class="form-control mb-4" rows="5" placeholder="Explain what is wrong with this post..." required>{{ request.POST.reason }}</textarea>
+                    <div class="d-flex gap-2 justify-content-end">
+                        <a href="{% url 'feed_url' %}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-warning"><i class="bi bi-flag me-1"></i>Submit Report</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}

@@ -4355,17 +4355,29 @@ def feed_view(request):
 
 
 @login_required(login_url='login_url')
-@require_http_methods(["POST"])
 def report_feed_post(request, post_id):
     post = get_object_or_404(FeedPost, id=post_id)
     if post.author == request.user or request.user.is_superuser:
         messages.error(request, 'You cannot report this post.')
         return redirect('feed_url')
 
+    if request.method == 'GET':
+        return render(request, 'report_feed_post.html', {'post': post})
+
+    if request.method != 'POST':
+        return redirect('feed_url')
+
+    reason = request.POST.get('reason', '').strip()
+    if not reason:
+        return render(request, 'report_feed_post.html', {
+            'post': post,
+            'error': 'Please provide a reason for reporting this post.',
+        })
+
     report, created = FeedReport.objects.get_or_create(
         post=post,
         reporter=request.user,
-        defaults={'reason': request.POST.get('reason', '').strip()},
+        defaults={'reason': reason},
     )
     if created:
         for admin in User.objects.filter(is_superuser=True):
