@@ -10,6 +10,16 @@
     .responder-cell small {
         color: #94a3b8;
     }
+    .response-message {
+        background: rgba(15, 17, 22, 0.9);
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        border-radius: 10px;
+        color: #f8fafc;
+        padding: 0.75rem 1rem;
+    }
+    .response-message p:last-child {
+        margin-bottom: 0;
+    }
 </style>
 {% endblock %}
 {% block navbar %}
@@ -67,10 +77,12 @@
                             {% endif %}
                         </td>
                         <td>
-                            <i class="bi bi-chat-left-dots text-success me-2"></i>
-                            {{ resp.text|linebreaks|urlize }}
-                            <div class="mt-1">
-                                <small class="text-muted">â€” {{ resp.name }}</small>
+                            <div class="response-message">
+                                <i class="bi bi-chat-left-dots text-success me-2"></i>
+                                {{ resp.text|linebreaks|urlize }}
+                                <div class="mt-1">
+                                    <small class="text-muted">â€” {{ resp.name }}</small>
+                                </div>
                             </div>
                         </td>
                         <td class="text-center">
