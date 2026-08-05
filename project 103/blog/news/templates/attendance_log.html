@@ -1,5 +1,13 @@
 {% extends 'base.html' %}
 {% block title %}Attendance Log{% endblock %}
+{% block extra_head %}
+<style>
+  .attendance-filter {
+    background: rgba(15, 23, 42, 0.75);
+    border: 1px solid rgba(148, 163, 184, 0.18);
+  }
+</style>
+{% endblock %}
 {% block content %}
 <div class="container py-5">
   <div class="d-flex justify-content-between align-items-center mb-4">
@@ -8,6 +16,32 @@
       <i class="bi bi-arrow-left me-1"></i> Back
     </a>
   </div>
+
+  <form method="get" class="card attendance-filter border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-body p-3">
+      <div class="row g-2 align-items-end">
+        <div class="col-md-3">
+          <label for="period" class="form-label small text-muted mb-1">View</label>
+          <select id="period" name="period" class="form-select">
+            <option value="day" {% if period == 'day' %}selected{% endif %}>Daily</option>
+            <option value="week" {% if period == 'week' %}selected{% endif %}>Weekly</option>
+            <option value="month" {% if period == 'month' %}selected{% endif %}>Monthly</option>
+          </select>
+        </div>
+        <div class="col-md-4" id="date-filter">
+          <label for="date" class="form-label small text-muted mb-1">Date</label>
+          <input type="date" id="date" name="date" class="form-control" value="{% if period != 'month' %}{{ filter_value }}{% endif %}">
+        </div>
+        <div class="col-md-4 d-none" id="month-filter">
+          <label for="month" class="form-label small text-muted mb-1">Month</label>
+          <input type="month" id="month" name="month" class="form-control" value="{% if period == 'month' %}{{ filter_value }}{% endif %}">
+        </div>
+        <div class="col-md-2">
+          <button type="submit" class="btn btn-primary w-100"><i class="bi bi-funnel me-1"></i>Filter</button>
+        </div>
+      </div>
+    </div>
+  </form>
 
   <div class="card border-0 shadow-lg rounded-4 bg-dark">
     <div class="card-body p-0">
@@ -54,4 +88,20 @@
     </div>
   </div>
 </div>
+{% endblock %}
+{% block extra_scripts %}
+<script>
+  const periodSelect = document.getElementById('period');
+  const dateFilter = document.getElementById('date-filter');
+  const monthFilter = document.getElementById('month-filter');
+
+  function updateFilterFields() {
+    const monthly = periodSelect.value === 'month';
+    dateFilter.classList.toggle('d-none', monthly);
+    monthFilter.classList.toggle('d-none', !monthly);
+  }
+
+  periodSelect.addEventListener('change', updateFilterFields);
+  updateFilterFields();
+</script>
 {% endblock %}

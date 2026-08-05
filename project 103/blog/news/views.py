@@ -3275,14 +3275,58 @@ def attendance_log_view(request):
         messages.error(request, "Profile not found.")
         return redirect('home_url')
 
-    if request.user.is_superuser:
-        logs = AttendanceLog.objects.select_related('member', 'checked_in_by').order_by('-check_in')[:200]
-    elif person.role == 'trainer':
-        logs = AttendanceLog.objects.filter(member__trainer=person).select_related('member').order_by('-check_in')[:200]
-    else:
-        logs = AttendanceLog.objects.filter(member=person).select_related('member').order_by('-check_in')[:200]
+    today = timezone.localtime().date()
+    period = request.GET.get('period', 'day')
+    if period not in {'day', 'week', 'month'}:
+        period = 'day'
 
-    return render(request, 'attendance_log.html', {'logs': logs})
+    selected_date = today
+    date_value = request.GET.get('date', '')
+    if date_value:
+        try:
+            selected_date = datetime.strptime(date_value, '%Y-%m-%d').date()
+        except ValueError:
+            selected_date = today
+
+    if period == 'month':
+        month_value = request.GET.get('month', today.strftime('%Y-%m'))
+        try:
+            month_start = datetime.strptime(month_value, '%Y-%m').date().replace(day=1)
+        except ValueError:
+            month_start = today.replace(day=1)
+        if month_start.month == 12:
+            range_end = month_start.replace(year=month_start.year + 1, month=1)
+        else:
+            range_end = month_start.replace(month=month_start.month + 1)
+        range_start = month_start
+        filter_value = month_start.strftime('%Y-%m')
+    elif period == 'week':
+        range_start = selected_date - timedelta(days=selected_date.weekday())
+        range_end = range_start + timedelta(days=7)
+        filter_value = selected_date.strftime('%Y-%m-%d')
+    else:
+        range_start = selected_date
+        range_end = range_start + timedelta(days=1)
+        filter_value = selected_date.strftime('%Y-%m-%d')
+
+    if request.user.is_superuser:
+        logs_query = AttendanceLog.objects.all()
+    elif person.role == 'trainer':
+        logs_query = AttendanceLog.objects.filter(member__trainer=person)
+    else:
+        logs_query = AttendanceLog.objects.filter(member=person)
+
+    logs = logs_query.filter(
+        check_in__date__gte=range_start,
+        check_in__date__lt=range_end,
+    ).select_related('member', 'checked_in_by', 'session').order_by('-check_in')[:200]
+
+    return render(request, 'attendance_log.html', {
+        'logs': logs,
+        'period': period,
+        'filter_value': filter_value,
+        'filter_label': period.title(),
+    })
 
 
 @login_required
