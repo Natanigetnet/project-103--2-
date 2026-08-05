@@ -206,11 +206,6 @@
                                 <div class="trainer-avatar-sm">{{ trainer.name|first|upper }}</div>
                                 <div>
                                     <div class="fw-semibold text-white">{{ trainer.name }}</div>
-                                    <div class="text-muted small">
-                                        {% with count=trainer.trainer.trainees.count %}
-                                        {{ count }} trainee{{ count|pluralize }}
-                                        {% endwith %}
-                                    </div>
                                 </div>
                                 <div class="ms-auto"><i class="bi bi-chevron-right text-muted"></i></div>
                             </div>
