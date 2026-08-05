@@ -20,6 +20,10 @@
     .response-message p:last-child {
         margin-bottom: 0;
     }
+    .response-row > td {
+        background: rgba(8, 12, 20, 0.92) !important;
+        border-color: rgba(148, 163, 184, 0.14);
+    }
 </style>
 {% endblock %}
 {% block navbar %}
@@ -62,7 +66,7 @@
             <tbody>
                 {% for resp in responses %}
                     {% if user.is_superuser or resp.quest.email == user.email %}
-                    <tr>
+                    <tr class="response-row">
                         <td>
                             <div class="fw-bold">
                                 {{ resp.quest.name }}
