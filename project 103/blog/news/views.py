@@ -43,6 +43,20 @@ import string
 
 import json
 
+
+def _duplicate_contact_fields(email, phone_number):
+    """Return contact fields already used by another account/profile."""
+    duplicate_fields = []
+    if email and (
+        User.objects.filter(email__iexact=email).exists()
+        or names.objects.filter(email__iexact=email).exists()
+    ):
+        duplicate_fields.append('email address')
+    if phone_number and names.objects.filter(phone_number__iexact=phone_number).exists():
+        duplicate_fields.append('phone number')
+    return duplicate_fields
+
+
 @user_passes_test(lambda u: u.is_superuser, login_url='login_url')
 def admin_dash(request):
     from datetime import date
@@ -832,6 +846,7 @@ def home(request):
     unread_count = 0
     is_trainee = False
     is_registrar = False
+    trainees_currently_in = 0
     spaces_for_modal = []
     upcoming_sessions = []
     if request.user.is_authenticated:
@@ -845,6 +860,14 @@ def home(request):
             profile = UserProfile.objects.filter(user=request.user).first()
             is_trainee = bool(profile and profile.role == UserProfile.ROLE_TRAINEE)
             is_registrar = bool(profile and profile.role == UserProfile.ROLE_REGISTRAR)
+            if is_registrar:
+                now = timezone.now()
+                today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+                trainees_currently_in = AttendanceLog.objects.filter(
+                    member__role=names.ROLE_TRAINEE,
+                    check_in__gte=today_start,
+                    check_out__isnull=True,
+                ).values('member_id').distinct().count()
             if profile and profile.is_trainer and profile.category:
                 spaces_for_modal = TrainingSpace.objects.filter(category=profile.category).select_related('category')
             elif profile and profile.is_trainer:
@@ -969,6 +992,7 @@ def home(request):
         'unread_count': unread_count,
         'is_trainee': is_trainee,
         'is_registrar': is_registrar,
+        'trainees_currently_in': trainees_currently_in,
         'spaces': spaces_for_modal,
         'upcoming_sessions': upcoming_sessions,
         'assigned_trainer_name': assigned_trainer_name,
@@ -1954,13 +1978,18 @@ def register(request):
 
     if request.method == 'POST':
         name = request.POST.get('full_name')
-        email = request.POST.get('email')
-        phone_number = request.POST.get('phone_number')
+        email = (request.POST.get('email') or '').strip()
+        phone_number = (request.POST.get('phone_number') or '').strip()
         detail = request.POST.get('detail')
         gender = request.POST.get('gender')
         role = request.POST.get('role') or names.ROLE_TRAINEE
         category_id = request.POST.get('category') if role == names.ROLE_TRAINER else None
         image = request.FILES.get('profile_image')
+
+        duplicate_fields = _duplicate_contact_fields(email, phone_number)
+        if duplicate_fields:
+            messages.error(request, f"The {' and '.join(duplicate_fields)} is already registered.")
+            return render(request, 'register.html', {'categories': all_categories})
 
         username_base = name.lower().replace(' ', '').replace('-', '')[:15]
         username = username_base
@@ -2033,6 +2062,11 @@ def create_desk(request):
         email = request.POST.get('email', '').strip()
         phone = request.POST.get('phone_number', '').strip()
         password = request.POST.get('password', '').strip()
+
+        duplicate_fields = _duplicate_contact_fields(email, phone)
+        if duplicate_fields:
+            messages.error(request, f"The {' and '.join(duplicate_fields)} is already registered.")
+            return render(request, 'create_desk.html')
 
         username_base = name.lower().replace(' ', '').replace('-', '')[:15]
         username = username_base
@@ -3658,12 +3692,17 @@ def registrar_register(request):
 
     if request.method == 'POST':
         name = request.POST.get('full_name')
-        email = request.POST.get('email')
-        phone_number = request.POST.get('phone_number')
+        email = (request.POST.get('email') or '').strip()
+        phone_number = (request.POST.get('phone_number') or '').strip()
         detail = request.POST.get('detail')
         gender = request.POST.get('gender')
         category_id = request.POST.get('category')
         image = request.FILES.get('profile_image')
+
+        duplicate_fields = _duplicate_contact_fields(email, phone_number)
+        if duplicate_fields:
+            messages.error(request, f"The {' and '.join(duplicate_fields)} is already registered.")
+            return render(request, 'registrar_register.html', {'categories': all_categories})
 
         role = names.ROLE_TRAINEE
 

@@ -86,6 +86,18 @@ class UserRegisterForm(UserCreationForm):
             user.save()
         return user
 
+    def clean_email(self):
+        email = self.cleaned_data['email'].strip()
+        if User.objects.filter(email__iexact=email).exists() or names.objects.filter(email__iexact=email).exists():
+            raise forms.ValidationError('An account with this email address already exists.')
+        return email
+
+    def clean_phone_number(self):
+        phone_number = self.cleaned_data.get('phone_number', '').strip()
+        if phone_number and names.objects.filter(phone_number__iexact=phone_number).exists():
+            raise forms.ValidationError('An account with this phone number already exists.')
+        return phone_number
+
 
 class FeedPostForm(forms.ModelForm):
     class Meta:
