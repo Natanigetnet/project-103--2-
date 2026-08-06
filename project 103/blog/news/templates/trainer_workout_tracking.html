@@ -29,6 +29,39 @@
         <p class="mb-0 opacity-75">Track each trainee's split progression and see what they should train next.</p>
     </div>
 
+    {% if profile.is_trainer %}
+    <form method="get" class="glass-card mt-4 p-3">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <label for="trainee-filter" class="form-label small text-muted">Search trainee</label>
+                <input id="trainee-filter" type="search" name="q" value="{{ search_query }}" class="form-control" placeholder="Name or email">
+            </div>
+            <div class="col-md-3">
+                <label for="category-filter" class="form-label small text-muted">Category</label>
+                <select id="category-filter" name="category" class="form-select">
+                    <option value="">All categories</option>
+                    {% for category in category_choices %}
+                    <option value="{{ category }}" {% if category_filter == category %}selected{% endif %}>{{ category }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="split-filter" class="form-label small text-muted">Workout split</label>
+                <select id="split-filter" name="split" class="form-select">
+                    <option value="">All splits</option>
+                    {% for value, label in split_choices %}
+                    <option value="{{ value }}" {% if split_filter == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-glow flex-grow-1"><i class="bi bi-funnel me-1"></i>Filter</button>
+                <a href="{% url 'trainer_workout_tracking_url' %}" class="btn btn-outline-secondary" title="Clear filters"><i class="bi bi-x-lg"></i></a>
+            </div>
+        </div>
+    </form>
+    {% endif %}
+
     {% if trainee_workouts %}
     <div class="row g-4 mt-2">
         {% for tw in trainee_workouts %}
@@ -80,6 +113,27 @@
                         </span>
                     </div>
                 </div>
+                {% if profile.is_trainer %}
+                <form method="post" action="{% url 'skip_trainee_split_url' tw.trainee.id %}" class="mt-3 pt-3 border-top border-secondary border-opacity-25">
+                    {% csrf_token %}
+                    <div class="d-flex align-items-center gap-2">
+                        <label for="skip-count-{{ tw.trainee.id }}" class="small text-muted text-nowrap">Skip split(s)</label>
+                        <select id="skip-count-{{ tw.trainee.id }}" name="skip_count" class="form-select form-select-sm" aria-label="Number of splits to skip for {{ tw.trainee.name }}">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-outline-info rounded-pill px-3" onclick="return confirm('Skip the selected workout split(s) for {{ tw.trainee.name }}? This will not record attendance or a completed workout.')">
+                            <i class="bi bi-skip-forward me-1"></i>Skip
+                        </button>
+                    </div>
+                    <small class="text-muted d-block mt-2">Trainer-only: advances the split without check-in/out.</small>
+                </form>
+                {% endif %}
                 {% else %}
                 <div class="text-center py-4">
                     <i class="bi bi-calendar-x text-muted" style="font-size:2rem;"></i>

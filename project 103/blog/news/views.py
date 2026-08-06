@@ -1905,11 +1905,26 @@ def trainer_workout_tracking(request):
         messages.error(request, "Access restricted to trainers only.")
         return redirect('home_url')
     
-    assigned_members = names.objects.filter(trainer=request.user, role=names.ROLE_TRAINEE).select_related('category').order_by('name')
+    search_query = request.GET.get('q', '').strip()
+    category_filter = request.GET.get('category', '').strip()
+    split_filter = request.GET.get('split', '').strip()
+
+    assigned_members = names.objects.filter(
+        trainer=request.user,
+        role=names.ROLE_TRAINEE,
+    ).select_related('category').order_by('name')
+    if search_query:
+        assigned_members = assigned_members.filter(
+            Q(name__icontains=search_query) | Q(email__icontains=search_query)
+        )
+    if category_filter:
+        assigned_members = assigned_members.filter(category__name=category_filter)
     
     trainee_workouts = []
     for trainee in assigned_members:
         plan = TrainingPlan.objects.filter(trainee=trainee, is_active=True).first()
+        if split_filter and (not plan or plan.split_type != split_filter):
+            continue
         progression, _ = SplitProgression.objects.get_or_create(trainee=trainee)
         
         next_body_part = None
@@ -1932,6 +1947,15 @@ def trainer_workout_tracking(request):
     return render(request, 'trainer_workout_tracking.html', {
         'trainee_workouts': trainee_workouts,
         'profile': user_profile,
+        'search_query': search_query,
+        'category_filter': category_filter,
+        'split_filter': split_filter,
+        'category_choices': names.objects.filter(
+            trainer=request.user,
+            role=names.ROLE_TRAINEE,
+            category__isnull=False,
+        ).values_list('category__name', flat=True).distinct().order_by('category__name'),
+        'split_choices': TrainingPlan.SPLIT_CHOICES,
     })
 
 
@@ -1949,6 +1973,51 @@ def reset_trainee_split(request, trainee_id):
     progression.reset()
     
     messages.success(request, f'{trainee.name}\'s split progression has been reset to Day 1.')
+    return redirect('trainer_workout_tracking_url')
+
+
+@login_required(login_url='login_url')
+def skip_trainee_split(request, trainee_id):
+    """Allow the assigned trainer to advance a trainee without recording a workout."""
+    user_profile = UserProfile.objects.filter(user=request.user).first()
+
+    if not user_profile or not user_profile.is_trainer:
+        messages.error(request, "Access restricted to trainers only.")
+        return redirect('home_url')
+    if request.method != 'POST':
+        messages.error(request, "Use the skip action from the workout tracking page.")
+        return redirect('trainer_workout_tracking_url')
+
+    trainee = get_object_or_404(
+        names,
+        id=trainee_id,
+        trainer=request.user,
+        role=names.ROLE_TRAINEE,
+    )
+    plan = TrainingPlan.objects.filter(trainee=trainee, is_active=True).first()
+    if not plan or not plan.split_days:
+        messages.error(request, f'{trainee.name} does not have an active workout split to skip.')
+        return redirect('trainer_workout_tracking_url')
+
+    try:
+        skip_count = int(request.POST.get('skip_count', '1'))
+    except (TypeError, ValueError):
+        skip_count = 0
+    if not 1 <= skip_count <= 7:
+        messages.error(request, 'Choose between 1 and 7 workout splits to skip.')
+        return redirect('trainer_workout_tracking_url')
+
+    progression, _ = SplitProgression.objects.get_or_create(trainee=trainee)
+    progression.current_day_index = (
+        progression.current_day_index + skip_count
+    ) % len(plan.split_days)
+    progression.save(update_fields=['current_day_index', 'updated_at'])
+
+    messages.success(
+        request,
+        f'{trainee.name}\'s workout split advanced by {skip_count} '
+        f'workout{"" if skip_count == 1 else "s"}.',
+    )
     return redirect('trainer_workout_tracking_url')
 
 
