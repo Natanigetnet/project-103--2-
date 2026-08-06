@@ -31,8 +31,8 @@
         <div class="gradient-header fade-in">
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3">
                 <div>
-                    <h1>Trainer Sessions</h1>
-                    <p class="lead mb-0 opacity-75">Available sessions created by your assigned trainer, {{ trainer.get_full_name|default:trainer.username }}.</p>
+                     <h1>Training Sessions</h1>
+                     <p class="lead mb-0 opacity-75">Browse training sessions approved by the gym administrator.</p>
                 </div>
                 <a href="javascript:history.back()" class="btn btn-outline-glow btn-lg"><i class="bi bi-arrow-left me-1"></i>Back</a>
             </div>
@@ -42,9 +42,9 @@
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
                     <div class="section-title mb-0"><i class="bi bi-list-check text-primary"></i>Session lineup</div>
-                    <small class="text-muted">Reserve a spot for the session your trainer created.</small>
+                 <small class="text-muted">Reserve a spot for an admin-approved session from your trainer.</small>
                 </div>
-                <div class="text-end"><span class="badge-modern bg-primary">Trainer: {{ trainer.username }}</span> <span class="badge-modern bg-success ms-1">Trainee: {{ trainee.name }}</span></div>
+                 <div class="text-end"><span class="badge-modern bg-primary">All approved sessions</span> <span class="badge-modern bg-success ms-1">Trainee: {{ trainee.name }}</span></div>
             </div>
 
             {% if split_info %}
@@ -92,7 +92,7 @@
             <div class="empty-state">
                 <div class="empty-state-icon"><i class="bi bi-calendar"></i></div>
                 <h5>No sessions available yet.</h5>
-                <p class="mb-4 text-muted">Your assigned trainer has not created any upcoming sessions.</p>
+                 <p class="mb-4 text-muted">Your trainer has no upcoming approved sessions.</p>
                 <a href="{% url 'home_url' %}" class="btn btn-glow">Return to dashboard</a>
             </div>
             {% endif %}

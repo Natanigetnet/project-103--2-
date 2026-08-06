@@ -149,6 +149,15 @@ class TrainingSpace(models.Model):
         return f"{self.name} ({self.category.name})"
 
 class TrainingSession(models.Model):
+    STATUS_PENDING = 'pending'
+    STATUS_APPROVED = 'approved'
+    STATUS_REJECTED = 'rejected'
+    STATUS_CHOICES = [
+        (STATUS_PENDING, 'Pending approval'),
+        (STATUS_APPROVED, 'Approved'),
+        (STATUS_REJECTED, 'Rejected'),
+    ]
+
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     session_date = models.DateTimeField()
@@ -163,6 +172,11 @@ class TrainingSession(models.Model):
     
     # Many-to-many relationship registry holding authorized athletes who booked a slot
     registered_trainees = models.ManyToManyField('names', blank=True, related_name='registered_sessions')
+
+    approval_status = models.CharField(max_length=10, choices=STATUS_CHOICES, default=STATUS_PENDING)
+    reviewed_by = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True, blank=True, related_name='reviewed_training_sessions')
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    rejection_reason = models.TextField(blank=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
 

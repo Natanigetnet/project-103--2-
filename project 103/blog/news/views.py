@@ -892,7 +892,8 @@ def home(request):
     upcoming_sessions = {}
     if request.user.is_authenticated:
         sessions_qs = TrainingSession.objects.filter(
-            session_date__gte=timezone.now()
+            session_date__gte=timezone.now(),
+            approval_status=TrainingSession.STATUS_APPROVED,
         ).select_related('trainer', 'space', 'space__category').order_by('session_date')[:20]
         for session in sessions_qs:
             cat_name = session.space.category.name if session.space and session.space.category else 'General'
@@ -1346,7 +1347,8 @@ def _build_gym_context():
 
     now = tz_now.now()
     upcoming = TrainingSession.objects.filter(
-        session_date__gte=now
+        session_date__gte=now,
+        approval_status=TrainingSession.STATUS_APPROVED,
     ).select_related('trainer', 'space').order_by('session_date')[:8]
     if upcoming.exists():
         lines = []
@@ -2036,7 +2038,8 @@ def category_catalog(request, category_name):
     trainers = names.objects.filter(category=category, role=names.ROLE_TRAINER).select_related('trainer')
     upcoming_sessions = TrainingSession.objects.filter(
         trainer__category=category,
-        session_date__gte=timezone.now()
+        session_date__gte=timezone.now(),
+        approval_status=TrainingSession.STATUS_APPROVED,
     ).select_related('trainer', 'space').order_by('session_date')[:10]
     return render(request, 'category_catalog.html', {
         'category': category,
@@ -2955,48 +2958,16 @@ def create_session(request):
         new_session = TrainingSession(
             title=title,
             description=description,
-            session_date=session_date_raw,
+            session_date=session_start,
             max_trainees=max_trainees,
             trainer=trainer_names_profile,
             space=selected_space,
             duration_minutes=duration_minutes,
+            approval_status=TrainingSession.STATUS_PENDING,
         )
         new_session.save()
-        
-        assigned_trainees = names.objects.filter(trainer=request.user, role=names.ROLE_TRAINEE)
-        registration_url = request.build_absolute_uri(reverse('register_session_url', args=[new_session.id]))
-        
-        for trainee in assigned_trainees:
-            trainee_user = None
-            if trainee.email:
-                trainee_user = User.objects.filter(email__iexact=trainee.email).first()
-            
-            if not trainee_user:
-                continue
-            
-            notification_question = questions.objects.create(
-                name=trainee_user.username,
-                email=trainee.email or trainee_user.email,
-                quest=f'New training session: {title}'
-            )
-            space_info = f"\nLocation: {selected_space.name}" if selected_space else ""
-            message_text = f'''Your trainer has created a new session: "{title}"
 
-Session details: {description or "No description provided"}
-{space_info}
-Date: {session_start.strftime('%B %d, %Y at %I:%M %p')}
-
-Register for this session:
-{registration_url}'''
-            
-            response_model.objects.create(
-                name=request.user,
-                quest=notification_question,
-                text=message_text,
-                is_read=False
-            )
-        
-        messages.success(request, f"Successfully broadcasted live training session: '{title}'! Notifications sent to {assigned_trainees.count()} trainee(s).")
+        messages.success(request, f"Session '{title}' was submitted for admin approval.")
             
         return redirect('session_hub_url')
 
@@ -3012,7 +2983,11 @@ Register for this session:
 
 @login_required
 def register_session(request, session_id):
-    session = get_object_or_404(TrainingSession, id=session_id)
+    session = get_object_or_404(
+        TrainingSession,
+        id=session_id,
+        approval_status=TrainingSession.STATUS_APPROVED,
+    )
     
     trainee_profile = None
     if request.user.email:
@@ -3075,16 +3050,10 @@ def trainee_session_list(request):
             role=names.ROLE_TRAINEE
         ).first()
 
-    trainer_user = trainee_profile.trainer if trainee_profile else None
-
-    trainer_profile = None
-    if trainer_user:
-        trainer_profile = names.objects.filter(
-            email__iexact=trainer_user.email,
-            role=names.ROLE_TRAINER
-        ).first()
-
-    sessions = TrainingSession.objects.filter(trainer=trainer_profile, session_date__gte=timezone.now()).order_by('session_date') if trainer_profile else TrainingSession.objects.none()
+    sessions = TrainingSession.objects.filter(
+        session_date__gte=timezone.now(),
+        approval_status=TrainingSession.STATUS_APPROVED,
+    ).order_by('session_date')
     registered_session_ids = set(
         session_id for session_id in trainee_profile.registered_sessions.values_list('id', flat=True)
     ) if trainee_profile else set()
@@ -3118,11 +3087,77 @@ def trainee_session_list(request):
         }
 
     return render(request, 'session_list.html', {
-        'trainer': trainer_user,
+        'trainer': None,
         'sessions': session_rows,
         'trainee': trainee_profile,
         'split_info': split_info,
     })
+
+
+@user_passes_test(lambda u: u.is_superuser, login_url='login_url')
+def session_approval_list(request):
+    pending_sessions = TrainingSession.objects.filter(
+        approval_status=TrainingSession.STATUS_PENDING,
+    ).select_related('trainer', 'space').order_by('session_date')
+    reviewed_sessions = TrainingSession.objects.exclude(
+        approval_status=TrainingSession.STATUS_PENDING,
+    ).select_related('trainer', 'space', 'reviewed_by').order_by('-reviewed_at', '-created_at')[:20]
+    return render(request, 'session_approval_list.html', {
+        'pending_sessions': pending_sessions,
+        'reviewed_sessions': reviewed_sessions,
+    })
+
+
+@user_passes_test(lambda u: u.is_superuser, login_url='login_url')
+def session_approval_action(request, session_id, action):
+    if request.method != 'POST' or action not in ('approve', 'reject'):
+        messages.error(request, 'Invalid session approval request.')
+        return redirect('session_approval_list_url')
+
+    session = get_object_or_404(TrainingSession, id=session_id)
+    if session.approval_status != TrainingSession.STATUS_PENDING:
+        messages.info(request, 'This session has already been reviewed.')
+        return redirect('session_approval_list_url')
+
+    session.reviewed_by = request.user
+    session.reviewed_at = timezone.now()
+    if action == 'approve':
+        session.approval_status = TrainingSession.STATUS_APPROVED
+        session.rejection_reason = ''
+        session.save(update_fields=['approval_status', 'reviewed_by', 'reviewed_at', 'rejection_reason'])
+
+        registration_url = request.build_absolute_uri(reverse('register_session_url', args=[session.id]))
+        trainees = names.objects.filter(role=names.ROLE_TRAINEE)
+        for trainee in trainees:
+            trainee_user = User.objects.filter(email__iexact=trainee.email).first() if trainee.email else None
+            if not trainee_user:
+                continue
+            notification_question = questions.objects.create(
+                name=trainee_user.username,
+                email=trainee.email or trainee_user.email,
+                quest=f'New training session: {session.title}',
+            )
+            space_info = f'\nLocation: {session.space.name}' if session.space else ''
+            response_model.objects.create(
+                name=request.user,
+                quest=notification_question,
+                text=(
+                    f'Your trainer has an approved training session: "{session.title}"\n\n'
+                    f'Session details: {session.description or "No description provided"}\n'
+                    f'{space_info}\n'
+                    f'Date: {session.session_date.strftime("%B %d, %Y at %I:%M %p")}\n\n'
+                    f'Register for this session:\n{registration_url}'
+                ),
+                is_read=False,
+            )
+        messages.success(request, f'Session "{session.title}" approved and posted to all trainees.')
+    else:
+        session.approval_status = TrainingSession.STATUS_REJECTED
+        session.rejection_reason = (request.POST.get('reason') or '').strip()
+        session.save(update_fields=['approval_status', 'reviewed_by', 'reviewed_at', 'rejection_reason'])
+        messages.success(request, f'Session "{session.title}" rejected.')
+
+    return redirect('session_approval_list_url')
 
 
 @user_passes_test(lambda u: u.is_superuser, login_url='login_url')

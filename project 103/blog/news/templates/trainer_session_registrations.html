@@ -51,6 +51,7 @@
                     </div>
                     <div class="text-md-end">
                         <span class="badge-modern bg-primary">{{ session.registered_trainees.count }} / {{ session.max_trainees }} registered</span>
+                        {% if session.approval_status == 'pending' %}<span class="badge-modern bg-warning text-dark ms-2">Pending approval</span>{% elif session.approval_status == 'rejected' %}<span class="badge-modern bg-danger ms-2">Rejected</span>{% else %}<span class="badge-modern bg-success ms-2">Approved</span>{% endif %}
                         {% if session.is_full %}<span class="badge-modern bg-danger ms-2">Full</span>{% else %}<span class="badge-modern bg-success ms-2">Open</span>{% endif %}
                     </div>
                 </div>

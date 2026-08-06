@@ -6,6 +6,7 @@ from news.views import landing,admin_dash,admin_trainer_dashboard,gym_config_vie
 from django.conf import settings
 from django.conf.urls.static import static
 from news.views import report_feed_post
+from news.views import session_approval_list, session_approval_action
 
 urlpatterns = [
     path('admin/qr-scanner/', admin_scan_qr, name='admin_scan_qr_url'),
@@ -23,6 +24,8 @@ urlpatterns = [
     path('admin/employee-payment/edit/<int:payment_id>/', employee_payment_edit, name='employee_payment_edit_url'),
     path('admin/employee-payment/delete/<int:payment_id>/', employee_payment_delete, name='employee_payment_delete_url'),
     path('admin/income-report/', income_report, name='income_report_url'),
+    path('admin/session-approvals/', session_approval_list, name='session_approval_list_url'),
+    path('admin/session-approvals/<int:session_id>/<str:action>/', session_approval_action, name='session_approval_action_url'),
     path('admin/', admin.site.urls),
     path('admin-portal/',admin_dash,name='admin_url'),
     path('home/',home,name='home_url'),

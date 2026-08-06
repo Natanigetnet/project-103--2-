@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}Session Approvals | Future Gym{% endblock %}
+{% block content %}
+<div class="container py-5">
+    {% if messages %}
+    {% for message in messages %}<div class="alert alert-{{ message.tags|default:'info' }}">{{ message }}</div>{% endfor %}
+    {% endif %}
+    <div class="gradient-header mb-4">
+        <h1 class="h3 fw-bold mb-1">Training Session Approvals</h1>
+        <p class="mb-0 opacity-75">Review trainer-created sessions before they are published to trainees.</p>
+    </div>
+
+    <div class="glass-card p-4 mb-4">
+        <h4 class="fw-bold mb-3"><i class="bi bi-hourglass-split text-warning me-2"></i>Pending approval</h4>
+        {% if pending_sessions %}
+        <div class="table-responsive">
+            <table class="table table-custom align-middle">
+                <thead><tr><th>Session</th><th>Trainer</th><th>Date</th><th>Space</th><th class="text-end">Actions</th></tr></thead>
+                <tbody>
+                {% for session in pending_sessions %}
+                <tr>
+                    <td><strong>{{ session.title }}</strong><div class="small text-muted">{{ session.description|default:'No description provided.' }}</div><div class="small">Capacity: {{ session.max_trainees }}</div></td>
+                    <td>{{ session.trainer.name }}</td>
+                    <td>{{ session.session_date|date:'M j, Y g:i A' }}<div class="small text-muted">{{ session.duration_minutes }} minutes</div></td>
+                    <td>{{ session.space.name|default:'No space' }}</td>
+                    <td class="text-end">
+                        <form method="post" action="{% url 'session_approval_action_url' session.id 'approve' %}" class="d-inline">{% csrf_token %}<button class="btn btn-sm btn-success" type="submit"><i class="bi bi-check-lg me-1"></i>Accept</button></form>
+                        <form method="post" action="{% url 'session_approval_action_url' session.id 'reject' %}" class="d-inline ms-1">{% csrf_token %}<input type="hidden" name="reason" value="Rejected by administrator"><button class="btn btn-sm btn-outline-danger" type="submit"><i class="bi bi-x-lg me-1"></i>Reject</button></form>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}<p class="text-muted mb-0">There are no sessions waiting for approval.</p>{% endif %}
+    </div>
+
+    <div class="glass-card p-4">
+        <h4 class="fw-bold mb-3"><i class="bi bi-clock-history text-info me-2"></i>Recently reviewed</h4>
+        {% if reviewed_sessions %}
+        <div class="table-responsive"><table class="table table-custom align-middle"><thead><tr><th>Session</th><th>Trainer</th><th>Status</th><th>Reviewed</th></tr></thead><tbody>
+        {% for session in reviewed_sessions %}<tr><td>{{ session.title }}</td><td>{{ session.trainer.name }}</td><td>{% if session.approval_status == 'approved' %}<span class="badge bg-success">Approved</span>{% else %}<span class="badge bg-danger">Rejected</span>{% endif %}</td><td>{{ session.reviewed_at|date:'M j, Y g:i A' }}</td></tr>{% endfor %}
+        </tbody></table></div>
+        {% else %}<p class="text-muted mb-0">No reviewed sessions yet.</p>{% endif %}
+    </div>
+</div>
+{% endblock %}

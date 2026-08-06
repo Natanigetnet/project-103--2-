@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 
 from .forms import TraineeAccountForm, UserRegisterForm
-from .models import names
+from .models import names, TrainingSession
 
 
 class UserRegistrationValidationTests(TestCase):
@@ -30,6 +30,19 @@ class AccountUpdateFormTests(TestCase):
 
         self.assertNotIn('full_name', form.fields)
         self.assertTrue(form.is_valid())
+
+
+class TrainingSessionApprovalTests(TestCase):
+    def test_new_session_requires_approval(self):
+        trainer = names.objects.create(name='Trainer One', role=names.ROLE_TRAINER)
+        session = TrainingSession.objects.create(
+            title='Strength Class',
+            session_date='2030-01-01T10:00:00Z',
+            max_trainees=10,
+            trainer=trainer,
+        )
+
+        self.assertEqual(session.approval_status, TrainingSession.STATUS_PENDING)
 
     def test_duplicate_phone_is_rejected(self):
         names.objects.create(
