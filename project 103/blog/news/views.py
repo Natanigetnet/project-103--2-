@@ -1184,31 +1184,25 @@ def trainer_update_account(request):
 
     if request.method == 'POST':
         form = TraineeAccountForm(request.POST, request.FILES, exclude_user=user)
-        form.fields['full_name'].disabled = True
         if form.is_valid():
-            full_name = form.cleaned_data['full_name'].strip()
             email = form.cleaned_data['email'].strip()
             phone = form.cleaned_data['phone_number'].strip()
             gender = form.cleaned_data.get('gender') or None
             image = form.cleaned_data.get('image')
 
-            parts = full_name.split(None, 1)
-            user.first_name = parts[0]
-            user.last_name = parts[1] if len(parts) > 1 else ''
             user.email = email
-            user.save(update_fields=['first_name', 'last_name', 'email'])
+            user.save(update_fields=['email'])
 
             profile.gender = gender
             if image:
                 profile.image = image
             profile.save(update_fields=['gender', 'image'] if image else ['gender'])
 
-            _sync_trainer_name_record(user, profile, full_name, phone, email)
+            _sync_trainer_name_record(user, profile, initial['full_name'], phone, email)
             messages.success(request, 'Your account details were updated.')
             return redirect('trainer_settings_url')
     else:
         form = TraineeAccountForm(initial=initial, exclude_user=user)
-        form.fields['full_name'].disabled = True
 
     return render(request, 'trainer_account.html', {
         'form': form,
@@ -1262,31 +1256,25 @@ def trainee_update_account(request):
 
     if request.method == 'POST':
         form = TraineeAccountForm(request.POST, request.FILES, exclude_user=user)
-        form.fields['full_name'].disabled = True
         if form.is_valid():
-            full_name = form.cleaned_data['full_name'].strip()
             email = form.cleaned_data['email'].strip()
             phone = form.cleaned_data['phone_number'].strip()
             gender = form.cleaned_data.get('gender') or None
             image = form.cleaned_data.get('image')
 
-            parts = full_name.split(None, 1)
-            user.first_name = parts[0]
-            user.last_name = parts[1] if len(parts) > 1 else ''
             user.email = email
-            user.save(update_fields=['first_name', 'last_name', 'email'])
+            user.save(update_fields=['email'])
 
             profile.gender = gender
             if image:
                 profile.image = image
             profile.save(update_fields=['gender', 'image'] if image else ['gender'])
 
-            _sync_trainee_name_record(user, profile, full_name, phone, email)
+            _sync_trainee_name_record(user, profile, initial['full_name'], phone, email)
             messages.success(request, 'Your account details were updated.')
             return redirect('trainee_settings_url')
     else:
         form = TraineeAccountForm(initial=initial, exclude_user=user)
-        form.fields['full_name'].disabled = True
 
     return render(request, 'trainee/account.html', {
         'form': form,

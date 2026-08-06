@@ -42,7 +42,6 @@ def normalize_ethiopian_phone(phone_number):
 
 
 class TraineeAccountForm(forms.Form):
-    full_name = forms.CharField(max_length=40, label='Full name')
     email = forms.EmailField(label='Email address')
     phone_number = forms.CharField(max_length=20, label='Phone number', required=False)
     gender = forms.ChoiceField(

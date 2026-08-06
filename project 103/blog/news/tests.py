@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
 
-from .forms import UserRegisterForm
+from .forms import TraineeAccountForm, UserRegisterForm
 from .models import names
 
 
@@ -19,6 +19,17 @@ class UserRegistrationValidationTests(TestCase):
 
         self.assertFalse(form.is_valid())
         self.assertIn('email', form.errors)
+
+
+class AccountUpdateFormTests(TestCase):
+    def test_full_name_is_not_part_of_account_update_form(self):
+        form = TraineeAccountForm(data={
+            'email': 'member@gmail.com',
+            'phone_number': '0912345678',
+        })
+
+        self.assertNotIn('full_name', form.fields)
+        self.assertTrue(form.is_valid())
 
     def test_duplicate_phone_is_rejected(self):
         names.objects.create(
