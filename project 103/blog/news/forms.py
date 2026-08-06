@@ -1,7 +1,44 @@
 from django import forms
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
+import re
 from .models import Category, UserProfile, names, FeedPost
+
+
+def normalize_gmail(email):
+    email = (email or '').strip().lower()
+    if not email:
+        return email
+    try:
+        validate_email(email)
+    except ValidationError:
+        raise forms.ValidationError('Enter a valid Gmail address, for example name@gmail.com.')
+    if not email.endswith('@gmail.com'):
+        raise forms.ValidationError('Use a Gmail address ending in @gmail.com.')
+    return email
+
+
+def normalize_ethiopian_phone(phone_number):
+    phone_number = re.sub(r'[\s()\-]', '', (phone_number or '').strip())
+    if not phone_number:
+        return phone_number
+
+    if phone_number.startswith('+251'):
+        local_number = phone_number[4:]
+    elif phone_number.startswith('251'):
+        local_number = phone_number[3:]
+    elif phone_number.startswith('0'):
+        local_number = phone_number[1:]
+    else:
+        local_number = phone_number
+
+    if not re.fullmatch(r'[79]\d{8}', local_number):
+        raise forms.ValidationError(
+            'Enter an Ethiopian mobile number like +251912345678 or 0912345678.'
+        )
+    return f'+251{local_number}'
 
 
 class TraineeAccountForm(forms.Form):
@@ -71,6 +108,8 @@ class UserRegisterForm(UserCreationForm):
                 'password1', 'password2', 'role', 'gender', 'category',
             ]
         self.order_fields([f for f in field_order if f in self.fields])
+        self.fields['email'].widget.attrs.setdefault('placeholder', 'name@gmail.com')
+        self.fields['phone_number'].widget.attrs.setdefault('placeholder', '+251912345678')
         for name, field in self.fields.items():
             if isinstance(field.widget, forms.TextInput) or isinstance(field.widget, forms.EmailInput):
                 field.widget.attrs.setdefault('class', 'form-control')
@@ -87,13 +126,13 @@ class UserRegisterForm(UserCreationForm):
         return user
 
     def clean_email(self):
-        email = self.cleaned_data['email'].strip()
+        email = normalize_gmail(self.cleaned_data['email'])
         if User.objects.filter(email__iexact=email).exists() or names.objects.filter(email__iexact=email).exists():
             raise forms.ValidationError('An account with this email address already exists.')
         return email
 
     def clean_phone_number(self):
-        phone_number = self.cleaned_data.get('phone_number', '').strip()
+        phone_number = normalize_ethiopian_phone(self.cleaned_data.get('phone_number', ''))
         if phone_number and names.objects.filter(phone_number__iexact=phone_number).exists():
             raise forms.ValidationError('An account with this phone number already exists.')
         return phone_number

@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django import forms
 from django.urls import reverse
 from django.http import HttpResponse
 from django.utils.html import format_html   
@@ -25,7 +26,13 @@ class CaseInsensitiveAuthBackend(ModelBackend):
             if user.check_password(password) and self.user_can_authenticate(user):
                 return user
         return None
-from .forms import UserRegisterForm, TraineeAccountForm, TraineeMedicalForm
+from .forms import (
+    UserRegisterForm,
+    TraineeAccountForm,
+    TraineeMedicalForm,
+    normalize_gmail,
+    normalize_ethiopian_phone,
+)
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -55,6 +62,14 @@ def _duplicate_contact_fields(email, phone_number):
     if phone_number and names.objects.filter(phone_number__iexact=phone_number).exists():
         duplicate_fields.append('phone number')
     return duplicate_fields
+
+
+def _normalize_new_contact_fields(email, phone_number):
+    """Normalize new-account contacts and return a user-facing error if invalid."""
+    try:
+        return normalize_gmail(email), normalize_ethiopian_phone(phone_number), None
+    except forms.ValidationError as error:
+        return email, phone_number, error.messages[0]
 
 
 @user_passes_test(lambda u: u.is_superuser, login_url='login_url')
@@ -1986,6 +2001,11 @@ def register(request):
         category_id = request.POST.get('category') if role == names.ROLE_TRAINER else None
         image = request.FILES.get('profile_image')
 
+        email, phone_number, contact_error = _normalize_new_contact_fields(email, phone_number)
+        if contact_error:
+            messages.error(request, contact_error)
+            return render(request, 'register.html', {'categories': all_categories})
+
         duplicate_fields = _duplicate_contact_fields(email, phone_number)
         if duplicate_fields:
             messages.error(request, f"The {' and '.join(duplicate_fields)} is already registered.")
@@ -2062,6 +2082,11 @@ def create_desk(request):
         email = request.POST.get('email', '').strip()
         phone = request.POST.get('phone_number', '').strip()
         password = request.POST.get('password', '').strip()
+
+        email, phone, contact_error = _normalize_new_contact_fields(email, phone)
+        if contact_error:
+            messages.error(request, contact_error)
+            return render(request, 'create_desk.html')
 
         duplicate_fields = _duplicate_contact_fields(email, phone)
         if duplicate_fields:
@@ -3698,6 +3723,11 @@ def registrar_register(request):
         gender = request.POST.get('gender')
         category_id = request.POST.get('category')
         image = request.FILES.get('profile_image')
+
+        email, phone_number, contact_error = _normalize_new_contact_fields(email, phone_number)
+        if contact_error:
+            messages.error(request, contact_error)
+            return render(request, 'registrar_register.html', {'categories': all_categories})
 
         duplicate_fields = _duplicate_contact_fields(email, phone_number)
         if duplicate_fields:
