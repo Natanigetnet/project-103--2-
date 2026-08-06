@@ -28,7 +28,7 @@
                         <strong class="text-warning">Upcoming Payments Due</strong>
                         <p class="small text-muted mb-0">
                             {% for p in upcoming_payments %}
-                            <span class="me-3">&bull; {{ p.trainer_name }} &mdash; â‚ª{{ p.salary }} due {{ p.next_due|date:"d/m" }} 
+                            <span class="me-3">&bull; {{ p.trainer_name }} &mdash; {{ p.salary }} due {{ p.next_due|date:"d/m" }} 
                             {% if p.days_until == 0 %}<span class="text-warning fw-bold">(Today!)</span>
                             {% elif p.days_until == 1 %}<span class="text-warning fw-bold">(Tomorrow!)</span>
                             {% else %}(in {{ p.days_until }} days){% endif %}</span>
