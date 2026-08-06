@@ -3098,6 +3098,7 @@ def trainee_session_list(request):
 def session_approval_list(request):
     pending_sessions = TrainingSession.objects.filter(
         approval_status=TrainingSession.STATUS_PENDING,
+        session_date__gte=timezone.now(),
     ).select_related('trainer', 'space').order_by('session_date')
     reviewed_sessions = TrainingSession.objects.exclude(
         approval_status=TrainingSession.STATUS_PENDING,
