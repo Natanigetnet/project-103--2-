@@ -91,11 +91,17 @@
                         </li>
                         {% endif %}
 
-                        {% if is_trainee and assigned_trainer_name %}
+                        {% if is_trainee %}
                         <li class="nav-item ms-lg-2">
+                            {% if assigned_trainer_name %}
                             <a class="nav-link fw-bold" href="{% url 'detail_url' name=assigned_trainer_name %}" style="color:rgba(255,255,255,0.85) !important;">
                                 <i class="bi bi-person-badge-fill text-warning me-1"></i> Trainer
                             </a>
+                            {% else %}
+                            <span class="nav-link fw-bold text-muted" aria-disabled="true" title="No trainer assigned">
+                                <i class="bi bi-person-badge-fill me-1"></i> Trainer
+                            </span>
+                            {% endif %}
                         </li>
                         {% endif %}
 

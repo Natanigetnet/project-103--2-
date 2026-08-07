@@ -107,3 +107,46 @@ class TrainingPlanErrorTests(TestCase):
 
         self.assertEqual(response.status_code, 500)
         self.assertContains(response, 'No trainer', status_code=500)
+
+    def test_trainee_without_trainer_cannot_open_detail_page(self):
+        user = User.objects.create_user(
+            username='trainee',
+            email='trainee@example.com',
+            password='password',
+        )
+        UserProfile.objects.create(user=user, role=UserProfile.ROLE_TRAINEE)
+        names.objects.create(
+            name='Trainee',
+            email=user.email,
+            role=names.ROLE_TRAINEE,
+        )
+        names.objects.create(
+            name='John',
+            email='john@example.com',
+            role=names.ROLE_TRAINER,
+        )
+        self.client.force_login(user)
+
+        response = self.client.get('/detail/John')
+
+        self.assertEqual(response.status_code, 500)
+        self.assertContains(response, 'No trainer', status_code=500)
+
+    def test_home_trainer_button_is_disabled_without_trainer(self):
+        user = User.objects.create_user(
+            username='trainee',
+            email='trainee@example.com',
+            password='password',
+        )
+        UserProfile.objects.create(user=user, role=UserProfile.ROLE_TRAINEE)
+        names.objects.create(
+            name='Trainee',
+            email=user.email,
+            role=names.ROLE_TRAINEE,
+        )
+        self.client.force_login(user)
+
+        response = self.client.get('/home/')
+
+        self.assertContains(response, 'aria-disabled="true"')
+        self.assertNotContains(response, 'href="/detail/John"')
