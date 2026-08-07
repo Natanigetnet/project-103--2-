@@ -2180,7 +2180,7 @@ def detail(request, name):
     member = get_object_or_404(names, name=name)
     if request.user.is_authenticated:
         user_profile = UserProfile.objects.filter(user=request.user).first()
-        if user_profile and user_profile.role == UserProfile.ROLE_TRAINEE:
+        if user_profile and user_profile.role == UserProfile.ROLE_TRAINEE and member.role != names.ROLE_TRAINER:
             trainee_record = _get_trainee_name_record(request.user)
             if not trainee_record or trainee_record.trainer_id is None:
                 return render(request, 'no_trainer.html', status=500)

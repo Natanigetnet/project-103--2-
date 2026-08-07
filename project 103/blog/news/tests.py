@@ -121,6 +121,30 @@ class TrainingPlanErrorTests(TestCase):
             role=names.ROLE_TRAINEE,
         )
         names.objects.create(
+            name='Other Trainee',
+            email='other@example.com',
+            role=names.ROLE_TRAINEE,
+        )
+        self.client.force_login(user)
+
+        response = self.client.get('/detail/Other Trainee')
+
+        self.assertEqual(response.status_code, 500)
+        self.assertContains(response, 'No trainer', status_code=500)
+
+    def test_trainee_without_trainer_can_open_trainer_detail_page(self):
+        user = User.objects.create_user(
+            username='trainee',
+            email='trainee@example.com',
+            password='password',
+        )
+        UserProfile.objects.create(user=user, role=UserProfile.ROLE_TRAINEE)
+        names.objects.create(
+            name='Trainee',
+            email=user.email,
+            role=names.ROLE_TRAINEE,
+        )
+        names.objects.create(
             name='John',
             email='john@example.com',
             role=names.ROLE_TRAINER,
@@ -129,8 +153,8 @@ class TrainingPlanErrorTests(TestCase):
 
         response = self.client.get('/detail/John')
 
-        self.assertEqual(response.status_code, 500)
-        self.assertContains(response, 'No trainer', status_code=500)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'John')
 
     def test_home_trainer_button_is_disabled_without_trainer(self):
         user = User.objects.create_user(
