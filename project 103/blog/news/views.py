@@ -2178,9 +2178,18 @@ def create_desk(request):
 
 def detail(request, name):
     member = get_object_or_404(names, name=name)
+    member_account = User.objects.filter(email__iexact=member.email).select_related('profile').first() if member.email else None
+    member_is_trainer = (
+        member.role == names.ROLE_TRAINER
+        or (
+            member_account
+            and hasattr(member_account, 'profile')
+            and member_account.profile.role == UserProfile.ROLE_TRAINER
+        )
+    )
     if request.user.is_authenticated:
         user_profile = UserProfile.objects.filter(user=request.user).first()
-        if user_profile and user_profile.role == UserProfile.ROLE_TRAINEE and member.role != names.ROLE_TRAINER:
+        if user_profile and user_profile.role == UserProfile.ROLE_TRAINEE and not member_is_trainer:
             trainee_record = _get_trainee_name_record(request.user)
             if not trainee_record or trainee_record.trainer_id is None:
                 return render(request, 'no_trainer.html', status=500)

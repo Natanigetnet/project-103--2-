@@ -156,6 +156,35 @@ class TrainingPlanErrorTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'John')
 
+    def test_trainer_account_can_open_detail_when_legacy_role_is_stale(self):
+        user = User.objects.create_user(
+            username='trainee',
+            email='trainee@example.com',
+            password='password',
+        )
+        UserProfile.objects.create(user=user, role=UserProfile.ROLE_TRAINEE)
+        names.objects.create(
+            name='Trainee',
+            email=user.email,
+            role=names.ROLE_TRAINEE,
+        )
+        trainer_user = User.objects.create_user(
+            username='john',
+            email='john@example.com',
+            password='password',
+        )
+        UserProfile.objects.create(user=trainer_user, role=UserProfile.ROLE_TRAINER)
+        names.objects.create(
+            name='John',
+            email=trainer_user.email,
+            role=names.ROLE_TRAINEE,
+        )
+        self.client.force_login(user)
+
+        response = self.client.get('/detail/John')
+
+        self.assertEqual(response.status_code, 200)
+
     def test_home_trainer_button_is_disabled_without_trainer(self):
         user = User.objects.create_user(
             username='trainee',
