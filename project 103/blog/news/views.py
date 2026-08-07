@@ -2178,14 +2178,12 @@ def create_desk(request):
 
 def detail(request, name):
     member = get_object_or_404(names, name=name)
-    member_account = User.objects.filter(email__iexact=member.email).select_related('profile').first() if member.email else None
     member_is_trainer = (
         member.role == names.ROLE_TRAINER
-        or (
-            member_account
-            and hasattr(member_account, 'profile')
-            and member_account.profile.role == UserProfile.ROLE_TRAINER
-        )
+        or UserProfile.objects.filter(
+            user__email__iexact=member.email,
+            role=UserProfile.ROLE_TRAINER,
+        ).exists()
     )
     if request.user.is_authenticated:
         user_profile = UserProfile.objects.filter(user=request.user).first()
