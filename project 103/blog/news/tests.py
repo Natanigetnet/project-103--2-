@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 
 from .forms import TraineeAccountForm, UserRegisterForm
-from .models import names, TrainingSession
+from .models import names, TrainingSession, UserProfile
 
 
 class UserRegistrationValidationTests(TestCase):
@@ -86,3 +86,24 @@ class TrainingSessionApprovalTests(TestCase):
 
         self.assertFalse(form.is_valid())
         self.assertIn('email', form.errors)
+
+
+class TrainingPlanErrorTests(TestCase):
+    def test_trainee_without_trainer_receives_no_trainer_500_page(self):
+        user = User.objects.create_user(
+            username='trainee',
+            email='trainee@example.com',
+            password='password',
+        )
+        UserProfile.objects.create(user=user, role=UserProfile.ROLE_TRAINEE)
+        trainee = names.objects.create(
+            name='Trainee',
+            email=user.email,
+            role=names.ROLE_TRAINEE,
+        )
+        self.client.force_login(user)
+
+        response = self.client.get(f'/training-plan/{trainee.id}/')
+
+        self.assertEqual(response.status_code, 500)
+        self.assertContains(response, 'No trainer', status_code=500)

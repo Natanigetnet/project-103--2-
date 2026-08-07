@@ -4029,6 +4029,9 @@ def training_plan_view(request, trainee_id):
         messages.error(request, 'You do not have access to this training plan.')
         return redirect('home_url')
 
+    if is_trainee_owner and trainee.trainer is None:
+        return render(request, 'no_trainer.html', status=500)
+
     trainer_names = None
     if is_assigned_trainer:
         trainer_names = names.objects.filter(email=request.user.email, role=names.ROLE_TRAINER).first()
